@@ -11,7 +11,7 @@ Contact: contact@hencework.com
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Classic | Jampack - Admin CRM Dashboard Template</title>
+    <title>Login Den Logistik</title>
     <meta name="description"
         content="A modern CRM Dashboard Template with reusable and flexible components for your SaaS web applications by hencework. Based on Bootstrap." />
 
@@ -41,7 +41,7 @@ Contact: contact@hencework.com
                                             <div class="text-center mb-7">
                                                 <a class="navbar-brand me-0" href="index.html">
                                                     <img class="brand-img d-inline-block"
-                                                        src="{{ asset('backend/dist/img/logo-light.png') }}"
+                                                        src="{{ asset('backend/denlogistik/den-logistik-profile (1) (2).svg') }}"
                                                         alt="brand">
                                                 </a>
                                             </div>

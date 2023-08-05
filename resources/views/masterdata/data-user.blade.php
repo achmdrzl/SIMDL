@@ -9,8 +9,8 @@
                 <div class="d-flex">
                     <div class="d-flex flex-wrap justify-content-between flex-1">
                         <div class="mb-lg-0 mb-2 me-8">
-                            <h1 class="pg-title">Data Order</h1>
-                            <p>Management Pengelolaan Data Order CV. Den Logistik</p>
+                            <h1 class="pg-title">Data User</h1>
+                            <p>Management Pengelolaan Data User CV. Den Logistik</p>
                         </div>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                             <div class="col-md-12 mb-md-4 mb-3">
                                 <div class="card card-border mb-0 h-100">
                                     <div class="card-header card-header-action">
-                                        <h6>List Data Order
+                                        <h6>List Data User
                                             <span class="badge badge-sm badge-light ms-1">{{ count($users) }}</span>
                                         </h6>
                                         <div class="card-action-wrap">

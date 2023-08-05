@@ -94,7 +94,7 @@ Contact: contact@hencework.com
                                             <div class="text-center mb-7">
                                                 <a class="navbar-brand me-0" href="index.html">
                                                     <img class="brand-img d-inline-block"
-                                                        src="{{ asset('backend/dist/img/logo-light.png') }}"
+                                                        src="{{ asset('backend/denlogistik/den-logistik-profile (1) (2).svg') }}"
                                                         alt="brand">
                                                 </a>
                                             </div>
@@ -170,19 +170,7 @@ Contact: contact@hencework.com
             <!-- /Page Body -->
 
             <!-- Page Footer -->
-            <div class="hk-footer border-0">
-                <footer class="container-xxl footer">
-                    <div class="row">
-                        <div class="col-xl-8 text-center">
-                            <p class="footer-text pb-0"><span class="copy-text">Jampack © 2022 All rights
-                                    reserved.</span> <a href="#" class="" target="_blank">Privacy
-                                    Policy</a><span class="footer-link-sep">|</span><a href="#" class=""
-                                    target="_blank">T&C</a><span class="footer-link-sep">|</span><a href="#"
-                                    class="" target="_blank">System Status</a></p>
-                        </div>
-                    </div>
-                </footer>
-            </div>
+                @include('layouts.footer')
             <!-- / Page Footer -->
 
         </div>

@@ -11,7 +11,7 @@ Contact: contact@hencework.com
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jampack - Admin CRM Dashboard Template</title>
+    <title>Den Logistik - Admin</title>
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta name="description"
         content="A modern CRM Dashboard Template with reusable and flexible components for your SaaS web applications by hencework. Based on Bootstrap." />
@@ -56,9 +56,9 @@ Contact: contact@hencework.com
                 <div class="nav-start-wrap flex-fill">
                     <!-- Brand -->
                     <a class="navbar-brand d-xl-flex d-none flex-shrink-0" href="{{ route('dashboard.index') }}">
-                        <img class="brand-img img-fluid" src="{{ asset('backend/dist/img/brand-sm.svg') }}"
-                            alt="brand" />
-                        <img class="brand-img img-fluid" src="{{ asset('backend/dist/img/Jampack.svg') }}"
+                        {{-- <img class="brand-img img-fluid" src="{{ asset('backend/dist/img/brand-sm.svg') }}"
+                            alt="brand" /> --}}
+                        <img class="brand-img img-fluid" src="{{ asset('backend/denlogistik/den-logistik-profile (1) (3).svg') }}"
                             alt="brand" />
                     </a>
                     <!-- /Brand -->
@@ -73,9 +73,9 @@ Contact: contact@hencework.com
                         <div class="menu-header d-xl-none">
                             <span>
                                 <a class="navbar-brand" href="{{ route('dashboard.index') }}">
-                                    <img class="brand-img img-fluid" src="{{ asset('backend/dist/img/brand-sm.svg') }}"
-                                        alt="brand" />
-                                    <img class="brand-img img-fluid" src="{{ asset('backend/dist/img/Jampack.svg') }}"
+                                    {{-- <img class="brand-img img-fluid" src="{{ asset('backend/dist/img/brand-sm.svg') }}"
+                                        alt="brand" /> --}}
+                                    <img class="brand-img img-fluid" src="{{ asset('backend/denlogistik/den-logistik-profile (1) (3).svg') }}"
                                         alt="brand" />
                                 </a>
                                 <button class="btn btn-icon btn-rounded btn-flush-dark flush-soft-hover navbar-toggle">
@@ -154,7 +154,7 @@ Contact: contact@hencework.com
                                 </div>
                             </div>
                             <!--/ Mobile Search -->
-                            <div data-simplebar class="dropdown-body p-2">
+                            {{-- <div data-simplebar class="dropdown-body p-2">
                                 <h6 class="dropdown-header">Recent Search
                                 </h6>
                                 <div class="dropdown-item bg-transparent">
@@ -254,7 +254,7 @@ Contact: contact@hencework.com
                                         </div>
                                     </div>
                                 </a>
-                            </div>
+                            </div> --}}
                             <div class="dropdown-footer d-xl-flex d-none"><a href="#"><u>Search all</u></a>
                             </div>
                         </div>
@@ -262,7 +262,7 @@ Contact: contact@hencework.com
                     <!-- /Search -->
 
                     <ul class="navbar-nav flex-row">
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <div class="dropdown dropdown-notifications">
                                 <a href="#"
                                     class="btn btn-icon btn-rounded btn-flush-dark flush-soft-hover dropdown-toggle no-caret"
@@ -409,7 +409,7 @@ Contact: contact@hencework.com
                                     </div>
                                 </div>
                             </div>
-                        </li>
+                        </li> --}}
                         <li class="nav-item">
                             <div class="dropdown ps-2">
                                 <a class=" dropdown-toggle no-caret" href="#" role="button"

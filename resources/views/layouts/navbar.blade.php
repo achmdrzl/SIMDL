@@ -8,11 +8,6 @@
                             <span class="nav-link-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-item {{ request()->segment(1) == 'order' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('order.index') }}">
-                            <span class="nav-link-text">Data Order</span>
-                        </a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse"
                             data-bs-target="#masterdata">
@@ -32,6 +27,35 @@
                                 </ul>
                             </li>
                         </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0);" data-bs-toggle="collapse"
+                            data-bs-target="#transaksidata">
+                            <span class="nav-link-text">Transaksi</span>
+                        </a>
+                        <ul id="transaksidata" class="nav flex-column collapse nav-children">
+                            <li class="nav-item">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item {{ request()->segment(1) == 'order' ? 'active' : '' }}">
+                                        <a class="nav-link" href="{{ route('order.index') }}"><span
+                                                class="nav-link-text">Order</span></a>
+                                    </li>
+                                    <li class="nav-item {{ request()->segment(1) == 'manifest' ? 'active' : '' }}">
+                                        <a class="nav-link" href="{{ route('manifest.index') }}"><span
+                                                class="nav-link-text">Manifest Order</span></a>
+                                    </li>
+                                    {{-- <li class="nav-item {{ request()->segment(1) == 'pengeluaran' ? 'active' : '' }}">
+                                        <a class="nav-link" href="{{ route('pengeluaran.index') }}"><span
+                                                class="nav-link-text">Pengeluaran</span></a>
+                                    </li> --}}
+                                </ul>
+                            </li>
+                        </ul>
+                        <li class="nav-item {{ request()->segment(1) == 'laporan' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('laporan.index') }}">
+                            <span class="nav-link-text">Laporan</span>
+                        </a>
+                    </li>
                     </li>
                 </ul>
             </div>

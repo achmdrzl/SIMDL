@@ -7,7 +7,9 @@ use App\Models\Barang;
 use App\Models\Kadar;
 use App\Models\Merk;
 use App\Models\ModelBarang;
+use App\Models\Order;
 use App\Models\Pabrik;
+use App\Models\Pengeluaran;
 use App\Models\Supplier;
 use App\Models\TransaksiHutang;
 use App\Models\TransaksiInOut;
@@ -30,7 +32,26 @@ class MasterDataController extends Controller
     // INDEX DASHBOARD
     public function index()
     {
-        return view('dashboard');
+        $sumOfPendingOrders = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'pending');
+        })->sum('order_total');
+
+        $sumOfSettleOrders  = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'settlement');
+        })->sum('order_total');
+
+        $pengeluaran        = Pengeluaran::sum('pengeluaran_total');
+
+        $sumOfTotalOrder    = Order::sum('order_total');
+
+        $data[] = [
+            'pendingOrder'  => $sumOfPendingOrders,
+            'settleOrder'   => $sumOfSettleOrders,
+            'pengeluaran'   => $pengeluaran,
+            'totalOrder'    => $sumOfTotalOrder,
+        ];
+        
+        return view('dashboard', compact('data'));
     }
 
     // INDEX USER
