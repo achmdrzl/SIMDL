@@ -1,6 +1,6 @@
 # Sistem Manajemen Logistik
 
-![Project Logo](logo.png)
+![Project Logo](public/backend/denlogistik/den-logistik-profile.jpg)
 
 ## Overview
 
