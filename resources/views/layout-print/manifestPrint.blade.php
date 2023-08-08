@@ -99,8 +99,8 @@
                         <td>{{ $item->order->order_berat }}</td>
                         <td>{{ $item->order->order_volume }}</td>
                         <td>{{ $item->order->order_isi }}</td>
-                        <td>{{ $item->order->payment->payment_method }}</td>
-                        <td>{{ $item->order->payment->payment_keterangan == null ? '-' : $item->order->payment->payment_keterangan }}</td>
+                        <td>{{ ucfirst($item->order->payment->payment_method) }}</td>
+                        <td>{{ $item->order->payment->payment_keterangan == null ? '-' : ucfirst($item->order->payment->payment_keterangan) }}</td>
                     </tr>
                 @endforeach
             </tbody>

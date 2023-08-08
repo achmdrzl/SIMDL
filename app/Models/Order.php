@@ -17,6 +17,7 @@ class Order extends Model
         'order_pengirim',
         'order_penerima',
         'order_alamat_penerima',
+        'order_nohp_penerima',
         'order_koli',
         'order_kemasan',
         'order_rincian',
@@ -29,7 +30,9 @@ class Order extends Model
         'order_keterangan',
         'order_status',
         'order_created',
+        'order_received_validation',
         'order_received',
+        'order_edit_request',
     ];
 
     public function payment()
@@ -44,7 +47,7 @@ class Order extends Model
 
     public function userReceive()
     {
-        return $this->belongsTo(User::class, 'order_received');
+        return $this->belongsTo(User::class, 'order_received_validation');
     }
 
     public function manifestdetail()

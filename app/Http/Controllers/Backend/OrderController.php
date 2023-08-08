@@ -42,6 +42,9 @@ class OrderController extends Controller
                 ->addColumn('order_berat', function ($item) {
                     return $item->order_berat . 'Kg';
                 })
+                ->addColumn('order_volume', function ($item) {
+                    return $item->order_volume;
+                })
                 ->addColumn('order_tarif', function ($item) {
                     return 'Rp.' . number_format($item->order_tarif);
                 })
@@ -72,7 +75,7 @@ class OrderController extends Controller
                 ->addColumn('order_create', function ($item) {
                     return $item->userCreate->name == null ? '-' : ucfirst($item->userCreate->name);
                 })
-                ->addColumn('order_receive', function ($item) {
+                ->addColumn('order_received_validation', function ($item) {
                     $userReceived = optional($item->userReceive);
 
                     // Check if the 'userReceived' relationship exists and if it has the 'name' property
@@ -81,6 +84,11 @@ class OrderController extends Controller
                     // Use a default value ('-') if the 'name' is null
                     $data[] = $name === null ? '-' : ucfirst($name);
                     return $data;
+                })
+                ->addColumn('order_received', function ($item) {
+                    $order_received     = $item->order_received == null ? '-' : ucfirst($item->order_received);
+
+                    return $order_received;
                 })
                 ->addColumn('payment_acc', function ($item) {
                     $userAcc = optional($item->payment)->userAcc;
@@ -118,6 +126,7 @@ class OrderController extends Controller
             'order_pengirim'        => 'required',
             'order_penerima'        => 'required',
             'order_alamat_penerima' => 'required',
+            'order_nohp_penerima'   => 'required',
             'order_koli'            => 'required',
             'order_kemasan'         => 'required',
             'order_rincian'         => 'required',
@@ -132,6 +141,7 @@ class OrderController extends Controller
             'order_pengirim.required'        => 'Pengirim Harus di Isi!',
             'order_penerima.required'        => 'Penerima Harus di Isi!',
             'order_alamat_penerima.required' => 'Alamat Penerima Harus di Isi!',
+            'order_nohp_penerima.required'   => 'No Hp Penerima Harus di Isi!',
             'order_koli.required'            => 'Koli Harus di Isi!',
             'order_rincian.required'         => 'Rincian Harus di Isi!',
             'order_berat.required'           => 'Berat Harus di Isi!',
@@ -162,29 +172,29 @@ class OrderController extends Controller
         // Get the last date stored in the cache for the specific model
         $lastDate = Cache::get($modelName . '_counter_date');
 
+        // Get the current year
+        $currentYear = $currentTime->format('Y');
+
         // Check if the counter needs to be reset
         if ($lastDate !== $datePart) {
             // Reset the counter
             $counter = 1;
-            Cache::put(
-                $modelName . '_counter',
-                $counter
-            );
-            Cache::put(
-                $modelName . '_counter_date',
-                $datePart
-            );
         } else {
             // Increment the counter
             $counter++;
-            Cache::put(
-                $modelName . '_counter',
-                $counter
-            );
+
+            // Check if the counter reaches 9999 and the year is not a new year, then add one more digit to the counter
+            if ($counter > 9999 && $lastDate === $currentYear) {
+                $counter = 10001;
+            }
         }
 
+        // Store the updated counter and date in the cache
+        Cache::put($modelName . '_counter', $counter);
+        Cache::put($modelName . '_counter_date', $datePart);
+
         // Generate the new ID
-        $newId  = $datePart . sprintf("%03d", $counter);
+        $newId = $datePart . sprintf("%04d", $counter);
 
         // Stored new Data Order
         $order  = Order::updateOrCreate([
@@ -195,6 +205,7 @@ class OrderController extends Controller
             'order_pengirim'        => $request->order_pengirim,
             'order_penerima'        => $request->order_penerima,
             'order_alamat_penerima' => $request->order_alamat_penerima,
+            'order_nohp_penerima'   => $request->order_nohp_penerima,
             'order_koli'            => $request->order_koli,
             'order_kemasan'         => $request->order_kemasan,
             'order_rincian'         => $request->order_rincian,
@@ -211,24 +222,42 @@ class OrderController extends Controller
         // If payment keterangan has COD
         if ($request->has('lunas')) {
 
-            $bukti = $request->file('payment_bukti');
-            $bukti_bayar = 'bukti_bayar-' . rand(1, 100000) . '.' . $bukti->getClientOriginalExtension();
+            $payment_bukti = $request->file('payment_bukti') ?? null;
 
-            // Store the original image
-            $path = Storage::putFileAs('public/bukti_bayar', $bukti, $bukti_bayar);
+            if ($payment_bukti && $payment_bukti->isValid()) {
 
-            // Insert Into Order Payment
-            $payment = OrderPayment::updateOrCreate([
-                'payment_id'            => $request->payment_id,
-            ], [
-                'order_id'              => $order->order_id,
-                'payment_keterangan'    => $request->payment_keterangan,
-                'payment_status'        => $request->payment_status,
-                'payment_tanggal'       => $request->payment_tanggal,
-                'payment_method'        => 'lunas',
-                'payment_bukti'         => $bukti_bayar,
-                'user_id'               => Auth::user()->user_id,
-            ]);
+                $bukti = $request->file('payment_bukti');
+                $bukti_bayar = 'bukti_bayar-' . rand(1, 100000) . '.' . $bukti->getClientOriginalExtension();
+
+                // Store the original image
+                $path = Storage::putFileAs('public/bukti_bayar', $bukti, $bukti_bayar);
+
+                // Insert Into Order Payment
+                $payment = OrderPayment::updateOrCreate([
+                    'payment_id'            => $request->payment_id,
+                ], [
+                    'order_id'              => $order->order_id,
+                    'payment_keterangan'    => $request->payment_keterangan,
+                    'payment_status'        => $request->payment_status,
+                    'payment_tanggal'       => $request->payment_tanggal,
+                    'payment_method'        => 'bayar-langsung',
+                    'payment_bukti'         => $bukti_bayar,
+                    'user_id'               => Auth::user()->user_id,
+                ]);
+            }else{
+                // Insert Into Order Payment
+                $payment = OrderPayment::updateOrCreate([
+                    'payment_id'            => $request->payment_id,
+                ], [
+                    'order_id'              => $order->order_id,
+                    'payment_keterangan'    => $request->payment_keterangan,
+                    'payment_status'        => $request->payment_status,
+                    'payment_tanggal'       => $request->payment_tanggal,
+                    'payment_method'        => 'bayar-langsung',
+                    'payment_bukti'         => '-',
+                    'user_id'               => Auth::user()->user_id,
+                ]);
+            }
 
             // If payment keterangan has CAD
         } else if ($request->has('bayar-makassar')) {
@@ -294,6 +323,7 @@ class OrderController extends Controller
             }
 
             $payment_status = '<div class="badge bg-danger">' . strtoupper($item->payment_status) . '</div>';
+            $payment_method = ucfirst($item->payment_method);
 
             $order[] = [
                 'index'          => $no++,
@@ -306,6 +336,7 @@ class OrderController extends Controller
                 'order_total'    => $order_total,
                 'order_status'   => $order_status,
                 'payment_status' => $payment_status,
+                'payment_method' => $payment_method,
             ];
         }
 
@@ -357,11 +388,11 @@ class OrderController extends Controller
         //define validation rules
         $validator = Validator::make($request->all(), [
             'payment_tanggal'           => 'required',
-            'payment_method'            => 'required',
+            // 'payment_method'            => 'required',
             'payment_bukti'             => 'required|mimes:jpeg,jpg,png|max:2048',
         ], [
             'payment_tanggal.required'  => 'Tanggal Pembayaran Harus di Isi!',
-            'payment_method.required'   => 'Metode Pembayaran Harus di Isi!',
+            // 'payment_method.required'   => 'Metode Pembayaran Harus di Isi!',
             'payment_bukti.required'    => 'Bukti Pembayaran Harus di Isi!',
             'payment_bukti.max'         => 'Bukti Pembayaran Tidak boleh lebih besar dari 2048 kilobyte!',
             'payment_bukti.mimes'       => 'Bukti Pembayaran Harus berupa file dengan tipe: jpeg, jpg, png!',
@@ -383,10 +414,10 @@ class OrderController extends Controller
 
             $order  = OrderPayment::where('order_id', $request->order_id[$x]);
             $order->update([
-                'payment_status'    => 'settlement',
+                'payment_status'    => 'lunas',
                 'payment_bukti'     => $bukti_bayar,
                 'payment_tanggal'   => $request->payment_tanggal,
-                'payment_method'    => $request->payment_method,
+                // 'payment_method'    => $request->payment_method,
                 'user_id'           => Auth::user()->user_id,
             ]);
         }
@@ -403,9 +434,11 @@ class OrderController extends Controller
     {
         $total = Order::sum('order_total');
         $berat = Order::sum('order_berat');
+        $volume = Order::sum('order_volume');
         return response()->json([
-            'total' => $total,
-            'berat' => $berat,
+            'total'  => $total,
+            'berat'  => $berat,
+            'volume' => $volume,
         ]);
     }
 
@@ -441,8 +474,9 @@ class OrderController extends Controller
     {
         $order  = Order::find($request->order_id);
         $order->update([
-            'order_status' => 'telah-sampai',
-            'order_received' => Auth::user()->user_id
+            'order_status'              => 'telah-sampai',
+            'order_received_validation' => Auth::user()->user_id,
+            'order_received'            => $request->order_received,
         ]);
 
         return response()->json(['status' => 'Orders status updated to delivered successfully']);
@@ -451,11 +485,34 @@ class OrderController extends Controller
     // AUTOFILL PENERIMA & PENGIRIM
     public function getInput(Request $request)
     {
-        $query = $request->input('query');
+        // Determine the column to pluck based on the request
+        $pluckColumn = $request->has('query')
+        ? 'query'
+        : ($request->has('nohp')
+        ? 'nohp'
+        : ($request->has('address')
+        ? 'address'
+        : 'query')); // Default to 'query' if no specific condition is met
 
         // Fetch historical search data from the database for the authenticated user
-        $history = InputHistory::where('query', 'like', '%' . $query . '%')
-            ->pluck('query');
+        $query = InputHistory::query(); // Get the base query
+
+        if ($request->has('query')) {
+            $query->where('query', 'like', '%' . $request->input('query') . '%');
+        }
+
+        if ($request->has('nohp')) {
+            $query->where('nohp', 'like', '%' . $request->input('nohp') . '%');
+        }
+
+        if ($request->has('address')) {
+            $query->where('address', 'like', '%' . $request->input('address') . '%');
+        }
+
+        // Pluck the column based on the determined $pluckColumn value
+        $history = $query->pluck($pluckColumn);
+
+
 
         if ($history->isEmpty()) {
             // If historical search data not found, return an empty response
@@ -469,15 +526,33 @@ class OrderController extends Controller
     // AUTOFILL PENERIMA & PENGIRIM
     public function storeInput(Request $request)
     {
-        $query = $request->input('query');
+        if ($request->has('query')) {
+            // Save the search query to the InputHistory table if it doesn't exist
+            $existingHistory = InputHistory::where('query', $request->input('query'))->exists();
 
-        // Save the search query to the InputHistory table if it doesn't exist
-        $existingHistory = InputHistory::where('query', $query)->exists();
+            if (!$existingHistory) {
+                InputHistory::create([
+                    'query' => $request->input('query'),
+                ]); 
+            }
+        } else if ($request->has('nohp')) {
+            // Save the search query to the InputHistory table if it doesn't exist
+            $existingHistory = InputHistory::where('nohp', $request->input('nohp'))->exists();
 
-        if (!$existingHistory) {
-            InputHistory::create([
-                'query' => $query,
-            ]);
+            if (!$existingHistory) {
+                InputHistory::create([
+                    'nohp' => $request->input('nohp'),
+                ]);
+            }
+        } else if ($request->has('address')) {
+            // Save the search query to the InputHistory table if it doesn't exist
+            $existingHistory = InputHistory::where('address', $request->input('address'))->exists();
+
+            if (!$existingHistory) {
+                InputHistory::create([
+                    'address' => $request->input('address'),
+                ]);
+            }
         }
 
         // Return an empty response, as we don't need to return data to the input field

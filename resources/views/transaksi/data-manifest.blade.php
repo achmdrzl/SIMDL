@@ -220,6 +220,17 @@
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3"
+                                                            class="rounded-top-start border-end-0 border-bottom-0">Total
+                                                            Volume
+                                                        </td>
+                                                        <td
+                                                            class="rounded-top-end border-bottom-0 w-30 bg-primary-light-5">
+                                                            <div class="form-control bg-transparent border-0 p-0 gross-total"
+                                                                id="detail_manifest_total_volume"></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3"
                                                             class="rounded-bottom-start border-end-0 bg-primary-light-5">
                                                             <span class="text-dark">Total Harga</span></td>
                                                         <td class="rounded-bottom-end  bg-primary-light-5">
@@ -516,19 +527,21 @@
                     dataType: "JSON",
                     success: function(response) {
                         console.log(response)
-                        var manifest_no          = response.manifest.manifest_no
-                        var manifest_tanggal     = response.manifest.manifest_tanggal
-                        var manifest_plat_mobil  = response.manifest.manifest_plat_mobil
-                        var manifest_total_koli  = response.manifest.manifest_total_koli
-                        var manifest_total_berat = response.manifest.manifest_total_berat
-                        var manifest_total_harga = response.manifest.manifest_total_harga
-                        var total_harus_dibayar  = response.sumOrderTotal
+                        var manifest_no           = response.manifest.manifest_no
+                        var manifest_tanggal      = response.manifest.manifest_tanggal
+                        var manifest_plat_mobil   = response.manifest.manifest_plat_mobil
+                        var manifest_total_koli   = response.manifest.manifest_total_koli
+                        var manifest_total_berat  = response.manifest.manifest_total_berat
+                        var manifest_total_volume = response.manifest.manifest_total_volume
+                        var manifest_total_harga  = response.manifest.manifest_total_harga
+                        var total_harus_dibayar   = response.sumOrderTotal
 
                         $("#detail_manifest_tanggal").val(manifest_tanggal).prop('readonly',true)
                         $("#detail_manifest_no").val(manifest_no).prop('readonly', true)
                         $("#detail_manifest_plat_mobil").val(manifest_plat_mobil).prop('readonly', true)
                         $("#detail_manifest_total_koli").html(manifest_total_koli)
                         $("#detail_manifest_total_berat").html(manifest_total_berat+'Kg')
+                        $("#detail_manifest_total_volume").html(manifest_total_volume)
                         $("#detail_manifest_total_harga").html(rupiah(manifest_total_harga))
                         $("#total_harus_dibayar").html(rupiah(total_harus_dibayar))
 
@@ -555,15 +568,15 @@
                             }else{
                                 var status = '<div class="badge bg-danger">' + payment_status.toUpperCase() + '</div>'
                             }
-
+                            
                             listmanifest += `<tr>
                                                 <td>` + no++ + `</td>
                                                 <td>` + order_noresi + `</td>
                                                 <td>` + order_tanggal + `</td>
                                                 <td>` + order_pengirim + `</td>
                                                 <td>` + order_penerima + `</td>
-                                                <td>` + order_koli + `</td>
                                                 <td>` + order_berat + `</td>
+                                                <td>` + order_volume + `</td>
                                                 <td>` + order_isi + `</td>
                                                 <td>` + rupiah(order_tarif) + `</td>
                                                 <td>` + rupiah(order_total) + `</td>

@@ -20,10 +20,6 @@
                                         <a class="nav-link" href="{{ route('user.index') }}"><span
                                                 class="nav-link-text">User</span></a>
                                     </li>
-                                    <li class="nav-item {{ request()->segment(1) == 'customer' ? 'active' : '' }}">
-                                        <a class="nav-link" href="{{ route('customer.index') }}"><span
-                                                class="nav-link-text">Pelanggan</span></a>
-                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -44,10 +40,6 @@
                                         <a class="nav-link" href="{{ route('manifest.index') }}"><span
                                                 class="nav-link-text">Manifest Order</span></a>
                                     </li>
-                                    {{-- <li class="nav-item {{ request()->segment(1) == 'pengeluaran' ? 'active' : '' }}">
-                                        <a class="nav-link" href="{{ route('pengeluaran.index') }}"><span
-                                                class="nav-link-text">Pengeluaran</span></a>
-                                    </li> --}}
                                 </ul>
                             </li>
                         </ul>

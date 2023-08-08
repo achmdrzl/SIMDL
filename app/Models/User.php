@@ -56,7 +56,7 @@ class User extends Authenticatable
 
     public function orderReceive()
     {
-        return $this->hasOne(Order::class, 'order_received');
+        return $this->hasOne(Order::class, 'order_received_validation');
     }
 
     public function payment()

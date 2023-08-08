@@ -31,15 +31,11 @@ Route::group(['middleware' => ['role:superadmin|admin', 'auth']], function () {
 
     // DASHBOARD USER
     Route::get('/dashboard', MasterDataController::class . '@index')->name('dashboard.index');
+    Route::get('/dashboardFilter', MasterDataController::class . '@filter')->name('dashboard.filter');
+    Route::get('/dashboardResetFilter', MasterDataController::class. '@resetFilter')->name('dashboard.reset.filter');
 
     // MASTER USER
     Route::get('/user', MasterDataController::class . '@userIndex')->name('user.index');
-    Route::post('/userStore', MasterDataController::class . '@userStore')->name('user.store');
-    Route::post('/userEdit', MasterDataController::class . '@userEdit')->name('user.edit');
-    Route::post('/userDestroy', MasterDataController::class . '@userDestroy')->name('user.destroy');
-
-    // MASTER CUSTOMER
-    Route::get('/customer', MasterDataController::class . '@customerIndex')->name('customer.index');
     Route::post('/userStore', MasterDataController::class . '@userStore')->name('user.store');
     Route::post('/userEdit', MasterDataController::class . '@userEdit')->name('user.edit');
     Route::post('/userDestroy', MasterDataController::class . '@userDestroy')->name('user.destroy');
@@ -53,32 +49,28 @@ Route::group(['middleware' => ['role:superadmin|admin', 'auth']], function () {
     Route::post('/loadOrderSelected', OrderController::class . '@loadOrderSelected')->name('load.orderSelected');
     Route::post('/orderValidateStore', OrderController::class . '@orderValidateStore')->name('order.validate.store');
     Route::get('/orderTotal', OrderController::class . '@orderTotal')->name('order.total');
-    Route::get('/orderPrint', OrderController::class. '@orderPrint')->name('order.print');
-    Route::post('/orderReceive', OrderController::class. '@orderReceive')->name('order.receive');
+    Route::get('/orderPrint', OrderController::class . '@orderPrint')->name('order.print');
+    Route::post('/orderReceive', OrderController::class . '@orderReceive')->name('order.receive');
 
     // INPUT HISTORY
-    Route::get('/inputHistory', OrderController::class. '@getInput')->name('get.input');
-    Route::post('/inputStore', OrderController::class. '@storeInput')->name('store.input');
+    Route::get('/inputHistory', OrderController::class . '@getInput')->name('get.input');
+    Route::post('/inputStore', OrderController::class . '@storeInput')->name('store.input');
 
     // TRANSAKSI MANIFEST
     Route::get('/manifest', ManifestController::class . '@manifestIndex')->name('manifest.index');
     Route::post('/getoderdata', ManifestController::class . '@getorderdata')->name('get.order.data');
     Route::post('/manifestStore', ManifestController::class . '@manifestStore')->name('manifest.store');
     Route::post('/manifestDetail', ManifestController::class . '@manifestDetail')->name('manifest.detail');
-    Route::post('/manifestUpdateStatus', ManifestController::class. '@manifestUpdateStatus')->name('manifest.update.status');
-    Route::get('/manifestPrint', ManifestController::class. '@manifestPrint')->name('manifest.print');
-
-    // TRANSAKSI PENGELUARAN
-    Route::get('/pengeluaran', PengeluaranController::class . '@pengeluaranIndex')->name('pengeluaran.index');
-    Route::get('/pengeluaranDay', PengeluaranController::class . '@pengeluaranDay')->name('pengeluaran.day');
-    Route::post('/pengeluaranStore', PengeluaranController::class . '@pengeluaranStore')->name('pengeluaran.store');
-    Route::post('/pengeluaranEdit', PengeluaranController::class . '@pengeluaranEdit')->name('pengeluaran.edit');
-    Route::post('/pengeluaranDestroy', PengeluaranController::class . '@pengeluaranDestroy')->name('pengeluaran.destroy');
-    Route::post('/pengeluaranDetail', PengeluaranController::class . '@pengeluaranDetail')->name('pengeluaran.detail');
-    Route::get('/pengeluaranPrint', PengeluaranController::class. '@pengeluaranPrint')->name('pengeluaran.print');
+    Route::post('/manifestUpdateStatus', ManifestController::class . '@manifestUpdateStatus')->name('manifest.update.status');
+    Route::get('/manifestPrint', ManifestController::class . '@manifestPrint')->name('manifest.print');
 
     // LAPORAN
     Route::get('/laporan', LaporanController::class . '@laporanIndex')->name('laporan.index');
+    Route::post('/laporanStore', LaporanController::class . '@laporanStore')->name('laporan.store');
+    Route::post('/laporanoderdata', LaporanController::class . '@laporanorderdata')->name('laporan.order.data');
+    Route::post('/laporanDetail', LaporanController::class . '@laporanDetail')->name('laporan.detail');
+    Route::get('/downloadBuktiPengeluaran/{objek_id}', LaporanController::class . '@downloadBuktiPengeluaran')->name('download.bukti.pengeluaran');
+    Route::get('/laporanPrint', LaporanController::class . '@laporanPrint')->name('laporan.print');
 });
 
 Route::get('/cekRelasi', function () {

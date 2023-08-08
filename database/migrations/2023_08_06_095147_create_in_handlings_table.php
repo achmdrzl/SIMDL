@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('input_histories', function (Blueprint $table) {
-            $table->id('histoy_id');
-            $table->string('query')->nullable();
-            $table->string('address')->nullable();
-            $table->string('nohp')->nullable();
+        Schema::create('in_handlings', function (Blueprint $table) {
+            $table->id('handling_id');
+            $table->integer('laporan_id');
+            $table->string('handling_kota');
+            $table->integer('handling_tarif');
+            $table->integer('handling_berat');
+            $table->integer('handling_total');
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('input_histories');
+        Schema::dropIfExists('in_handlings');
     }
 };

@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Validation\Rules;
@@ -30,29 +31,97 @@ use Termwind\Components\Dd;
 class MasterDataController extends Controller
 {
     // INDEX DASHBOARD
-    public function index()
+    public function index(Request $request)
+    {
+        $filterMonth = $request->input('month');
+        $filterYear = $request->input('year');
+
+        $sumOfPendingOrders = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'blm-lunas');
+        })->sum('order_total');
+
+        $sumOfPiutangSurabaya = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'blm-lunas')->where('payment_method', 'bayar-surabaya');
+        })->sum('order_total');
+
+        $sumOfPiutangMakassar = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'blm-lunas')->where('payment_method', 'bayar-makassar');
+        })->sum('order_total');
+
+        $sumOfSettleOrders = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'lunas');
+        })->sum('order_total');
+
+        $sumOfTotalOrder = Order::sum('order_total');
+
+        $data = [
+            'pendingOrder'    => $sumOfPendingOrders,
+            'settleOrder'     => $sumOfSettleOrders,
+            'piutangSurabaya' => $sumOfPiutangSurabaya,
+            'piutangMakassar' => $sumOfPiutangMakassar,
+            'totalOrder'      => $sumOfTotalOrder,
+        ];
+
+        return view('dashboard', compact('data', 'filterMonth', 'filterYear'));
+    }
+
+    public function filter(Request $request)
+    {
+        $filterMonth = $request->input('month'); // Get the selected month from the request
+        $filterYear = $request->input('year');   // Get the selected year from the request
+
+        $orders = Order::with('payment')->whereYear('order_tanggal', $filterYear)->whereMonth('order_tanggal', $filterMonth)->get();
+
+        $sumOfPendingOrders   = $orders->where('payment.payment_status', 'blm-lunas')->sum('order_total');
+        $sumOfSettleOrders    = $orders->where('payment.payment_status', 'lunas')->sum('order_total');
+        $sumOfPiutangSurabaya = $orders->where('payment.payment_status', 'blm-lunas')->where('payment.payment_method', 'bayar-surabaya')->sum('order_total');
+        $sumOfPiutangMakassar = $orders->where('payment.payment_status', 'blm-lunas')->where('payment.payment_method', 'bayar-makassar')->sum('order_total');
+        $sumOfTotalOrder      = $orders->sum('order_total');
+
+        $data = [
+            'pendingOrder'    => $sumOfPendingOrders,
+            'settleOrder'     => $sumOfSettleOrders,
+            'piutangSurabaya' => $sumOfPiutangSurabaya,
+            'piutangMakassar' => $sumOfPiutangMakassar,
+            'totalOrder'      => $sumOfTotalOrder,
+        ];
+
+        return response()->json($data); // Return data directly without 'data' key
+    }
+
+
+
+    public function resetFilter()
     {
         $sumOfPendingOrders = Order::whereHas('payment', function ($query) {
-            $query->where('payment_status', 'pending');
+            $query->where('payment_status', 'blm-lunas');
         })->sum('order_total');
 
-        $sumOfSettleOrders  = Order::whereHas('payment', function ($query) {
-            $query->where('payment_status', 'settlement');
+        $sumOfPiutangSurabaya = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'blm-lunas')->where('payment_method', 'bayar-surabaya');
         })->sum('order_total');
 
-        $pengeluaran        = Pengeluaran::sum('pengeluaran_total');
+        $sumOfPiutangMakassar = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'blm-lunas')->where('payment_method', 'bayar-makassar');
+        })->sum('order_total');
 
-        $sumOfTotalOrder    = Order::sum('order_total');
+        $sumOfSettleOrders = Order::whereHas('payment', function ($query) {
+            $query->where('payment_status', 'lunas');
+        })->sum('order_total');
 
-        $data[] = [
-            'pendingOrder'  => $sumOfPendingOrders,
-            'settleOrder'   => $sumOfSettleOrders,
-            'pengeluaran'   => $pengeluaran,
-            'totalOrder'    => $sumOfTotalOrder,
+        $sumOfTotalOrder = Order::sum('order_total');
+
+        $data = [
+            'pendingOrder'    => $sumOfPendingOrders,
+            'settleOrder'     => $sumOfSettleOrders,
+            'piutangSurabaya' => $sumOfPiutangSurabaya,
+            'piutangMakassar' => $sumOfPiutangMakassar,
+            'totalOrder'      => $sumOfTotalOrder,
         ];
-        
-        return view('dashboard', compact('data'));
+
+        return response()->json($data);
     }
+
 
     // INDEX USER
     public function userIndex(Request $request)

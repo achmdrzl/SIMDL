@@ -19,6 +19,7 @@ class Manifest extends Model
         'manifest_plat_mobil',
         'manifest_total_koli',
         'manifest_total_berat',
+        'manifest_total_volume',
         'manifest_total_harga',
         'manifest_status',
     ];

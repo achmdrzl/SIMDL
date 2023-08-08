@@ -12,6 +12,6 @@ class InputHistory extends Model
     protected $primaryKey = 'history_id';
 
     protected $fillable = [
-        'query'
+        'query', 'address', 'nohp'
     ];
 }

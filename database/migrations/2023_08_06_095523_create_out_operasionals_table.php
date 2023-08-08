@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('input_histories', function (Blueprint $table) {
-            $table->id('histoy_id');
-            $table->string('query')->nullable();
-            $table->string('address')->nullable();
-            $table->string('nohp')->nullable();
+        Schema::create('out_operasionals', function (Blueprint $table) {
+            $table->id('operasional_id');
+            $table->integer('laporan_id');
+            $table->string('operasional_keterangan');
+            $table->integer('operasional_total');
+            $table->string('operasional_bukti');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('input_histories');
+        Schema::dropIfExists('out_operasionals');
     }
 };

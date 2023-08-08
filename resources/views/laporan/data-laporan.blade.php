@@ -38,16 +38,17 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="contact-list-view">
-                                            <table id="manifest_data" class="table nowrap table-striped">
+                                            <table id="laporan_data" class="table nowrap table-striped">
                                                 <thead>
                                                     <tr>
                                                         <th>No</th>
-                                                        <th>No Manifest</th>
                                                         <th>Tanggal</th>
-                                                        <th>Plat Mobil</th>
-                                                        <th>Total Koli</th>
-                                                        <th>Total Berat</th>
-                                                        <th>Total Harga</th>
+                                                        <th>Total Omset</th>
+                                                        <th>Total Handling</th>
+                                                        <th>Total Operasional</th>
+                                                        <th>Total Transportasi</th>
+                                                        <th>Total Gaji</th>
+                                                        <th>Total Laba Bersih</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
@@ -62,13 +63,13 @@
             </div>
             <!-- /Page Body -->
 
-            {{-- Modal MANIFEST --}}
-            <div class="modal fade" id="manifestModal" tabindex="-1" role="dialog" aria-labelledby="modalSupplier"
+            {{-- Modal LAPORAN --}}
+            <div class="modal fade" id="laporanModal" tabindex="-1" role="dialog" aria-labelledby="modalSupplier"
                 aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h6 class="modal-title" id="manifestHeading"></h6>
+                            <h6 class="modal-title" id="laporanHeading"></h6>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">×</span>
                             </button>
@@ -77,60 +78,186 @@
                             <div class="alert alert-danger alert-dismissible fade show" role="alert"
                                 style="display: none;" style="color: red">
                             </div>
-                            <form id="manifestForm" enctype="multipart/form-data">
+                            <form id="laporanForm" enctype="multipart/form-data">
                                 <div class="row gx-3">
-                                    <input type="hidden" id="order_id" name="order_id">
-                                    <div class="col-sm-6">
-                                        <label class="form-label">Tanggal Manifest</label>
+                                    <input type="hidden" id="laporan_id" name="laporan_id">
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Tanggal Laporan</label>
                                         <div class="form-group">
-                                            <input class="form-control" type="date" name="manifest_tanggal"
-                                                value="{{ date('Y-m-d') }}" id="manifest_tanggal" />
+                                            <input class="form-control" type="date" name="laporan_tanggal"
+                                                value="{{ date('Y-m-d') }}" id="laporan_tanggal" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <label class="form-label">Plat Mobil</label>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Tanggal Awal</label>
                                         <div class="form-group">
-                                            <input class="form-control" type="text" placeholder="Masukkan Plat Mobil"
-                                                name="manifest_plat_mobil" id="manifest_plat_mobil" />
+                                            <input class="form-control" type="date" placeholder="Masukkan Tanggal Awal"
+                                                name="laporan_tanggal_awal" id="laporan_tanggal_awal" />
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row gx-3">
-                                    <div class="col-sm-6">
-                                        <label class="form-label">Tanggal Awal Manifest</label>
-                                        <div class="form-group">
-                                            <input class="form-control" type="date" name="manifest_tanggal_awal"
-                                                id="manifest_tanggal_awal" />
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label class="form-label">Tanggal Awal Manifest</label>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Tanggal Akhir</label>
                                         <div class="form-group">
                                             <input class="form-control" type="date" placeholder="Masukkan Tanggal Akhir"
-                                                name="manifest_tanggal_akhir" id="manifest_tanggal_akhir" />
+                                                name="laporan_tanggal_akhir" id="laporan_tanggal_akhir" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row gx-3 table-responsive" id="data-order">
                                     {{--  --}}
                                 </div>
+                                <div class="handling_wrapper">
+                                    <div class="row gx-3 table-responsive" id="data-handling">
+                                        <h6>Laporan Handling</h6>
+                                        <div class="col-sm-2">
+                                            <label class="form-label">Kota</label>
+                                            <div class="form-group">
+                                                <input class="form-control handling_kota" type="text"
+                                                    name="handling_kota[]" id="handling_kota" placeholder="Masukkan Kota" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <label class="form-label">Tarif</label>
+                                            <div class="form-group">
+                                                <input class="form-control handling_tarif" type="number"
+                                                    name="handling_tarif[]" id="handling_tarif"
+                                                    placeholder="Masukkan Tarif" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <label class="form-label">Berat</label>
+                                            <div class="form-group">
+                                                <input class="form-control handling_berat" type="number"
+                                                    name="handling_berat[]" id="handling_berat"
+                                                    placeholder="Masukkan Berat" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Total</label>
+                                            <div class="form-group">
+                                                <input class="form-control handling_total" type="number"
+                                                    name="handling_total[]" id="handling_total"
+                                                    placeholder="Masukkan Total" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 mt-5 mb-2">
+                                            <button type="button" id="addBtnHandling" class="btn btn-primary"><span
+                                                    class="material-icons btn-md">add_circle_outline</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="transportasi_wrapper">
+                                    <div class="row gx-3 table-responsive" id="data-transportasi">
+                                        <h6>Laporan Transportasi</h6>
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Keterangan</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="text"
+                                                    name="transportasi_keterangan[]" id="transportasi_keterangan"
+                                                    placeholder="Masukkan Keterangan" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label class="form-label">Total</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="number" name="transportasi_total[]"
+                                                    id="transportasi_total" placeholder="Masukkan Total" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label class="form-label">Bukti</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="file" name="transportasi_bukti[]"
+                                                    id="transportasi_bukti" placeholder="Masukkan Bukti" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 mt-5 mb-2">
+                                            <button type="button" id="addBtnTransportasi" class="btn btn-primary"><span
+                                                    class="material-icons btn-md">add_circle_outline</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="operasional_wrapper">
+                                    <div class="row gx-3 table-responsive" id="data-operasional">
+                                        <h6>Laporan Operasional</h6>
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Keterangan</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="text"
+                                                    name="operasional_keterangan[]" id="operasional_keterangan"
+                                                    placeholder="Masukkan Keterangan" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label class="form-label">Total</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="number" name="operasional_total[]"
+                                                    id="operasional_total" placeholder="Masukkan Total" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label class="form-label">Bukti</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="file" name="operasional_bukti[]"
+                                                    id="operasional_bukti" placeholder="Masukkan Bukti" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 mt-5 mb-2">
+                                            <button type="button" id="addBtnOperasional" class="btn btn-primary"><span
+                                                    class="material-icons btn-md">add_circle_outline</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="gaji_wrapper">
+                                    <div class="row gx-3 table-responsive" id="data-operasional">
+                                        <h6>Laporan Gaji</h6>
+                                        <div class="col-sm-4">
+                                            <label class="form-label">Keterangan</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="text" name="gaji_keterangan[]"
+                                                    id="gaji_keterangan" placeholder="Masukkan Keterangan" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label class="form-label">Total</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="number" name="gaji_total[]"
+                                                    id="gaji_total" placeholder="Masukkan Total" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label class="form-label">Bukti</label>
+                                            <div class="form-group">
+                                                <input class="form-control" type="file" name="gaji_bukti[]"
+                                                    id="gaji_bukti" placeholder="Masukkan Bukti" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 mt-5 mb-2">
+                                            <button type="button" id="addBtnGaji" class="btn btn-primary"><span
+                                                    class="material-icons btn-md">add_circle_outline</span></button>
+                                        </div>
+                                    </div>
+                                </div>
                         </div>
                         <div class="modal-footer align-items-center">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" id="submitManifest">Simpan</button>
+                            <button type="submit" class="btn btn-primary" id="submitLaporan">Simpan</button>
                         </div>
                         </form>
                     </div>
                 </div>
             </div>
 
-            {{-- Modal DETAIL MANIFEST --}}
-            <div class="modal fade" id="detailManifest" tabindex="-1" role="dialog" aria-labelledby="modalSupplier"
+            {{-- Modal DETAIL LAPORAN --}}
+            <div class="modal fade" id="detailLaporan" tabindex="-1" role="dialog" aria-labelledby="modalSupplier"
                 aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h6 id="detailManifestHeading"></h6>
+                            <h6 id="laporanDetailHeading"></h6>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">×</span>
                             </button>
@@ -143,49 +270,89 @@
                                     <div class="col-md p-2 bg-grey-light-5 rounded">
                                         <div class="row align-items-center">
                                             <div class="col-xl-auto mb-xl-0 mb-2">
-                                                <label class="form-label mb-xl-0">Tanggal Manifest:</label>
+                                                <label class="form-label mb-xl-0">Tanggal Laporan:</label>
                                             </div>
                                             <div class="col-xl-auto mb-xl-0 mb-2">
-                                                <input class="form-control" type="date" id="detail_manifest_tanggal"
-                                                    name="detail_manifest_tanggal" />
-                                            </div>
-                                            <div class="col-xl-auto mb-xl-0 mb-2">
-                                                <label class="form-label mb-xl-0">No. Manifest:</label>
-                                            </div>
-                                            <div class="col-xl-auto mb-xl-0 mb-2">
-                                                <input class="form-control" type="text" id="detail_manifest_no"
-                                                    name="detail_manifest_no" />
-                                            </div>
-                                            <div class="col-xl-auto mb-xl-0 mb-2">
-                                                <label class="form-label mb-xl-0">Plat Mobil:</label>
-                                            </div>
-                                            <div class="col-xl-auto mb-xl-0 mb-2">
-                                                <input class="form-control" type="text"
-                                                    id="detail_manifest_plat_mobil" name="detail_manifest_plat_mobil" />
+                                                <input class="form-control" type="date" id="detail_laporan_tanggal"
+                                                    name="detail_laporan_tanggal" />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row table-responsive">
                                     <div class="col-md-12 mt-3" style="max-height:300px; overflow-y: scroll;">
-                                        <h6>Data Order</h6>
+                                        <h6>Data Handling</h6>
                                         <table class="table nowrap table-striped">
                                             <thead>
                                                 <th>No</th>
-                                                <th>No Resi</th>
-                                                <th>Tanggal</th>
-                                                <th>Pengirim</th>
-                                                <th>Penerima</th>
-                                                <th>Berat</th>
-                                                <th>Volume</th>
-                                                <th>Isi</th>
+                                                <th>Kota</th>
                                                 <th>Tarif</th>
+                                                <th>Berat</th>
                                                 <th>Total</th>
-                                                <th>Status Bayar</th>
                                             </thead>
-                                            <tbody id="list-manifest">
-                                                {{-- List Order Manifest --}}
+                                            <tbody id="list-handling">
+                                                {{-- List Handling --}}
                                             </tbody>
+                                            <tfoot id="foot-handling">
+                                                {{-- LIST FOOTER --}}
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row table-responsive">
+                                    <div class="col-md-12 mt-3" style="max-height:300px; overflow-y: scroll;">
+                                        <h6>Data Transportasi</h6>
+                                        <table class="table nowrap table-striped">
+                                            <thead>
+                                                <th>No</th>
+                                                <th>Keterangan</th>
+                                                <th>Total</th>
+                                                <th>Bukti</th>
+                                            </thead>
+                                            <tbody id="list-transportasi">
+                                                {{-- List Transportasi --}}
+                                            </tbody>
+                                            <tfoot id="foot-transportasi">
+                                                {{-- LIST FOOTER --}}
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row table-responsive">
+                                    <div class="col-md-12 mt-3" style="max-height:300px; overflow-y: scroll;">
+                                        <h6>Data Operasional</h6>
+                                        <table class="table nowrap table-striped">
+                                            <thead>
+                                                <th>No</th>
+                                                <th>Keterangan</th>
+                                                <th>Total</th>
+                                                <th>Bukti</th>
+                                            </thead>
+                                            <tbody id="list-operasional">
+                                                {{-- List Operasional --}}
+                                            </tbody>
+                                            <tfoot id="foot-operasional">
+                                                {{-- LIST FOOTER --}}
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row table-responsive">
+                                    <div class="col-md-12 mt-3" style="max-height:300px; overflow-y: scroll;">
+                                        <h6>Data Gaji</h6>
+                                        <table class="table nowrap table-striped">
+                                            <thead>
+                                                <th>No</th>
+                                                <th>Keterangan</th>
+                                                <th>Total</th>
+                                                <th>Bukti</th>
+                                            </thead>
+                                            <tbody id="list-gaji">
+                                                {{-- List Gaji --}}
+                                            </tbody>
+                                            <tfoot id="foot-gaji">
+                                                {{-- LIST FOOTER --}}
+                                            </tfoot>
                                         </table>
                                     </div>
                                 </div>
@@ -199,41 +366,66 @@
                                                     <tr>
                                                         <td colspan="3"
                                                             class="rounded-top-start border-end-0 border-bottom-0">Total
-                                                            Koli
+                                                            Omset
                                                         </td>
                                                         <td
                                                             class="rounded-top-end border-bottom-0 w-30 bg-primary-light-5">
                                                             <div class="form-control bg-transparent border-0 p-0 gross-total"
-                                                                id="detail_manifest_total_koli"></div>
+                                                                id="detail_laporan_total_omset"></div>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3"
                                                             class="rounded-top-start border-end-0 border-bottom-0">Total
-                                                            Berat
+                                                            Handling
                                                         </td>
                                                         <td
                                                             class="rounded-top-end border-bottom-0 w-30 bg-primary-light-5">
                                                             <div class="form-control bg-transparent border-0 p-0 gross-total"
-                                                                id="detail_manifest_total_berat"></div>
+                                                                id="detail_laporan_total_handling"></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3"
+                                                            class="rounded-top-start border-end-0 border-bottom-0">Total
+                                                            Transportasi
+                                                        </td>
+                                                        <td
+                                                            class="rounded-top-end border-bottom-0 w-30 bg-primary-light-5">
+                                                            <div class="form-control bg-transparent border-0 p-0 gross-total"
+                                                                id="detail_laporan_total_transportasi"></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3"
+                                                            class="rounded-top-start border-end-0 border-bottom-0">Total
+                                                            Operasional
+                                                        </td>
+                                                        <td
+                                                            class="rounded-top-end border-bottom-0 w-30 bg-primary-light-5">
+                                                            <div class="form-control bg-transparent border-0 p-0 gross-total"
+                                                                id="detail_laporan_total_operasional"></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3"
+                                                            class="rounded-top-start border-end-0 border-bottom-0">Total
+                                                            Gaji
+                                                        </td>
+                                                        <td
+                                                            class="rounded-top-end border-bottom-0 w-30 bg-primary-light-5">
+                                                            <div class="form-control bg-transparent border-0 p-0 gross-total"
+                                                                id="detail_laporan_total_gaji"></div>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="3"
                                                             class="rounded-bottom-start border-end-0 bg-primary-light-5">
-                                                            <span class="text-dark">Total Harga</span></td>
-                                                        <td class="rounded-bottom-end  bg-primary-light-5">
-                                                            <div class="form-control bg-transparent border-0 p-0 gross-total"
-                                                                id="detail_manifest_total_harga"></div>
+                                                            <span class="text-dark">Total Laba Bersih</span>
                                                         </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="3"
-                                                            class="rounded-bottom-start border-end-0 bg-primary-light-5">
-                                                            <span class="text-dark">Total Yang Harus Di Bayar</span></td>
                                                         <td class="rounded-bottom-end  bg-primary-light-5">
                                                             <div class="form-control bg-transparent border-0 p-0 gross-total"
-                                                                id="total_harus_dibayar"></div>
+                                                                id="detail_laporan_total"></div>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -253,7 +445,7 @@
         </div>
 
         <!-- Page Footer -->
-            @include('layouts.footer')
+        @include('layouts.footer')
         <!-- / Page Footer -->
 
     </div>
@@ -280,7 +472,7 @@
                 }).format(number);
             }
 
-            var manifestdata = $('#manifest_data').DataTable({
+            var laporandata = $('#laporan_data').DataTable({
                 scrollX: true,
                 autoWidth: false,
                 language: {
@@ -297,35 +489,39 @@
                         'custom-pagination pagination-simple');
                 },
                 processing: true,
-                serverSide: false,
-                ajax: "{{ route('manifest.index') }}",
+                serverSide: true,
+                ajax: "{{ route('laporan.index') }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'
                     },
                     {
-                        data: 'manifest_no',
-                        name: 'manifest_no'
+                        data: 'laporan_tanggal',
+                        name: 'laporan_tanggal'
                     },
                     {
-                        data: 'manifest_tanggal',
-                        name: 'manifest_tanggal'
+                        data: 'laporan_total_omset',
+                        name: 'laporan_total_omset'
                     },
                     {
-                        data: 'manifest_plat_mobil',
-                        name: 'manifest_plat_mobil'
+                        data: 'laporan_total_handling',
+                        name: 'laporan_total_handling'
                     },
                     {
-                        data: 'manifest_total_koli',
-                        name: 'manifest_total_koli'
+                        data: 'laporan_total_operasional',
+                        name: 'laporan_total_operasional'
                     },
                     {
-                        data: 'manifest_total_berat',
-                        name: 'manifest_total_berat'
+                        data: 'laporan_total_transportasi',
+                        name: 'laporan_total_transportasi'
                     },
                     {
-                        data: 'manifest_total_harga',
-                        name: 'manifest_total_harga'
+                        data: 'laporan_total_gaji',
+                        name: 'laporan_total_gaji'
+                    },
+                    {
+                        data: 'laporan_total',
+                        name: 'laporan_total'
                     },
                     {
                         data: 'action',
@@ -334,33 +530,21 @@
                 ],
             });
 
-            // Create Data Order.
-            $('#laporan-create').click(function() {
-                $('.alert').hide();
-                $('#saveBtn').val("create-manifest");
-                $('#order_id').val('');
-                $('#manifestForm').trigger("reset");
-                $('#manifestHeading').html("TAMBAH DATA MANIFEST BARU");
-                $('#manifestModal').modal('show');
-
-                $('#data-order').html('')
-            });
-
             // Get order data based on tanggal
-            $('body').on('input', '#manifest_tanggal_awal, #manifest_tanggal_akhir', function() {
-                var tanggal_awal = $('#manifest_tanggal_awal').val()
-                var tanggal_akhir = $('#manifest_tanggal_akhir').val()
+            $('body').on('input', '#laporan_tanggal_awal, #laporan_tanggal_akhir', function() {
+                var tanggal_awal = $('#laporan_tanggal_awal').val()
+                var tanggal_akhir = $('#laporan_tanggal_akhir').val()
 
                 $.ajax({
                     type: "POST",
-                    url: "{{ route('get.order.data') }}",
+                    url: "{{ route('laporan.order.data') }}",
                     data: {
-                        manifest_tanggal_awal: tanggal_awal,
-                        manifest_tanggal_akhir: tanggal_akhir,
+                        laporan_tanggal_awal: tanggal_awal,
+                        laporan_tanggal_akhir: tanggal_akhir,
                     },
                     dataType: "JSON",
                     success: function(response) {
-                        console.log(response.error)
+                        console.log(response)
                         console.log(response.hasOwnProperty('error'))
 
                         if (response.error) {
@@ -377,12 +561,11 @@
                             $('#data-order').html(table)
                             console.log(response.error)
                         } else {
-                            if (response.length > 0) {
+                            if (response.data.length > 0) {
                                 var table = `<h6>Data Order</h6>
                                             <div style="max-height:300px; overflow-y: scroll;">
                                                 <table id="order-data" class="table nowrap table-striped" style="width:100%">
                                                     <thead>
-                                                        <th></th>
                                                         <th>No</th>
                                                         <th>No Resi</th>
                                                         <th>Tanggal</th>
@@ -392,18 +575,20 @@
                                                         <th>Berat</th>
                                                         <th>Tarif</th>
                                                         <th>Total</th>
+                                                        <th>Status Pembayaran</th>
                                                     </thead>
                                                     <tbody id="list-order">
                                                         {{-- List Barang Selected --}}
                                                     </tbody>
+                                                    <tfoot id="total-orders">
+                                                    </tfoot>
                                                 </table>
                                             </div>`;
 
                                 var listorder = '';
                                 var no = 1;
                                 // LOOPING BARANG
-                                $.each(response, function(index, value) {
-                                    var select           = '<input type="checkbox" class="row-checkbox form-check-input is-valid" value="' + value['order_id'] + '" name="order_id[]" checked>';
+                                $.each(response.data, function(index, value) {
                                     const order_id       = value['order_id']
                                     const order_noresi   = value['order_noresi']
                                     const order_tanggal  = value['order_tanggal']
@@ -414,8 +599,15 @@
                                     const order_tarif    = value['order_tarif']
                                     const order_total    = value['order_total']
 
+                                    const payment_status = value.payment['payment_status']
+                                    // Validate Badge Status Payment
+                                    if(value.payment['payment_status'] == 'lunas'){
+                                        var status = '<div class="badge bg-success">' + payment_status.toUpperCase() + '</div>'
+                                    }else{
+                                        var status = '<div class="badge bg-danger">' + payment_status.toUpperCase() + '</div>'
+                                    }
+
                                     listorder += `<tr>
-                                                        <td>` + select + `</td>
                                                         <td>` + no++ + `</td>
                                                         <td>` + order_noresi + `</td>
                                                         <td>` + order_tanggal + `</td>
@@ -425,11 +617,23 @@
                                                         <td>` + order_berat + `</td>
                                                         <td>` + rupiah(order_tarif) + `</td>
                                                         <td>` + rupiah(order_total) + `</td>
+                                                        <td>` + status + `</td>
                                                     </tr>`;
 
                                 });
+
+                                var total       = response.total
+                                var tfoot_order = '';
+                                tfoot_order += `<tr>
+                                                    <td colspan="7" style="text-align:right;">Total</td>
+                                                    <td> <input class="form-control" type="hidden" name="laporan_total_omset"
+                                                    id="laporan_total_omset" value="`+total+`" /></td>
+                                                    <td>` + rupiah(total) + `</td>
+                                                </tr>`;
+
                                 $('#data-order').html(table)
                                 $("#list-order").html(listorder)
+                                $("#total-orders").html(tfoot_order)
 
                             } else {
                                 var table = `<h6>No Data Avalilable</h6>`;
@@ -445,13 +649,308 @@
 
             })
 
-            // Stored Data Order.
-            $('#submitManifest').click(function(e) {
+            // HANDLING multiple input
+            // max field dinamis input
+            var maxField = 15; //Input fields increment limitation
+
+            // Append Ticket Category Input
+            var addButtonHandling = $('#addBtnHandling'); //Add button selector
+            var wrapperHandling = $('.handling_wrapper'); //Input field wrapper
+            var fieldHTMLHandling = `<div class="row gx-3 table-responsive" id="data-handling">
+                                        <div class="col-sm-2">
+                                            <div class="form-group">
+                                                <input class="form-control handling_kota" type="text"
+                                                    name="handling_kota[]" id="handling_kota" placeholder="Masukkan Kota" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <div class="form-group">
+                                                <input class="form-control handling_tarif" type="number"
+                                                    name="handling_tarif[]" id="handling_tarif"
+                                                    placeholder="Masukkan Tarif" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <div class="form-group">
+                                                <input class="form-control handling_berat" type="number"
+                                                    name="handling_berat[]" id="handling_berat"
+                                                    placeholder="Masukkan Berat" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <input class="form-control handling_total" type="number"
+                                                    name="handling_total[]" id="handling_total"
+                                                    placeholder="Masukkan Total" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 mb-2">
+                                            <button type="button" class="btn btn-danger minBtnHandling"><span class="material-icons btn-md">remove_circle_outline</span></button>
+                                        </div>
+                                    </div>`;
+
+            var x = 1; //Initial field counter is 1
+
+            //Once add button is clicked
+            $(addButtonHandling).click(function() {
+                //Check maximum number handlingf input fields
+                if (x < maxField) {
+                    x++; //Increment field counter
+                    $(wrapperHandling).append(fieldHTMLHandling); //Add field html
+                    if (x == 15) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Penambahan telah maksimal',
+                        })
+                    }
+                }
+            });
+
+            //Once remove button is clicked
+            $(wrapperHandling).on('click', '.minBtnHandling', function(e) {
+                e.preventDefault();
+                $(this).parent('').parent('').remove(); //Remove field html
+                x--; //Decrement field counter
+
+                if (x == 1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Masukkan handling paling tidak satu!',
+                    })
+                }
+            });
+
+            // OPERASIONAL multiple input
+            // max field dinamis input
+            var maxField = 15; //Input fields increment limitation
+
+            // Append Ticket Category Input
+            var addButtonOperasional = $('#addBtnOperasional'); //Add button selector
+            var wrapperOperasional = $('.operasional_wrapper'); //Input field wrapper
+            var fieldHTMLOperasional = ` <div class="row gx-3 table-responsive" id="data-operasional">
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <input class="form-control" type="text"
+                                                    name="operasional_keterangan[]" id="operasional_keterangan"
+                                                    placeholder="Masukkan Keterangan" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <input class="form-control" type="number" name="operasional_total[]"
+                                                    id="operasional_total" placeholder="Masukkan Total" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <input class="form-control" type="file" name="operasional_bukti[]"
+                                                    id="operasional_bukti" placeholder="Masukkan Bukti" />
+                                            </div>
+                                        </div>
+                                         <div class="col-sm-2 mb-2">
+                                             <button type="button" class="btn btn-danger minBtnOperasional"><span class="material-icons btn-md">remove_circle_outline</span></button>
+                                        </div>
+                                    </div>`;
+
+            var x = 1; //Initial field counter is 1
+
+            //Once add button is clicked
+            $(addButtonOperasional).click(function() {
+                //Check maximum number input fields
+                if (x < maxField) {
+                    x++; //Increment field counter
+                    $(wrapperOperasional).append(fieldHTMLOperasional); //Add field html
+                    if (x == 15) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Penambahan telah maksimal',
+                        })
+                    }
+                }
+            });
+
+            //Once remove button is clicked
+            $(wrapperOperasional).on('click', '.minBtnOperasional', function(e) {
+                e.preventDefault();
+                $(this).parent('').parent('').remove(); //Remove field html
+                x--; //Decrement field counter
+
+                if (x == 1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Masukkan Operasional paling tidak satu!',
+                    })
+                }
+            });
+
+            // GAJI multiple input
+            // max field dinamis input
+            var maxField = 15; //Input fields increment limitation
+
+            // Append Ticket Category Input
+            var addButtonGaji = $('#addBtnGaji'); //Add button selector
+            var wrapperGaji = $('.gaji_wrapper'); //Input field wrapper
+            var fieldHTMLGaji = `<div class="row gx-3 table-responsive" id="data-gaji">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <input class="form-control" type="text" name="gaji_keterangan[]"
+                                                id="gaji_keterangan" placeholder="Masukkan Keterangan" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <input class="form-control" type="number" name="gaji_total[]"
+                                                id="gaji_total" placeholder="Masukkan Total" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <input class="form-control" type="file" name="gaji_bukti[]"
+                                                id="gaji_bukti" placeholder="Masukkan Bukti" />
+                                        </div>
+                                    </div>
+                                        <div class="col-sm-2 mb-2">
+                                            <button type="button" class="btn btn-danger minBtnGaji"><span class="material-icons btn-md">remove_circle_outline</span></button>
+                                    </div>
+                                </div>`;
+
+
+            var x = 1; //Initial field counter is 1
+
+            //Once add button is clicked
+            $(addButtonGaji).click(function() {
+                //Check maximum number input fields
+                if (x < maxField) {
+                    x++; //Increment field counter
+                    $(wrapperGaji).append(fieldHTMLGaji); //Add field html
+                    if (x == 15) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Penambahan telah maksimal',
+                        })
+                    }
+                }
+            });
+
+            //Once remove button is clicked
+            $(wrapperGaji).on('click', '.minBtnGaji', function(e) {
+                e.preventDefault();
+                $(this).parent('').parent('').remove(); //Remove field html
+                x--; //Decrement field counter
+
+                if (x == 1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Masukkan Gaji paling tidak satu!',
+                    })
+                }
+            });
+
+            // TRANSPORTASI multiple input
+            // max field dinamis input
+            var maxField = 15; //Input fields increment limitation
+
+            // Append Ticket Category Input
+            var addButtonTransportasi = $('#addBtnTransportasi'); //Add button selector
+            var wrapperTransportasi = $('.transportasi_wrapper'); //Input field wrapper
+            var fieldHTMLTransportasi = ` <div class="row gx-3 table-responsive" id="data-transportasi">
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <input class="form-control" type="text" name="transportasi_keterangan[]"
+                                                    id="transportasi_keterangan" placeholder="Masukkan Keterangan" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <input class="form-control" type="number" name="transportasi_total[]"
+                                                    id="transportasi_total" placeholder="Masukkan Total" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="form-group">
+                                                <input class="form-control" type="file" name="transportasi_bukti[]"
+                                                    id="transportasi_bukti" placeholder="Masukkan Bukti" />
+                                            </div>
+                                        </div>
+                                         <div class="col-sm-2 mb-2">
+                                             <button type="button" class="btn btn-danger minBtnTransportasi"><span class="material-icons btn-md">remove_circle_outline</span></button>
+                                        </div>
+                                    </div>`;
+
+            var x = 1; //Initial field counter is 1
+
+            //Once add button is clicked
+            $(addButtonTransportasi).click(function() {
+                //Check maximum number input fields
+                if (x < maxField) {
+                    x++; //Increment field counter
+                    $(wrapperTransportasi).append(fieldHTMLTransportasi); //Add field html
+                    if (x == 15) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Penambahan telah maksimal',
+                        })
+                    }
+                }
+            });
+
+            //Once remove button is clicked
+            $(wrapperTransportasi).on('click', '.minBtnTransportasi', function(e) {
+                e.preventDefault();
+                $(this).parent('').parent('').remove(); //Remove field html
+                x--; //Decrement field counter
+
+                if (x == 1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Masukkan Transportasi paling tidak satu!',
+                    })
+                }
+            });
+
+
+            // SUM TOTAL ON HANDLING
+            $('body').on('input', '.handling_tarif, .handling_berat', function() {
+                var row   = $(this).closest('div.row');
+                var tarif = parseFloat(row.find('.handling_tarif').val()) || 0;
+                var berat = parseFloat(row.find('.handling_berat').val()) || 0;
+
+                var total = (tarif * berat); // Tarif Handling * Berat on Handling
+                var decimalPlaces = 2; // Change this number to round to a different number of decimal places
+
+                // Round the total value to the specified decimal places
+                total = parseFloat(total.toFixed(decimalPlaces));
+
+                row.find('.handling_total').val(total);
+            })
+
+            // Create Data Order.
+            $('#laporan-create').click(function() {
+                $('.alert').hide();
+                $('#saveBtn').val("create-manifest");
+                $('#laporan_id').val('');
+                $('#laporanForm').trigger("reset");
+                $('#laporanHeading').html("TAMBAH DATA LAPORAN BARU");
+                $('#laporanModal').modal('show');
+
+                $('#data-order').html('')
+            });
+
+            // Stored Data Laporan.
+            $('#submitLaporan').click(function(e) {
                 e.preventDefault();
                 $(this).html('Sending..');
 
                 $.ajax({
-                    url: "{{ route('manifest.store') }}",
+                    url: "{{ route('laporan.store') }}",
                     data: new FormData(this.form),
                     cache: false,
                     processData: false,
@@ -467,7 +966,7 @@
                                 $('.alert-danger').append('<strong><li>' + value +
                                     '</li></strong>');
                             });
-                            $('#submitManifest').html('Simpan');
+                            $('#submitLaporan').html('Simpan');
 
                         } else {
                             $('.btn-warning').hide();
@@ -485,99 +984,188 @@
                                 title: `${response.message}`,
                             })
 
-                            $('#manifestForm').trigger("reset");
-                            $('#submitManifest').html('Simpan');
-                            $('#manifestModal').modal('hide');
-                            manifestdata.draw();
-                            setInterval(function() {
-                                window.location.reload();
-                            }, 1000);
+                            $('#laporanForm').trigger("reset");
+                            $('#submitLaporan').html('Simpan');
+                            $('#laporanModal').modal('hide');
+                            laporandata.draw();
                         }
                     }
                 });
             });
 
-            // Detail Manifest
-            $('body').on('click', '#detail-manifest', function() {
+            // Detail Laporan
+            $('body').on('click', '#laporan-detail', function() {
                 $('.alert').hide();
                 $('#saveBtn').val("detail-manifest");
-                $('#manifestForm').trigger("reset");
-                $('#detailManifestHeading').html("DETAIL DATA MANIFEST");
-                $('#detailManifest').modal('show');
+                $('#laporanForm').trigger("reset");
+                $('#laporanDetailHeading').html("DETAIL DATA LAPORAN");
+                $('#detailLaporan').modal('show');
 
-                var manifest_id = $(this).attr('data-id');
-                console.log(manifest_id)
+                var laporan_id = $(this).attr('data-id');
+                console.log(laporan_id)
                 $.ajax({
                     type: "POST",
-                    url: "{{ route('manifest.detail') }}",
+                    url: "{{ route('laporan.detail') }}",
                     data: {
-                        manifest_id: manifest_id,
+                        laporan_id: laporan_id,
                     },
                     dataType: "JSON",
                     success: function(response) {
                         console.log(response)
-                        var manifest_no          = response.manifest.manifest_no
-                        var manifest_tanggal     = response.manifest.manifest_tanggal
-                        var manifest_plat_mobil  = response.manifest.manifest_plat_mobil
-                        var manifest_total_koli  = response.manifest.manifest_total_koli
-                        var manifest_total_berat = response.manifest.manifest_total_berat
-                        var manifest_total_harga = response.manifest.manifest_total_harga
-                        var total_harus_dibayar  = response.sumOrderTotal
+                        // DATA TOTAL LAPORAN
+                        var laporan_tanggal            = response.laporan_tanggal
+                        var laporan_total_omset        = response.laporan_total_omset
+                        var laporan_total_handling     = response.laporan_total_handling
+                        var laporan_total_transportasi = response.laporan_total_transportasi
+                        var laporan_total_operasional  = response.laporan_total_operasional
+                        var laporan_total_gaji         = response.laporan_total_gaji
+                        var laporan_total              = response.laporan_total
 
-                        $("#detail_manifest_tanggal").val(manifest_tanggal).prop('readonly',true)
-                        $("#detail_manifest_no").val(manifest_no).prop('readonly', true)
-                        $("#detail_manifest_plat_mobil").val(manifest_plat_mobil).prop('readonly', true)
-                        $("#detail_manifest_total_koli").html(manifest_total_koli)
-                        $("#detail_manifest_total_berat").html(manifest_total_berat+'Kg')
-                        $("#detail_manifest_total_harga").html(rupiah(manifest_total_harga))
-                        $("#total_harus_dibayar").html(rupiah(total_harus_dibayar))
+                        $("#detail_laporan_tanggal").val(laporan_tanggal).prop('readonly', true)
+                        $("#detail_laporan_total_omset").html(rupiah(laporan_total_omset))
+                        $("#detail_laporan_total_handling").html(rupiah(laporan_total_handling))
+                        $("#detail_laporan_total_transportasi").html(rupiah(laporan_total_transportasi))
+                        $("#detail_laporan_total_operasional").html(rupiah(laporan_total_operasional))
+                        $("#detail_laporan_total_gaji").html(rupiah(laporan_total_gaji))
+                        $("#detail_laporan_total").html(rupiah(laporan_total))
 
-                        var listmanifest = '';
+                        // DATA HANDLING
+                        var listhandling = '';
                         var no = 1;
                         // LOOPING BARANG
-                        $.each(response.manifest.detailmanifest, function(index, value) {
-                            const order_id       = value.order['order_id']
-                            const order_noresi   = value.order['order_noresi']
-                            const order_tanggal  = value.order['order_tanggal']
-                            const order_pengirim = value.order['order_pengirim']
-                            const order_penerima = value.order['order_penerima']
-                            const order_koli     = value.order['order_koli']
-                            const order_isi      = value.order['order_isi']
-                            const order_volume   = value.order['order_volume']
-                            const order_berat    = value.order['order_berat']
-                            const order_tarif    = value.order['order_tarif']
-                            const order_total    = value.order['order_total']
+                        $.each(response.handling, function(index, value) {
+                            const handling_kota  = value['handling_kota']
+                            const handling_berat = value['handling_berat']
+                            const handling_tarif = value['handling_tarif']
+                            const handling_total = value['handling_total']
 
-                            const payment_status = value.order.payment['payment_status']
-                            // Validate Badge Status Payment
-                            if(value.order.payment['payment_status'] == 'lunas'){
-                                var status = '<div class="badge bg-success">' + payment_status.toUpperCase() + '</div>'
-                            }else{
-                                var status = '<div class="badge bg-danger">' + payment_status.toUpperCase() + '</div>'
-                            }
-
-                            listmanifest += `<tr>
+                            listhandling += `<tr>
                                                 <td>` + no++ + `</td>
-                                                <td>` + order_noresi + `</td>
-                                                <td>` + order_tanggal + `</td>
-                                                <td>` + order_pengirim + `</td>
-                                                <td>` + order_penerima + `</td>
-                                                <td>` + order_koli + `</td>
-                                                <td>` + order_berat + `</td>
-                                                <td>` + order_isi + `</td>
-                                                <td>` + rupiah(order_tarif) + `</td>
-                                                <td>` + rupiah(order_total) + `</td>
-                                                <td>` + status + `</td>
+                                                <td>` + handling_kota + `</td>
+                                                <td>` + rupiah(handling_tarif) + `</td>
+                                                <td>` + handling_berat + `</td>
+                                                <td>` + rupiah(handling_total) + `</td>
                                             </tr>`;
 
                         });
-                        $("#list-manifest").html(listmanifest)
+                        var footer_handling = `<tr>
+                                                    <th colspan="4" style="text-align:center">TOTAL</th>
+                                                    <th colspan="1">` + rupiah(laporan_total_handling) + `</th>
+                                                </tr>`;
+
+                        $("#list-handling").html(listhandling)
+                        $("#foot-handling").html(footer_handling)
+
+                        // DATA TRANSPORTASI
+                        var listtransportasi = '';
+                        var no = 1;
+                        // LOOPING BARANG
+                        $.each(response.transportasi, function(index, value) {
+                            const transportasi_id          = value['transportasi_id']
+                            const transportasi_keterangan  = value['transportasi_keterangan']
+                            const transportasi_total       = value['transportasi_total']
+                            const transportasi_bukti       = value['transportasi_bukti']
+                            var transportasi               = 'transportasi' + transportasi_id;
+
+                            if(transportasi_bukti != '-'){
+                                var button = ` <a href="downloadBuktiPengeluaran/` + transportasi + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                            }else{
+                                var button = '-'
+                            }
+
+                            listtransportasi += `<tr>
+                                                <td>` + no++ + `</td>
+                                                <td>` + transportasi_keterangan + `</td>
+                                                <td>` + rupiah(transportasi_total) + `</td>
+                                                <td>  
+                                                    ` + button + ` 
+                                                </td>
+                                            </tr>`;
+
+                        });
+                        var footer_transportasi = `<tr>
+                                                        <th colspan="2" style="text-align:center">TOTAL</th>
+                                                        <th colspan="2">` + rupiah(laporan_total_transportasi) + `</th>
+                                                    </tr>`;
+
+                        $("#list-transportasi").html(listtransportasi)
+                        $("#foot-transportasi").html(footer_transportasi)
+
+                        // DATA OPERASIONAL
+                        var listoperasional = '';
+                        var no = 1;
+                        // LOOPING BARANG
+                        $.each(response.operasional, function(index, value) {
+                            const operasional_id          = value['operasional_id']
+                            const operasional_keterangan  = value['operasional_keterangan']
+                            const operasional_total       = value['operasional_total']
+                            const operasional_bukti       = value['operasional_bukti']
+                            var operasional               = 'operasional' + operasional_id;
+
+                            if(operasional_bukti != '-'){
+                                var button = ` <a href="downloadBuktiPengeluaran/` + operasional + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                            }else{
+                                var button = '-'
+                            }
+
+                            listoperasional += `<tr>
+                                                <td>` + no++ + `</td>
+                                                <td>` + operasional_keterangan + `</td>
+                                                <td>` + rupiah(operasional_total) + `</td>
+                                                <td>  
+                                                    ` + button + `
+                                                </td>
+                                            </tr>`;
+
+                        });
+                        var footer_operasional = `<tr>
+                                                        <th colspan="2" style="text-align:center">TOTAL</th>
+                                                        <th colspan="2">` + rupiah(laporan_total_operasional) + `</th>
+                                                    </tr>`;
+
+                        $("#list-operasional").html(listoperasional)
+                        $("#foot-operasional").html(footer_operasional)
+
+                        // DATA GAJI
+                        var listgaji = '';
+                        var no = 1;
+                        // LOOPING BARANG
+                        $.each(response.gaji, function(index, value) {
+                            const gaji_id          = value['gaji_id']
+                            const gaji_keterangan  = value['gaji_keterangan']
+                            const gaji_total       = value['gaji_total']
+                            const gaji_bukti       = value['gaji_bukti']
+                            var gaji               = 'gaji' + gaji_id;
+
+                            if(gaji_bukti != '-'){
+                                var button = ` <a href="downloadBuktiPengeluaran/` + gaji + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                            }else{
+                                var button = '-'
+                            }
+
+                            listgaji += `<tr>
+                                                <td>` + no++ + `</td>
+                                                <td>` + gaji_keterangan + `</td>
+                                                <td>` + rupiah(gaji_total) + `</td>
+                                                <td>  
+                                                    ` + button + `
+                                                </td>
+                                            </tr>`;
+
+                        });
+                        var footer_gaji = `<tr>
+                                                <th colspan="2" style="text-align:center">TOTAL</th>
+                                                <th colspan="2">` + rupiah(laporan_total_gaji) + `</th>
+                                            </tr>`;
+
+                        $("#list-gaji").html(listgaji)
+                        $("#foot-gaji").html(footer_gaji)
                     }
                 });
             })
 
-            // Print Manifest
-            $('body').on('click', '#manifest-print', function() {
+            // Print Laporan
+            $('body').on('click', '#laporan-print', function() {
 
                 const swalWithBootstrapButtons = Swal.mixin({
                     customClass: {
@@ -588,12 +1176,12 @@
 
                 });
 
-                var manifest_id  = $(this).attr('data-id')
+                var laporan_id  = $(this).attr('data-id')
 
                 swalWithBootstrapButtons
                     .fire({
-                        title: "Apakah kamu ingin mencetak manifest?",
-                        text: "Manifest akan dicetak!",
+                        title: "Apakah kamu ingin mencetak laporan?",
+                        text: "Laporan akan dicetak!",
                         icon: "warning",
                         showCancelButton: true,
                         confirmButtonClass: "me-2",
@@ -605,7 +1193,7 @@
                         if (result.value) {
 
                             // Create the URL with query parameters
-                            var url = "{{ route('manifest.print') }}?manifest_id=" + manifest_id;
+                            var url = "{{ route('laporan.print') }}?laporan_id=" + laporan_id;
 
                             // Open the PDF in a new tab/window
                             window.open(url, '_blank');

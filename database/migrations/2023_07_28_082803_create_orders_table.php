@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('order_pengirim');
             $table->string('order_penerima');
             $table->string('order_alamat_penerima');
+            $table->string('order_nohp_penerima');
             $table->integer('order_koli');
             $table->string('order_kemasan');
             $table->string('order_rincian');
@@ -30,7 +31,9 @@ return new class extends Migration
             $table->text('order_keterangan');
             $table->enum('order_status', ['terdaftar', 'on-progress', 'telah-sampai']);
             $table->integer('order_created')->nullable();
-            $table->integer('order_received')->nullable();
+            $table->integer('order_received_validation')->nullable();
+            $table->string('order_received')->nullable();
+            $table->enum('order_edit_request', ['acc', 'pending'])->default('pending');
             $table->timestamps();
         });
     }

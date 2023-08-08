@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('input_histories', function (Blueprint $table) {
-            $table->id('histoy_id');
-            $table->string('query')->nullable();
-            $table->string('address')->nullable();
-            $table->string('nohp')->nullable();
+        Schema::create('out_gajis', function (Blueprint $table) {
+            $table->id('gaji_id');
+            $table->integer('laporan_id');
+            $table->string('gaji_keterangan');
+            $table->integer('gaji_total');
+            $table->string('gaji_bukti');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('input_histories');
+        Schema::dropIfExists('out_gajis');
     }
 };

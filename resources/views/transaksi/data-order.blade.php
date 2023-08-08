@@ -59,6 +59,7 @@
                                                         <th>Pengirim</th>
                                                         <th>Penerima</th>
                                                         <th>Berat</th>
+                                                        <th>Volume</th>
                                                         <th>Tarif</th>
                                                         <th>Total</th>
                                                         <th>Status Bayar</th>
@@ -66,6 +67,7 @@
                                                         <th>Metode Bayar</th>
                                                         <th>Order Di Buat</th>
                                                         <th>Order Di Terima</th>
+                                                        <th>Order Di Terima Validasi</th>
                                                         <th>Pembayaran Validasi</th>
                                                         <th>Action</th>
                                                     </tr>
@@ -87,6 +89,7 @@
                                                         <th></th>
                                                         <th></th>
                                                         <th></th>
+                                                        <th></th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
@@ -94,6 +97,9 @@
                                     </div>
                                     <div class="card-footer">
                                         <p id="total_berat" style="font-size: 18px"></p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <p id="total_volume" style="font-size: 18px"></p>
                                     </div>
                                     <div class="card-footer">
                                         <p id="total_harga" style="font-size: 18px"></p>
@@ -126,6 +132,7 @@
                                                         <th>Pengirim</th>
                                                         <th>Penerima</th>
                                                         <th>Total</th>
+                                                        <th>Metode Bayar</th>
                                                         <th>Status Bayar</th>
                                                         <th>Status Pengiriman</th>
                                                     </tr>
@@ -162,14 +169,14 @@
                             <form id="orderForm" enctype="multipart/form-data">
                                 <div class="row gx-3">
                                     <input type="hidden" id="order_id" name="order_id">
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-6">
                                         <label class="form-label">Tanggal</label>
                                         <div class="form-group">
                                             <input class="form-control" type="date" name="order_tanggal"
                                                 value="{{ date('Y-m-d') }}" id="order_tanggal" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-6">
                                         <label class="form-label">Pengirim</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text" placeholder="Masukkan Pengirim"
@@ -178,13 +185,24 @@
                                         <!-- Add a div to display the suggestions as a dropdown -->
                                         <div id="suggestionDropdown" style="display: none;"></div>
                                     </div>
-                                    <div class="col-sm-4">
+                                </div>
+                                <div class="row gx-3">
+                                    <div class="col-sm-6">
                                         <label class="form-label">Penerima</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text" placeholder="Masukkan Penerima"
                                                 name="order_penerima" id="order_penerima" />
                                             <!-- Add a div to display the suggestions as a dropdown -->
                                             <div id="suggestionDropdown2" style="display: none;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label">No Hp Penerima</label>
+                                        <div class="form-group">
+                                            <input class="form-control" type="number" placeholder="Masukkan No Hp"
+                                                name="order_nohp_penerima" id="order_nohp_penerima" />
+                                            <!-- Add a div to display the suggestions as a dropdown -->
+                                            <div id="suggestionDropdown3" style="display: none;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -194,6 +212,8 @@
                                         <div class="form-group">
                                             <textarea class="form-control" name="order_alamat_penerima" id="order_alamat_penerima"
                                                 placeholder="Masukkan Alamat Penerima"></textarea>
+                                            <!-- Add a div to display the suggestions as a dropdown -->
+                                            <div id="suggestionDropdown4" style="display: none;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -270,7 +290,7 @@
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <input type="checkbox" class="form-check-input" id="lunas" name="lunas">
-                                            <label class="form-check-label text-muted fs-7" for="logged_in">Lunas</label>
+                                            <label class="form-check-label text-muted fs-7" for="logged_in">Bayar Langsung</label>
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
@@ -345,8 +365,10 @@
                                             <th>Pengirim</th>
                                             <th>Penerima</th>
                                             <th>Berat</th>
+                                            <th>Volume</th>
                                             <th>Tarif</th>
                                             <th>Total</th>
+                                            <th>Metode Bayar</th>
                                         </thead>
                                         <tbody id="list-order">
                                             {{-- List Barang Selected --}}
@@ -354,24 +376,24 @@
                                     </table>
                                 </div>
                                 <div class="row gx-3 mt-2">
-                                    <div class="col-sm-4">
+                                    {{-- <div class="col-sm-4">
                                         <label class="form-label">Metode Pembayaran</label>
                                         <div class="form-group">
                                             <select class="form-select" name="payment_method" id="payment_method">
                                                 <option value="" selected disabled>-- Pilih Metode Bayar --</option>
-                                                <option value="cad">CAD</option>
-                                                <option value="cod">COD</option>
+                                                <option value="bayar-makassar">Bayar Makassar</option>
+                                                <option value="bayar-surabaya">Bayar Surabaya</option>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-4">
+                                    </div> --}}
+                                    <div class="col-sm-6">
                                         <label class="form-label">Tanggal Pembayaran</label>
                                         <div class="form-group">
                                             <input class="form-control" type="date" name="payment_tanggal"
                                                 value="{{ date('Y-m-d') }}" id="payment_tanggal" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-6">
                                         <label class="form-label">Bukti Pembayaran</label>
                                         <div class="form-group">
                                             <input class="form-control" type="file" placeholder="Masukkan Pengirim"
@@ -463,6 +485,10 @@
                         name: 'order_berat'
                     },
                     {
+                        data: 'order_volume',
+                        name: 'order_volume'
+                    },
+                    {
                         data: 'order_tarif',
                         name: 'order_tarif'
                     },
@@ -487,8 +513,12 @@
                         name: 'order_create'
                     },
                     {
-                        data: 'order_receive',
-                        name: 'order_receive'
+                        data: 'order_received',
+                        name: 'order_received'
+                    },
+                    {
+                        data: 'order_received_validation',
+                        name: 'order_received_validation'
                     },
                     {
                         data: 'payment_acc',
@@ -532,8 +562,10 @@
                     url: "{{ route('order.total') }}",
                     dataType: "JSON",
                     success: function (response) {
-                        var berat = `TOTAL BERAT: <strong>` + response.berat +`Kg</strong>`;
-                        var total = `TOTAL ORDER: <strong>` + rupiah(response.total) + `</strong>`;
+                        var berat  = `TOTAL BERAT: <strong>` + response.berat +`Kg</strong>`;
+                        var volume = `TOTAL VOLUME: <strong>` + response.volume +`</strong>`;
+                        var total  = `TOTAL ORDER: <strong>` + rupiah(response.total) + `</strong>`;
+                        $("#total_volume").html(volume)
                         $("#total_berat").html(berat)
                         $("#total_harga").html(total)
                     }
@@ -584,6 +616,10 @@
                         name: 'order_total'
                     },
                     {
+                        data: 'payment_method',
+                        name: 'payment_method'
+                    },
+                    {
                         data: 'payment_status',
                         name: 'payment_status'
                     },
@@ -609,6 +645,7 @@
                 $('#order_pengirim').prop('readonly', false).val()
                 $('#order_penerima').prop('readonly', false).val()
                 $('#order_alamat_penerima').prop('readonly', false).val()
+                $('#order_nohp_penerima').prop('readonly', false).val()
                 $('#order_koli').prop('readonly', false).val()
                 $('#order_kemasan').prop('readonly', false).val()
                 $('#order_rincian').prop('readonly', false).val()
@@ -801,6 +838,7 @@
                         var order_pengirim        = response.order_pengirim
                         var order_penerima        = response.order_penerima
                         var order_alamat_penerima = response.order_alamat_penerima
+                        var order_nohp_penerima   = response.order_nohp_penerima
                         var order_koli            = response.order_koli
                         var order_kemasan         = response.order_kemasan
                         var order_rincian         = response.order_rincian
@@ -813,19 +851,37 @@
                         var payment_status        = response.payment.payment_status
                         var payment_tanggal       = response.payment.payment_tanggal
                         var payment_method        = response.payment.payment_method
+                        var payment_bukti         = response.payment.payment_bukti
+
+                        // GET NAME OF PAYMENT VALIDATION
                         var payment_acc = '';
                         if (response.payment && response.payment.user_acc && response.payment.user_acc.name !== null) {
                             payment_acc = response.payment.user_acc.name;
                         }
+
+                        // GET PAYMENT KETERANGAN OR KOTA TRANSIT
                         var payment_keterangan = '-';
                         if (response.payment && response.payment.payment_keterangan !== null) {
                             payment_keterangan = response.payment.payment_keterangan;
+                        }
+
+                        var download_button = '';
+                        if(payment_bukti != '-'){
+                            download_button = `<div class="col-sm-12">
+                                                    <label class="form-label">Bukti Pembayaran</label>
+                                                    <div class="form-group">
+                                                        <a href="download/image/` + order_id + `" class="btn btn-primary" id="buktiBayar" target="_blank" download>Download Bukti</a>
+                                                    </div>
+                                                </div>`;
+                        }else{
+                            download_button = '';
                         }
                         
                         $('#order_tanggal').val(order_tanggal).prop('readonly', true)
                         $('#order_pengirim').val(order_pengirim).prop('readonly', true)
                         $('#order_penerima').val(order_penerima).prop('readonly', true)
                         $('#order_alamat_penerima').val(order_alamat_penerima).prop('readonly', true)
+                        $('#order_nohp_penerima').val(order_nohp_penerima).prop('readonly', true)
                         $('#order_koli').val(order_koli).prop('readonly', true)
                         $('#order_kemasan').val(order_kemasan).prop('readonly', true)
                         $('#order_rincian').val(order_rincian).prop('readonly', true)
@@ -861,12 +917,7 @@
                                                         id="payment_acc" value=`+ payment_method +` readonly />
                                                 </div>
                                             </div>
-                                            <div class="col-sm-12">
-                                                <label class="form-label">Bukti Pembayaran</label>
-                                                <div class="form-group">
-                                                    <a href="download/image/` + order_id + `" class="btn btn-primary" id="buktiBayar" target="_blank" download>Download Bukti</a>
-                                                </div>
-                                            </div>`;
+                                            ` + download_button + ` `;
 
                             $('#codInputs').html(button)
                         }else{
@@ -916,8 +967,10 @@
                                 const order_pengirim = value['order_pengirim']
                                 const order_penerima = value['order_penerima']
                                 const order_berat    = value['order_berat']
+                                const order_volume   = value['order_volume']
                                 const order_tarif    = value['order_tarif']
                                 const order_total    = value['order_total']
+                                const payment_method = value.payment['payment_method']
                                 
                                 listorder += `<tr>
                                                     <td>` + no++ + `</td>
@@ -926,8 +979,10 @@
                                                     <td>` + order_pengirim + `</td>
                                                     <td>` + order_penerima + `</td>
                                                     <td>` + order_berat + `</td>
+                                                    <td>` + order_volume + `</td>
                                                     <td>` + rupiah(order_tarif) + `</td>
                                                     <td>` + rupiah(order_total) + `</td>
+                                                    <td>` + payment_method.charAt(0).toUpperCase() + payment_method.slice(1) + `</td>
                                                     <td>
                                                         <input class="form-control" id="order_id" type="hidden" value="` + order_id + `" name="order_id[]" />
                                                     </td>
@@ -1054,54 +1109,64 @@
                         cancelButton: "btn btn-danger me-2",
                     },
                     buttonsStyling: false,
-
                 });
 
                 var order_id = $(this).attr('data-id');
 
-                swalWithBootstrapButtons
-                    .fire({
-                        title: "Apakah kamu yakin order ini telah diterima?",
-                        text: "Data order ini akan di perbarui menjadi diterima!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonClass: "me-2",
-                        cancelButtonText: "Tidak",
-                        confirmButtonText: "Ya",
-                        reverseButtons: true,
-                    })
-                    .then((result) => {
-                        if (result.value) {
-                            $.ajax({
-                                type: "POST",
-                                url: "{{ route('order.receive') }}",
-                                data: {
-                                    order_id: order_id,
-                                },
-                                dataType: "json",
-                                success: function(response) {
-                                    const Toast = Swal.mixin({
-                                        toast: true,
-                                        position: 'top-end',
-                                        showConfirmButton: false,
-                                        timer: 3000,
-                                        timerProgressBar: true,
-                                    });
-
-                                    Toast.fire({
-                                        icon: 'success',
-                                        title: `${response.status}`,
-                                    })
-
-                                    setInterval(function() {
-                                        window.location.reload();
-                                    }, 1000);
-                                }
+                swalWithBootstrapButtons.fire({
+                    title: "Apakah kamu yakin order ini telah diterima?",
+                    text: "Data order ini akan diperbarui menjadi diterima!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "me-2",
+                    cancelButtonText: "Tidak",
+                    confirmButtonText: "Ya",
+                    reverseButtons: true,
+                    input: "text",  // Add an input field to the SweetAlert modal
+                    inputPlaceholder: "Masukkan Nama Penerima :",  // Placeholder for the input
+                    inputAttributes: {
+                        autocapitalize: "off",
+                    },
+                    showLoaderOnConfirm: true,  // Display loader while confirming
+                    preConfirm: (inputValue) => {
+                        // Handle the AJAX request
+                        return $.ajax({
+                            type: "POST",
+                            url: "{{ route('order.receive') }}",
+                            data: {
+                                order_id: order_id,
+                                order_received: inputValue,  // Pass the input value to the server
+                            },
+                            dataType: "json",
+                        })
+                        .then((response) => {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
                             });
-                        } else {
-                            Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
-                        }
-                    });
+
+                            Toast.fire({
+                                icon: 'success',
+                                title: `${response.status}`,
+                            });
+
+                            setInterval(function() {
+                                window.location.reload();
+                            }, 1000);
+                        })
+                        .catch((error) => {
+                            Swal.fire("Error!", "There was an error processing your request.", "error");
+                        });
+                    },
+                })
+                .then((result) => {
+                    if (!result.isConfirmed) {
+                        Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
+                    }
+                });
             });
 
             // AUTO FILL PENGIRIM
@@ -1223,6 +1288,128 @@
 
             // Handle keydown event to prevent autofill on keys other than "Tab"
             $('body').on('keydown', '#order_penerima', function(e) {
+                if (e.keyCode !== 9) { // 9 is the keycode for "Tab" key
+                    autofillInProgress = false; // Reset the autofill flag
+                }
+            });
+
+            // AUTO FILL NO HP
+            $('body').on('input', '#order_nohp_penerima', function() {
+                // Fetch historical search data from the API endpoint
+                $.ajax({
+                    url: '/inputHistory', // Change the URL to match the endpoint in your routes
+                    data: { nohp: $(this).val() }, // Pass the input value as a parameter
+                    success: function (data) {
+                        // Display suggestions in a dropdown or autocomplete list below the input field
+                        if (data.length > 0) {
+                            var suggestionDropdown3 = $('#suggestionDropdown3');
+                            suggestionDropdown3.empty(); // Clear previous suggestions
+
+                            // Add suggestions to the dropdown
+                            data.forEach(function(suggestion) {
+                                suggestionDropdown3.append('<div class="suggestion3">' + suggestion + '</div>');
+                            });
+
+                            // Show the dropdown
+                            suggestionDropdown3.show();
+                        } else {
+                            // Hide the dropdown if no suggestions are available
+                            $('#suggestionDropdown3').hide();
+
+                            // If no suggestions are found, save the input to the database
+                            if (!autofillInProgress) {
+                                autofillInProgress = true; // Set the autofill flag to prevent duplicate autofill
+                                $.ajax({
+                                    url: '/inputStore', // Change the URL to match the endpoint in your routes
+                                    method: 'POST', // Use POST method to send the data
+                                    data: { nohp: $('#order_nohp_penerima').val() }, // Pass the input value as a parameter
+                                    success: function () {
+                                        autofillInProgress = false; // Reset the autofill flag
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Handle click on the suggestion in the dropdown
+            $('body').on('click', '.suggestion3', function() {
+                var selectedSuggestion = $(this).text();
+                $('#order_nohp_penerima').val(selectedSuggestion);
+                $('#suggestionDropdown3').hide();
+            });
+
+            // Hide the dropdown when clicking outside
+            $('body').on('click', function(event) {
+                if (!$(event.target).closest('#suggestionDropdown3').length && !$(event.target).is('#order_nohp_penerima')) {
+                    $('#suggestionDropdown3').hide();
+                }
+            });
+
+            // Handle keydown event to prevent autofill on keys other than "Tab"
+            $('body').on('keydown', '#order_nohp_penerima', function(e) {
+                if (e.keyCode !== 9) { // 9 is the keycode for "Tab" key
+                    autofillInProgress = false; // Reset the autofill flag
+                }
+            });
+
+            // AUTO FILL ALAMAT
+            $('body').on('input', '#order_alamat_penerima', function() {
+                // Fetch historical search data from the API endpoint
+                $.ajax({
+                    url: '/inputHistory', // Change the URL to match the endpoint in your routes
+                    data: { address: $(this).val() }, // Pass the input value as a parameter
+                    success: function (data) {
+                        // Display suggestions in a dropdown or autocomplete list below the input field
+                        if (data.length > 0) {
+                            var suggestionDropdown4 = $('#suggestionDropdown4');
+                            suggestionDropdown4.empty(); // Clear previous suggestions
+
+                            // Add suggestions to the dropdown
+                            data.forEach(function(suggestion) {
+                                suggestionDropdown4.append('<div class="suggestion4">' + suggestion + '</div>');
+                            });
+
+                            // Show the dropdown
+                            suggestionDropdown4.show();
+                        } else {
+                            // Hide the dropdown if no suggestions are available
+                            $('#suggestionDropdown4').hide();
+
+                            // If no suggestions are found, save the input to the database
+                            if (!autofillInProgress) {
+                                autofillInProgress = true; // Set the autofill flag to prevent duplicate autofill
+                                $.ajax({
+                                    url: '/inputStore', // Change the URL to match the endpoint in your routes
+                                    method: 'POST', // Use POST method to send the data
+                                    data: { address: $('#order_alamat_penerima').val() }, // Pass the input value as a parameter
+                                    success: function () {
+                                        autofillInProgress = false; // Reset the autofill flag
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Handle click on the suggestion in the dropdown
+            $('body').on('click', '.suggestion4', function() {
+                var selectedSuggestion = $(this).text();
+                $('#order_alamat_penerima').val(selectedSuggestion);
+                $('#suggestionDropdown4').hide();
+            });
+
+            // Hide the dropdown when clicking outside
+            $('body').on('click', function(event) {
+                if (!$(event.target).closest('#suggestionDropdown4').length && !$(event.target).is('#order_alamat_penerima')) {
+                    $('#suggestionDropdown4').hide();
+                }
+            });
+
+            // Handle keydown event to prevent autofill on keys other than "Tab"
+            $('body').on('keydown', '#order_alamat_penerima', function(e) {
                 if (e.keyCode !== 9) { // 9 is the keycode for "Tab" key
                     autofillInProgress = false; // Reset the autofill flag
                 }

@@ -106,7 +106,7 @@ class ManifestController extends Controller
         $currentTime = Carbon::createFromFormat('Y-m-d', $request->manifest_tanggal);
 
         // Get the formatted date portion (yymm)
-        $datePart = $currentTime->format('ym');
+        $datePart = $currentTime->format('y');
 
         // Get the current counter value from cache for the specific model
         $counter = Cache::get($modelName . '_counter');
@@ -136,13 +136,14 @@ class ManifestController extends Controller
         }
 
         // Generate the new ID
-        $newId  = $datePart . sprintf("%03d", $counter);
+        $newId  = 'M' . $datePart . sprintf("%03d", $counter);
 
         // SUM EACH ROW NEED TO BE STORE FOR MANIFEST
         $orders = Order::whereIn('order_id', $request->order_id)->get();
-        $order_total_koli  = $orders->sum('order_koli');
-        $order_total_berat = $orders->sum('order_berat');
-        $order_total_total = $orders->sum('order_total');
+        $order_total_koli   = $orders->sum('order_koli');
+        $order_total_berat  = $orders->sum('order_berat');
+        $order_total_volume = $orders->sum('order_volume');
+        $order_total        = $orders->sum('order_total');
 
         // Store data manifest
         $manifest   = Manifest::updateOrCreate([
@@ -155,7 +156,8 @@ class ManifestController extends Controller
             'manifest_plat_mobil'     => $request->manifest_plat_mobil,
             'manifest_total_koli'     => $order_total_koli,
             'manifest_total_berat'    => $order_total_berat,
-            'manifest_total_harga'    => $order_total_total,
+            'manifest_total_volume'   => $order_total_volume,
+            'manifest_total_harga'    => $order_total,
         ]);
 
         // store to detail manifest
