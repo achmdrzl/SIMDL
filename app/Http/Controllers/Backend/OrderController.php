@@ -164,7 +164,7 @@ class OrderController extends Controller
         $currentTime = Carbon::createFromFormat('Y-m-d', $request->order_tanggal);
 
         // Get the formatted date portion (yymmdd)
-        $datePart = $currentTime->format('ym');
+        $datePart = $currentTime->format('y');
 
         // Get the current counter value from cache for the specific model
         $counter = Cache::get($modelName . '_counter');
