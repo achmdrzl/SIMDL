@@ -1,5 +1,21 @@
 @extends('layouts.main')
 
+{{-- @push('style-alt')
+<style>
+    /* Reduce font size for table header cells */
+    #order_data thead th {
+        font-size: 12px; /* Adjust the font size as needed */
+    }
+
+    /* Reduce font size for table body cells */
+    #order_data tbody td {
+        font-size: 12px; /* Adjust the font size as needed */
+        text-align: center;
+    }
+    
+</style>
+@endpush --}}
+
 @section('content')
     <!-- Main Content -->
     <div class="hk-pg-wrapper">
@@ -55,43 +71,23 @@
                                                     <tr>
                                                         <th>No</th>
                                                         <th>No Resi</th>
-                                                        <th>Tanggal</th>
+                                                        {{-- <th>Tanggal</th> --}}
                                                         <th>Pengirim</th>
                                                         <th>Penerima</th>
-                                                        <th>Berat</th>
+                                                        {{-- <th>Berat</th>
                                                         <th>Volume</th>
                                                         <th>Tarif</th>
-                                                        <th>Total</th>
+                                                        <th>Total</th> --}}
                                                         <th>Status Bayar</th>
                                                         <th>Status Pengiriman</th>
                                                         <th>Metode Bayar</th>
-                                                        <th>Order Di Buat</th>
-                                                        <th>Order Di Terima</th>
-                                                        <th>Order Di Terima Validasi</th>
-                                                        <th>Pembayaran Validasi</th>
+                                                        {{-- <th>Di Buat</th> --}}
+                                                        <th>Di Terima</th>
+                                                        {{-- <th>Terima Validasi</th> --}}
+                                                        <th>Bayar Validasi</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody></tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th> <!-- Footer cell for 'order_berat' sum -->
-                                                        <th></th> <!-- Footer cell for 'order_total' sum -->
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                    </tr>
-                                                </tfoot>
                                             </table>
                                         </div>
                                     </div>
@@ -169,14 +165,14 @@
                             <form id="orderForm" enctype="multipart/form-data">
                                 <div class="row gx-3">
                                     <input type="hidden" id="order_id" name="order_id">
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <label class="form-label">Tanggal</label>
                                         <div class="form-group">
                                             <input class="form-control" type="date" name="order_tanggal"
                                                 value="{{ date('Y-m-d') }}" id="order_tanggal" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <label class="form-label">Pengirim</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text" placeholder="Masukkan Pengirim"
@@ -185,24 +181,13 @@
                                         <!-- Add a div to display the suggestions as a dropdown -->
                                         <div id="suggestionDropdown" style="display: none;"></div>
                                     </div>
-                                </div>
-                                <div class="row gx-3">
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <label class="form-label">Penerima</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text" placeholder="Masukkan Penerima"
                                                 name="order_penerima" id="order_penerima" />
                                             <!-- Add a div to display the suggestions as a dropdown -->
                                             <div id="suggestionDropdown2" style="display: none;"></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label class="form-label">No Hp Penerima</label>
-                                        <div class="form-group">
-                                            <input class="form-control" type="number" placeholder="Masukkan No Hp"
-                                                name="order_nohp_penerima" id="order_nohp_penerima" />
-                                            <!-- Add a div to display the suggestions as a dropdown -->
-                                            <div id="suggestionDropdown3" style="display: none;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -218,23 +203,32 @@
                                     </div>
                                 </div>
                                 <div class="row gx-3">
-                                    <div class="col-sm-4">
-                                        <label class="form-label">Order Koli</label>
+                                    <div class="col-sm-3">
+                                        <label class="form-label">No Hp Penerima</label>
+                                        <div class="form-group">
+                                            <input class="form-control" type="number" placeholder="Masukkan No Hp"
+                                                name="order_nohp_penerima" id="order_nohp_penerima" />
+                                            <!-- Add a div to display the suggestions as a dropdown -->
+                                            <div id="suggestionDropdown3" style="display: none;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="form-label">Koli</label>
                                         <div class="form-group">
                                             <input class="form-control" type="number" placeholder="Masukkan Jumlah Koli"
                                                 name="order_koli" id="order_koli" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
-                                        <label class="form-label">Order Kemasan</label>
+                                    <div class="col-sm-3">
+                                        <label class="form-label">Kemasan</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text"
                                                 placeholder="Masukkan Jenis Kemasan" name="order_kemasan"
                                                 id="order_kemasan" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
-                                        <label class="form-label">Order Rincian</label>
+                                    <div class="col-sm-3">
+                                        <label class="form-label">Rincian</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text"
                                                 placeholder="Masukkan Jumlah rincian" name="order_rincian"
@@ -243,41 +237,41 @@
                                     </div>
                                 </div>
                                 <div class="row gx-3">
-                                    <div class="col-sm-4">
-                                        <label class="form-label">Order Isi</label>
+                                    <div class="col-sm-3">
+                                        <label class="form-label">Isi Barang</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text" placeholder="Masukkan Jumlah isi"
                                                 name="order_isi" id="order_isi" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
-                                        <label class="form-label">Order Berat</label>
+                                    <div class="col-sm-3">
+                                        <label class="form-label">Berat</label>
                                         <div class="form-group">
                                             <input class="form-control" type="number"
                                                 placeholder="Masukkan Jumlah berat" name="order_berat"
                                                 id="order_berat" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-4">
-                                        <label class="form-label">Order Volume</label>
+                                    <div class="col-sm-3">
+                                        <label class="form-label">Volume</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text"
                                                 placeholder="Masukkan Jenis volume" name="order_volume"
                                                 id="order_volume" />
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row gx-3">
-                                    <div class="col-sm-6">
-                                        <label class="form-label">Order Tarif</label>
+                                    <div class="col-sm-3">
+                                        <label class="form-label">Tarif</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text"
                                                 placeholder="Masukkan Jumlah tarif" name="order_tarif"
                                                 id="order_tarif" />
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <label class="form-label">Order Total</label>
+                                </div>
+                                <div class="row gx-3">
+                                    <div class="col-sm-12">
+                                        <label class="form-label">Total</label>
                                         <div class="form-group">
                                             <input class="form-control" type="number"
                                                 placeholder="Masukkan Jumlah berat" name="order_total"
@@ -312,22 +306,31 @@
                                 <div class="row gx-3">
                                     <input type="hidden" id="payment_tanggal" name="payment_tanggal">
                                     <input type="hidden" id="payment_status" name="payment_status">
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-4">
                                         <label class="form-label">Kota Transit</label>
                                         <div class="form-group">
                                             <textarea class="form-control" name="payment_keterangan" id="payment_keterangan"
                                                 placeholder="Masukkan Kota Transit"></textarea>
                                         </div>
                                     </div>
-                                </div>
-                                 <div class="row gx-3">
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-4">
                                         <label class="form-label">Lampiran</label>
                                         <div class="form-group">
                                             <textarea class="form-control" name="order_lampiran" id="order_lampiran"
                                                 placeholder="Masukkan Lampiran Order"></textarea>
                                         </div>
                                     </div>
+                                    <div class="col-sm-4">
+                                        <label class="form-label">Keterangan</label>
+                                        <div class="form-group">
+                                            <textarea class="form-control" name="order_keterangan" id="order_keterangan"
+                                                placeholder="Masukkan Keterangan Order"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="row gx-3">
+                                </div>
+                                 <div class="row gx-3">
                                 </div>
                         </div>
                         <div class="modal-footer align-items-center">
@@ -457,6 +460,7 @@
                     $('.dataTables_paginate > .pagination').addClass(
                         'custom-pagination pagination-simple');
                 },
+                
                 processing: true,
                 serverSide: false,
                 ajax: "{{ route('order.index') }}",
@@ -468,10 +472,10 @@
                         data: 'order_noresi',
                         name: 'order_noresi'
                     },
-                    {
-                        data: 'order_tanggal',
-                        name: 'order_tanggal'
-                    },
+                    // {
+                    //     data: 'order_tanggal',
+                    //     name: 'order_tanggal'
+                    // },
                     {
                         data: 'order_pengirim',
                         name: 'order_pengirim'
@@ -480,22 +484,22 @@
                         data: 'order_penerima',
                         name: 'order_penerima'
                     },
-                    {
-                        data: 'order_berat',
-                        name: 'order_berat'
-                    },
-                    {
-                        data: 'order_volume',
-                        name: 'order_volume'
-                    },
-                    {
-                        data: 'order_tarif',
-                        name: 'order_tarif'
-                    },
-                    {
-                        data: 'order_total',
-                        name: 'order_total'
-                    },
+                    // {
+                    //     data: 'order_berat',
+                    //     name: 'order_berat'
+                    // },
+                    // {
+                    //     data: 'order_volume',
+                    //     name: 'order_volume'
+                    // },
+                    // {
+                    //     data: 'order_tarif',
+                    //     name: 'order_tarif'
+                    // },
+                    // {
+                    //     data: 'order_total',
+                    //     name: 'order_total'
+                    // },
                     {
                         data: 'payment_status',
                         name: 'payment.payment_status'
@@ -508,17 +512,13 @@
                         data: 'payment_method',
                         name: 'payment.payment_method'
                     },
-                    {
-                        data: 'order_create',
-                        name: 'order_create'
-                    },
+                    // {
+                    //     data: 'order_create',
+                    //     name: 'order_create'
+                    // },
                     {
                         data: 'order_received',
                         name: 'order_received'
-                    },
-                    {
-                        data: 'order_received_validation',
-                        name: 'order_received_validation'
                     },
                     {
                         data: 'payment_acc',
@@ -655,8 +655,135 @@
                 $('#order_tarif').prop('readonly', false).val()
                 $('#order_total').prop('readonly', false).val()
                 $('#order_lampiran').prop('readonly', false).val()
+                $('#order_keterangan').prop('readonly', false).val()
                 $('#payment_keterangan').prop('readonly', false).val()
                 
+            });
+
+            // Edit Data Order.
+            $('body').on('click', '#order-edit', function() {
+                $('.alert').hide();
+                $('#saveBtn').val("create-order");
+                $('#order_id').val('');
+                $('#orderForm').trigger("reset");
+                $('#orderHeading').html("TAMBAH DATA ORDER BARU");
+                $('#orderModal').modal('show');
+                $('#method').prop('hidden', false)
+                $('#codInputs').html('')
+
+                var order_id    = $(this).attr('data-id')
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('order.detail') }}",
+                    data: {
+                        order_id: order_id,
+                    },
+                    dataType: "JSON",
+                    success: function (response) {
+                                                // hidden method
+                        $('#method').prop('hidden', true)
+
+                        var order_id              = response.order_id
+                        var order_tanggal         = response.order_tanggal
+                        var order_pengirim        = response.order_pengirim
+                        var order_penerima        = response.order_penerima
+                        var order_alamat_penerima = response.order_alamat_penerima
+                        var order_nohp_penerima   = response.order_nohp_penerima
+                        var order_koli            = response.order_koli
+                        var order_kemasan         = response.order_kemasan
+                        var order_rincian         = response.order_rincian
+                        var order_berat           = response.order_berat
+                        var order_volume          = response.order_volume
+                        var order_isi             = response.order_isi
+                        var order_tarif           = response.order_tarif
+                        var order_total           = response.order_total
+                        var order_lampiran        = response.order_lampiran
+                        var payment_status        = response.payment.payment_status
+                        var payment_tanggal       = response.payment.payment_tanggal
+                        var payment_method        = response.payment.payment_method
+                        var payment_bukti         = response.payment.payment_bukti
+
+                        // GET NAME OF PAYMENT VALIDATION
+                        var payment_acc = '';
+                        if (response.payment && response.payment.user_acc && response.payment.user_acc.name !== null) {
+                            payment_acc = response.payment.user_acc.name;
+                        }
+
+                        // GET PAYMENT KETERANGAN OR KOTA TRANSIT
+                        var payment_keterangan = '-';
+                        if (response.payment && response.payment.payment_keterangan !== null) {
+                            payment_keterangan = response.payment.payment_keterangan;
+                        }
+
+                        var download_button = '';
+                        if(payment_bukti != '-'){
+                            download_button = `<div class="col-sm-6">
+                                                    <label class="form-label">Bukti Pembayaran</label>
+                                                    <div class="form-group">
+                                                        <input class="form-control" type="file"
+                                                            placeholder="Masukkan Jumlah tarif" name="payment_bukti"
+                                                            id="payment_bukti" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <label class="form-label">Bukti Pembayaran</label>
+                                                    <div class="form-group">
+                                                        <a href="download/image/` + order_id + `" class="btn btn-primary" id="buktiBayar" target="_blank" download>Download Bukti</a>
+                                                    </div>
+                                                </div>`;
+                        }else{
+                            download_button = '';
+                        }
+                        
+                        $('#order_tanggal').val(order_tanggal).prop('readonly', false)
+                        $('#order_pengirim').val(order_pengirim).prop('readonly', false)
+                        $('#order_penerima').val(order_penerima).prop('readonly', false)
+                        $('#order_alamat_penerima').val(order_alamat_penerima).prop('readonly', false)
+                        $('#order_nohp_penerima').val(order_nohp_penerima).prop('readonly', false)
+                        $('#order_koli').val(order_koli).prop('readonly', false)
+                        $('#order_kemasan').val(order_kemasan).prop('readonly', false)
+                        $('#order_rincian').val(order_rincian).prop('readonly', false)
+                        $('#order_berat').val(order_berat).prop('readonly', false)
+                        $('#order_volume').val(order_volume).prop('readonly', false)
+                        $('#order_isi').val(order_isi).prop('readonly', false)
+                        $('#order_tarif').val(order_tarif).prop('readonly', false)
+                        $('#order_total').val(order_total).prop('readonly', false)
+                        $('#order_lampiran').val(order_lampiran).prop('readonly', false)
+                        $('#payment_keterangan').val(payment_keterangan).prop('readonly', false)
+
+                        if(payment_status == 'lunas'){
+                            var button   = `<div class="col-sm-4">
+                                                <label class="form-label">Tanggal Pembayaran</label>
+                                                <div class="form-group">
+                                                    <input class="form-control" type="date" placeholder="Masukkan Jumlah Koli"
+                                                        name="payment_tanggal" id="payment_tanggal" value=`+ payment_tanggal +` />
+                                            </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Validasi Pembayaran Oleh:</label>
+                                                <div class="form-group">
+                                                    <input class="form-control" type="text"
+                                                        placeholder="Masukkan Jenis Kemasan" name="payment_acc"
+                                                        id="payment_acc" value=`+ payment_acc +` />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <label class="form-label">Metode Pembayaran:</label>
+                                                <div class="form-group">
+                                                    <input class="form-control" type="text"
+                                                        placeholder="Masukkan Jenis Kemasan" name="payment_acc"
+                                                        id="payment_acc" value=`+ payment_method +` />
+                                                </div>
+                                            </div>
+                                            ` + download_button + ` `;
+
+                            $('#codInputs').html(button)
+                        }else{
+                            $('#codInputs').html('')
+                        }
+                    }
+                });
             });
 
             // Stored Data Order.
@@ -848,6 +975,7 @@
                         var order_tarif           = response.order_tarif
                         var order_total           = response.order_total
                         var order_lampiran        = response.order_lampiran
+                        var order_keterangan      = response.order_keterangan
                         var payment_status        = response.payment.payment_status
                         var payment_tanggal       = response.payment.payment_tanggal
                         var payment_method        = response.payment.payment_method
@@ -891,6 +1019,7 @@
                         $('#order_tarif').val(order_tarif).prop('readonly', true)
                         $('#order_total').val(order_total).prop('readonly', true)
                         $('#order_lampiran').val(order_lampiran).prop('readonly', true)
+                        $('#order_keterangan').val(order_keterangan).prop('readonly', true)
                         $('#payment_keterangan').val(payment_keterangan).prop('readonly', true)
 
                         if(payment_status == 'lunas'){
@@ -902,7 +1031,7 @@
                                             </div>
                                             </div>
                                             <div class="col-sm-4">
-                                                <label class="form-label">Validasi Pembyaran Oleh:</label>
+                                                <label class="form-label">Validasi Pembayaran Oleh:</label>
                                                 <div class="form-group">
                                                     <input class="form-control" type="text"
                                                         placeholder="Masukkan Jenis Kemasan" name="payment_acc"
@@ -1175,7 +1304,7 @@
             $('body').on('input', '#order_pengirim', function() {
                 // Fetch historical search data from the API endpoint
                 $.ajax({
-                    url: '/inputHistory', // Change the URL to match the endpoint in your routes
+                    url: '{{ route('get.input') }}', // Change the URL to match the endpoint in your routes
                     data: { query: $(this).val() }, // Pass the input value as a parameter
                     success: function (data) {
                         // Display suggestions in a dropdown or autocomplete list below the input field
@@ -1198,7 +1327,7 @@
                             if (!autofillInProgress) {
                                 autofillInProgress = true; // Set the autofill flag to prevent duplicate autofill
                                 $.ajax({
-                                    url: '/inputStore', // Change the URL to match the endpoint in your routes
+                                    url: '{{ route('store.input') }}', // Change the URL to match the endpoint in your routes
                                     method: 'POST', // Use POST method to send the data
                                     data: { query: $('#order_pengirim').val() }, // Pass the input value as a parameter
                                     success: function () {
@@ -1236,7 +1365,7 @@
             $('body').on('input', '#order_penerima', function() {
                 // Fetch historical search data from the API endpoint
                 $.ajax({
-                    url: '/inputHistory', // Change the URL to match the endpoint in your routes
+                    url: '{{ route('get.input') }}', // Change the URL to match the endpoint in your routes
                     data: { query: $(this).val() }, // Pass the input value as a parameter
                     success: function (data) {
                         // Display suggestions in a dropdown or autocomplete list below the input field
@@ -1259,7 +1388,7 @@
                             if (!autofillInProgress) {
                                 autofillInProgress = true; // Set the autofill flag to prevent duplicate autofill
                                 $.ajax({
-                                    url: '/inputStore', // Change the URL to match the endpoint in your routes
+                                    url: '{{ route('store.input') }}', // Change the URL to match the endpoint in your routes
                                     method: 'POST', // Use POST method to send the data
                                     data: { query: $('#order_penerima').val() }, // Pass the input value as a parameter
                                     success: function () {
@@ -1297,7 +1426,7 @@
             $('body').on('input', '#order_nohp_penerima', function() {
                 // Fetch historical search data from the API endpoint
                 $.ajax({
-                    url: '/inputHistory', // Change the URL to match the endpoint in your routes
+                    url: '{{ route('get.input') }}', // Change the URL to match the endpoint in your routes
                     data: { nohp: $(this).val() }, // Pass the input value as a parameter
                     success: function (data) {
                         // Display suggestions in a dropdown or autocomplete list below the input field
@@ -1320,7 +1449,7 @@
                             if (!autofillInProgress) {
                                 autofillInProgress = true; // Set the autofill flag to prevent duplicate autofill
                                 $.ajax({
-                                    url: '/inputStore', // Change the URL to match the endpoint in your routes
+                                    url: '{{ route('store.input') }}', // Change the URL to match the endpoint in your routes
                                     method: 'POST', // Use POST method to send the data
                                     data: { nohp: $('#order_nohp_penerima').val() }, // Pass the input value as a parameter
                                     success: function () {
@@ -1358,7 +1487,7 @@
             $('body').on('input', '#order_alamat_penerima', function() {
                 // Fetch historical search data from the API endpoint
                 $.ajax({
-                    url: '/inputHistory', // Change the URL to match the endpoint in your routes
+                    url: '{{ route('get.input') }}', // Change the URL to match the endpoint in your routes
                     data: { address: $(this).val() }, // Pass the input value as a parameter
                     success: function (data) {
                         // Display suggestions in a dropdown or autocomplete list below the input field
@@ -1381,7 +1510,7 @@
                             if (!autofillInProgress) {
                                 autofillInProgress = true; // Set the autofill flag to prevent duplicate autofill
                                 $.ajax({
-                                    url: '/inputStore', // Change the URL to match the endpoint in your routes
+                                    url: '{{ route('store.input') }}', // Change the URL to match the endpoint in your routes
                                     method: 'POST', // Use POST method to send the data
                                     data: { address: $('#order_alamat_penerima').val() }, // Pass the input value as a parameter
                                     success: function () {

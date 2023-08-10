@@ -51,6 +51,7 @@ Route::group(['middleware' => ['role:superadmin|admin', 'auth']], function () {
     Route::get('/orderTotal', OrderController::class . '@orderTotal')->name('order.total');
     Route::get('/orderPrint', OrderController::class . '@orderPrint')->name('order.print');
     Route::post('/orderReceive', OrderController::class . '@orderReceive')->name('order.receive');
+    Route::post('/orderEdit', OrderController::class. '@orderEdit')->name('order.edit');
 
     // INPUT HISTORY
     Route::get('/inputHistory', OrderController::class . '@getInput')->name('get.input');

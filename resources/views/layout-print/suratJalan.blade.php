@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Surat Jalan - Den Logistik</title>
 
     <style>
       body {
@@ -103,7 +103,7 @@
             <td></td>
             <td style="margin-left: 20px;">
               {{ ucfirst($order->order_alamat_penerima) }} <br />
-              087822172007
+             {{ $order->order_nohp_penerima }}
             </td>
             <td></td>
             <td></td>
@@ -183,7 +183,7 @@
                   <td></td>
                   <td></td>
                   <td></td>
-                  <td style="text-align: left">-</td>
+                  <td style="text-align: left">{{ $order->order_keterangan }}</td>
                 </tr>
                 <tr>
                   <td></td>

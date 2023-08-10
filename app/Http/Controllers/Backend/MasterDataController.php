@@ -165,22 +165,22 @@ class MasterDataController extends Controller
     {
         //define validation rules
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            // 'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
-            'email' => 'required|email',
-            'role' => 'required',
-            'city' => 'required',
-            'phone_number' => 'required',
-            'password' => 'required|min:8',
+            'name'                  => 'required',
+            // 'email'              => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
+            'email'                 => 'required|email',
+            'role'                  => 'required|in:superadmin,admin',
+            'city'                  => 'required|in:surabaya,makassar',
+            'phone_number'          => 'required',
+            'password'              => 'required|min:8',
             'password_confirmation' => 'required_with:password|same:password'
         ], [
-            'name.required' => 'Name Must Be Included!',
-            'email.required' => 'Email Must Be Included!',
-            'phone_number.required' => 'Phone Number Must Be Included!',
-            'role.required' => 'Position Must Be Included',
-            'city.required' => 'City Must Be Included',
-            'password' => 'Password Must be at least 8 Characters',
-            'password_confirmation' => 'Password Confirmation Must be at least 8 Characters',
+            'name.required'         => 'Nama Harus di Isi!',
+            'email.required'        => 'Email Harus di Isi!',
+            'phone_number.required' => 'No Handphone Harus di Isi!',
+            'role.required'         => 'Posisi Harus di Isi',
+            'city.required'         => 'Kota Harus di Isi',
+            'password'              => 'Kata Sandi Harus Minimal 8 Karakter',
+            'password_confirmation' => 'Konfirmasi Kata Sandi Harus Minimal 8 Karakter',
         ]);
 
         //check if validation fails

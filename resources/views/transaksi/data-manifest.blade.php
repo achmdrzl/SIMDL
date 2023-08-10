@@ -104,7 +104,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
-                                        <label class="form-label">Tanggal Awal Manifest</label>
+                                        <label class="form-label">Tanggal Akhir Manifest</label>
                                         <div class="form-group">
                                             <input class="form-control" type="date" placeholder="Masukkan Tanggal Akhir"
                                                 name="manifest_tanggal_akhir" id="manifest_tanggal_akhir" />

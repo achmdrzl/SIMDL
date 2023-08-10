@@ -73305,7 +73305,7 @@ div.hopscotch-bubble .hopscotch-bubble-container .hopscotch-actions .hopscotch-n
   --bs-gutter-y: 3rem;
 }
 
-@media (min-width: 576px) {
+@media (min-width: 800px) {
   .g-sm-5, .gx-sm-5 {
     --bs-gutter-x: 2rem;
   }

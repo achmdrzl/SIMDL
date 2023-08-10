@@ -24,6 +24,7 @@
 
         table.body {
             margin-top: 25px;
+            border-collapse: collapse;
         }
 
         table.body thead {
@@ -39,6 +40,7 @@
         table.body th,
         table.body td {
             border: 1px solid black;
+            padding: 4px;
         }
 
         th,
@@ -158,7 +160,7 @@
                 <tr style="background-color: greenyellow;">
                     <th colspan="3" style="text-align: center;">Total Laba Bersih :</th>
                     <th style="text-align: right;">Rp.
-                        {{ number_format(($laporan->laporan_total_handling + $laporan->laporan_total_omset) - ($laporan->laporan_total_operasional + $laporan->laporan_total_transportasi + $laporan->laporan_total_gaji)) }}
+                        {{ number_format($laporan->laporan_total_handling + $laporan->laporan_total_omset - ($laporan->laporan_total_operasional + $laporan->laporan_total_transportasi + $laporan->laporan_total_gaji)) }}
                     </th>
                 </tr>
             </table>

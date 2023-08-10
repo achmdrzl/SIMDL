@@ -59,22 +59,28 @@ class ManifestController extends Controller
     // GET DATA ORDER BEFORE MAKE A NEW DATA MANIFEST
     public function getorderdata(Request $request)
     {
-        $orders = Order::whereBetween('order_tanggal', [$request->manifest_tanggal_awal, $request->manifest_tanggal_akhir])->get();
+        // $orders = Order::whereBetween('order_tanggal', [$request->manifest_tanggal_awal, $request->manifest_tanggal_akhir])->get();
 
-        // Check the order_status for each order
-        $manifestOrders = [];
-        foreach ($orders as $order) {
-            if ($order->order_status == 'on-progress' || $order->order_status == 'telah-sampai') {
-                // If order_status is 'manifest', return an error response with an HTTP error code
-                return response(['error' => 'Orders tidak dapat di proses.']);
-            } else {
-                // If order_status is not 'manifest', add it to the manifestOrders array
-                $manifestOrders[] = $order;
-            }
-        }
+        // // Check the order_status for each order
+        // $manifestOrders = [];
+        // foreach ($orders as $order) {
+        //     if ($order->order_status == 'on-progress' || $order->order_status == 'telah-sampai') {
+        //         // If order_status is 'manifest', return an error response with an HTTP error code
+        //         return response(['error' => 'Orders tidak dapat di proses.']);
+        //     } else {
+        //         // If order_status is not 'manifest', add it to the manifestOrders array
+        //         $manifestOrders[] = $order;
+        //     }
+        // }
 
-        // If all orders have valid order_status, return them as JSON
-        return response()->json($manifestOrders);
+        // // If all orders have valid order_status, return them as JSON
+        // return response()->json($manifestOrders);
+        $orders = Order::whereBetween('order_tanggal', [$request->manifest_tanggal_awal, $request->manifest_tanggal_akhir])
+            ->where('order_status', 'terdaftar')
+            ->get();
+
+        // Return the filtered orders as JSON
+        return response()->json($orders);
     }
 
     // STORED DATA MANIFEST BARU
@@ -111,32 +117,22 @@ class ManifestController extends Controller
         // Get the current counter value from cache for the specific model
         $counter = Cache::get($modelName . '_counter');
 
-        // Get the last date stored in the cache for the specific model
-        $lastDate = Cache::get($modelName . '_counter_date');
+        // Increment the counter
+        $counter++;
 
-        // Check if the counter needs to be reset
-        if ($lastDate !== $datePart) {
-            // Reset the counter
+        // Check if the counter reaches 999, then reset it
+        if ($counter > 999) {
             $counter = 1;
-            Cache::put(
-                $modelName . '_counter',
-                $counter
-            );
-            Cache::put(
-                $modelName . '_counter_date',
-                $datePart
-            );
-        } else {
-            // Increment the counter
-            $counter++;
-            Cache::put(
-                $modelName . '_counter',
-                $counter
-            );
         }
 
+        // Store the updated counter and date in the cache
+        Cache::put($modelName . '_counter', $counter);
+        Cache::put($modelName . '_counter_date', $datePart);
+
         // Generate the new ID
-        $newId  = 'M' . $datePart . sprintf("%03d", $counter);
+        $newId = 'M' . $datePart . sprintf("%03d",
+            $counter
+        );
 
         // SUM EACH ROW NEED TO BE STORE FOR MANIFEST
         $orders = Order::whereIn('order_id', $request->order_id)->get();

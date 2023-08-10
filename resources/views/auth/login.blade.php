@@ -61,7 +61,7 @@ Contact: contact@hencework.com
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Classic | Jampack - Admin CRM Dashboard Template</title>
+    <title>Login Page - Den Logistik</title>
     <meta name="description"
         content="A modern CRM Dashboard Template with reusable and flexible components for your SaaS web applications by hencework. Based on Bootstrap." />
 
@@ -145,14 +145,14 @@ Contact: contact@hencework.com
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="d-flex justify-content-center">
+                                                    {{-- <div class="d-flex justify-content-center">
                                                         <div class="form-check form-check-sm mb-3">
                                                             <input id="remember_me" type="checkbox"
                                                                 class="form-check-input" name="remember">
                                                             <label class="form-check-label text-muted fs-7"
                                                                 for="logged_in">Keep me logged in</label>
                                                         </div>
-                                                    </div>
+                                                    </div> --}}
                                                     <button type="submit"
                                                         class="btn btn-primary btn-uppercase btn-block">Login</button>
                                                 </div>

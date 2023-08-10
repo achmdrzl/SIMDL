@@ -80,7 +80,7 @@
                                 <div class="row gx-3">
                                     <input type="hidden" id="user_id" name="user_id">
                                     <div class="col-sm-12">
-                                        <label class="form-label">Name</label>
+                                        <label class="form-label">Nama</label>
                                         <div class="form-group">
                                             <input class="form-control" type="text" placeholder="Masukkan Nama"
                                                 name="name" id="name" />
@@ -95,7 +95,7 @@
                                 <div class="row gx-3">
                                     <div class="col-sm-4">
                                         <div class="form-group">
-                                            <label class="form-label">Phone Number</label>
+                                            <label class="form-label">No Handphone</label>
                                             <input class="form-control" type="number"
                                                 placeholder="Masukkan Nomor Handphone" name="phone_number"
                                                 id="phone_number" />
@@ -103,10 +103,12 @@
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
-                                            <label class="form-label">City</label>
-                                            <input class="form-control" type="text"
-                                                placeholder="Masukkan Kota Admin" name="city"
-                                                id="city" />
+                                            <label class="form-label">Kota</label>
+                                            <select class="form-select" id="city" name="city">
+                                                <option selected disabled>--</option>
+                                                <option value="surabaya">Surabaya</option>
+                                                <option value="makassar">Makassar</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-4">

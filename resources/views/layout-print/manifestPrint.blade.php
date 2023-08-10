@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>layout2</title>
+    <title>Manifest - Den Logistik</title>
     <style>
         .row {
             display: flex;
@@ -20,10 +20,12 @@
 
         table.body {
             margin-top: -25px;
+            border-collapse: collapse;
         }
 
         table.body thead {
             background-color: greenyellow;
+            font-weight: bold;
         }
 
         .manifest {
@@ -35,12 +37,13 @@
         table.body th,
         table.body td {
             border: 1px solid black;
+            padding: 4px;
         }
 
         th,
         td {
             padding: 8px;
-            text-align: left;
+            text-align: center;
         }
     </style>
 </head>
@@ -109,7 +112,7 @@
                     <td colspan="3" style="text-align: center;"><strong>Total</strong></td>
                     <td><strong>{{ $item->manifest_total_koli }}</strong></td>
                     <td><strong>$</strong></td>
-                    <td colspan="2" style="text-align: center;"><strong>5000</strong></td>
+                    <td colspan="2" style="text-align: center;"><strong>{{ $manifest->manifest_total_berat + $manifest->manifest_total_volume }}</strong></td>
                     <td><strong>Kg</strong></td>
                     <td></td>
                     <td></td>

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use PDO;
 use Yajra\DataTables\Facades\DataTables;
 
 class OrderController extends Controller
@@ -21,36 +22,38 @@ class OrderController extends Controller
     // INDEX ORDER
     public function orderIndex(Request $request)
     {
-        $orders       = Order::with(['payment.userAcc', 'userCreate'])->get();
+        $orders = Order::with(['payment.userAcc', 'userCreate'])->get();
 
         if ($request->ajax()) {
-            $orders   =   Order::with(['payment'])->latest()->get();
+            $orders = Order::with(['payment'])
+            ->latest()
+            ->get();
             return DataTables::of($orders)
-                ->addIndexColumn()
-                ->addColumn('order_noresi', function ($item) {
-                    return $item->order_noresi;
-                })
-                ->addColumn('order_tanggal', function ($item) {
-                    return $item->order_tanggal;
-                })
+            ->addIndexColumn()
+            ->addColumn('order_noresi', function ($item) {
+                return $item->order_noresi;
+            })
+                // ->addColumn('order_tanggal', function ($item) {
+                //     return $item->order_tanggal;
+                // })
                 ->addColumn('order_pengirim', function ($item) {
                     return ucfirst($item->order_pengirim);
                 })
                 ->addColumn('order_penerima', function ($item) {
                     return ucfirst($item->order_penerima);
                 })
-                ->addColumn('order_berat', function ($item) {
-                    return $item->order_berat . 'Kg';
-                })
-                ->addColumn('order_volume', function ($item) {
-                    return $item->order_volume;
-                })
-                ->addColumn('order_tarif', function ($item) {
-                    return 'Rp.' . number_format($item->order_tarif);
-                })
-                ->addColumn('order_total', function ($item) {
-                    return 'Rp. ' . number_format($item->order_total);
-                })
+                // ->addColumn('order_berat', function ($item) {
+                //     return $item->order_berat . 'Kg';
+                // })
+                // ->addColumn('order_volume', function ($item) {
+                //     return $item->order_volume;
+                // })
+                // ->addColumn('order_tarif', function ($item) {
+                //     return 'Rp.' . number_format($item->order_tarif);
+                // })
+                // ->addColumn('order_total', function ($item) {
+                //     return 'Rp. ' . number_format($item->order_total);
+                // })
                 ->addColumn('payment_status', function ($item) {
                     if ($item->payment->payment_status == 'lunas') {
                         $status = '<div class="badge bg-success">' . strtoupper($item->payment->payment_status) . '</div>';
@@ -65,28 +68,37 @@ class OrderController extends Controller
                 ->addColumn('order_status', function ($item) {
                     if ($item->order_status == 'terdaftar') {
                         $status = '<div class="badge bg-secondary">' . strtoupper($item->order_status) . '</div>';
-                    } else if ($item->order_status == 'on-progress') {
+                    } elseif ($item->order_status == 'on-progress') {
                         $status = '<div class="badge bg-warning">' . strtoupper($item->order_status) . '</div>';
                     } else {
                         $status = '<div class="badge bg-success">' . strtoupper($item->order_status) . '</div>';
                     }
                     return $status;
                 })
-                ->addColumn('order_create', function ($item) {
-                    return $item->userCreate->name == null ? '-' : ucfirst($item->userCreate->name);
-                })
-                ->addColumn('order_received_validation', function ($item) {
-                    $userReceived = optional($item->userReceive);
+                // ->addColumn('order_create', function ($item) {
+                //     $name = $item->userCreate->name == null ? '-' : ucfirst($item->userCreate->name);
+                //     $city = $item->userCreate->city == null ? '-' : ucfirst($item->userCreate->city);
 
-                    // Check if the 'userReceived' relationship exists and if it has the 'name' property
-                    $name = optional($userReceived)->name;
+                //     if($city)
 
-                    // Use a default value ('-') if the 'name' is null
-                    $data[] = $name === null ? '-' : ucfirst($name);
-                    return $data;
-                })
+                //     return ucfirst($name) . ' - ' . ucfirst($city);
+                // })
+                // ->addColumn('order_received_validation', function ($item) {
+                //     $userReceived = optional($item->userReceive);
+
+                //     // Check if the 'userReceived' relationship exists and if it has the 'name' property
+                //     $name = optional($userReceived)->name;
+                //     $city = optional($userReceived)->city;
+
+                //     // Use a default value ('-') if the 'name' is null
+                //     // $data[] = $name === null ? '-' : ucfirst($name);
+                //     $name === null ? '-' : ucfirst($name);
+                //     $city === null ? '-' : ucfirst($city);
+
+                //     return ucfirst($name) . ' - ' . ucfirst($city);
+                // })
                 ->addColumn('order_received', function ($item) {
-                    $order_received     = $item->order_received == null ? '-' : ucfirst($item->order_received);
+                    $order_received = $item->order_received == null ? '-' : ucfirst($item->order_received);
 
                     return $order_received;
                 })
@@ -95,16 +107,32 @@ class OrderController extends Controller
 
                     // Check if the 'userAcc' relationship exists and if it has the 'name' property
                     $name = optional($userAcc)->name;
+                    $city = optional($userAcc)->city;
 
                     // Use a default value ('-') if the 'name' is null
-                    $data[] = $name === null ? '-' : ucfirst($name);
-                    return $data;
+                    // $data[] = $name === null ? '-' : ucfirst($name);
+                    $name === null ? '-' : ucfirst($name);
+                    $city === null ? '-' : ucfirst($city);
+                    if($name != null){
+                        if($city == 'surabaya'){
+                            $kota = 'sby';
+                        }else if($city = 'makassar'){
+                            $kota = 'mks';
+                        }else{
+                            $kota = '';
+                        }
+                    }else{
+                        $kota = '';
+                    }
+
+                    return ucfirst($name) . ' - ' . ucfirst($kota);
                 })
                 ->addColumn('action', function ($item) {
-
                     $btn = '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-print" title="PRINT SURAT JALAN" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">print</span></button>';
 
                     $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-receive" title="TERIMA ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">check_box</span></button>';
+
+                    // $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-edit" title="EDIT ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">edit</span></button>';
 
                     $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="btn-detail" title="DETAIL ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">visibility</span></button>';
 
@@ -169,29 +197,16 @@ class OrderController extends Controller
         // Get the current counter value from cache for the specific model
         $counter = Cache::get($modelName . '_counter');
 
-        // Get the last date stored in the cache for the specific model
-        $lastDate = Cache::get($modelName . '_counter_date');
+        // Increment the counter
+        $counter++;
 
-        // Get the current year
-        $currentYear = $currentTime->format('Y');
-
-        // Check if the counter needs to be reset
-        if ($lastDate !== $datePart) {
-            // Reset the counter
+        // Check if the counter reaches 9999, then reset it
+        if ($counter > 9999) {
             $counter = 1;
-        } else {
-            // Increment the counter
-            $counter++;
-
-            // Check if the counter reaches 9999 and the year is not a new year, then add one more digit to the counter
-            if ($counter > 9999 && $lastDate === $currentYear) {
-                $counter = 10001;
-            }
         }
 
-        // Store the updated counter and date in the cache
+        // Store the updated counter in the cache
         Cache::put($modelName . '_counter', $counter);
-        Cache::put($modelName . '_counter_date', $datePart);
 
         // Generate the new ID
         $newId = $datePart . sprintf("%04d", $counter);
@@ -244,7 +259,7 @@ class OrderController extends Controller
                     'payment_bukti'         => $bukti_bayar,
                     'user_id'               => Auth::user()->user_id,
                 ]);
-            }else{
+            } else {
                 // Insert Into Order Payment
                 $payment = OrderPayment::updateOrCreate([
                     'payment_id'            => $request->payment_id,
@@ -295,6 +310,14 @@ class OrderController extends Controller
             'success' => true,
             'message' => 'Your data has been saved successfully!',
         ]);
+    }
+
+    // ORDER EDIT
+    public function orderEdit(Request $request)
+    {
+        $order  = Order::with(['payment'])->where('order_id', $request->order_id)->first();
+
+        return response()->json($order);
     }
 
     // ORDER INDEX TO VALIDATE PAYMENT
@@ -487,12 +510,12 @@ class OrderController extends Controller
     {
         // Determine the column to pluck based on the request
         $pluckColumn = $request->has('query')
-        ? 'query'
-        : ($request->has('nohp')
-        ? 'nohp'
-        : ($request->has('address')
-        ? 'address'
-        : 'query')); // Default to 'query' if no specific condition is met
+            ? 'query'
+            : ($request->has('nohp')
+                ? 'nohp'
+                : ($request->has('address')
+                    ? 'address'
+                    : 'query')); // Default to 'query' if no specific condition is met
 
         // Fetch historical search data from the database for the authenticated user
         $query = InputHistory::query(); // Get the base query
@@ -533,7 +556,7 @@ class OrderController extends Controller
             if (!$existingHistory) {
                 InputHistory::create([
                     'query' => $request->input('query'),
-                ]); 
+                ]);
             }
         } else if ($request->has('nohp')) {
             // Save the search query to the InputHistory table if it doesn't exist
