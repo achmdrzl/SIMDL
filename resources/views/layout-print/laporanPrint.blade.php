@@ -6,6 +6,7 @@
     <style>
         body {
             font-size: 14px;
+            font-family: "Calibri", sans-serif;
         }
 
         .row {
@@ -157,10 +158,18 @@
                 <tr>
                     <th colspan="4"></th>
                 </tr>
+                 <tr style="background-color: greenyellow;">
+                    <td></td>
+                    <th colspan="2">Total Pengeluaran Makassar :</th>
+                    <th style="text-align: right;">Rp. {{ number_format($laporan->laporan_total_pengeluaran_mks) }}</th>
+                </tr>
+                <tr>
+                    <th colspan="4"></th>
+                </tr>
                 <tr style="background-color: greenyellow;">
                     <th colspan="3" style="text-align: center;">Total Laba Bersih :</th>
                     <th style="text-align: right;">Rp.
-                        {{ number_format($laporan->laporan_total_handling + $laporan->laporan_total_omset - ($laporan->laporan_total_operasional + $laporan->laporan_total_transportasi + $laporan->laporan_total_gaji)) }}
+                        {{ number_format($laporan->laporan_total) }}
                     </th>
                 </tr>
             </table>

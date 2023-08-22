@@ -22,6 +22,7 @@ class Manifest extends Model
         'manifest_total_volume',
         'manifest_total_harga',
         'manifest_status',
+        'manifest_edit_request',
     ];
 
     public function detailmanifest()

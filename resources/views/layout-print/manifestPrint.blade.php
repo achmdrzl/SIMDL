@@ -4,13 +4,19 @@
 <head>
     <title>Manifest - Den Logistik</title>
     <style>
+        body {
+            font-family: "Calibri", sans-serif;
+            font-size: 12px;
+        }
+
         .row {
             display: flex;
             align-items: center;
         }
 
         .header2 {
-            max-width: 800px;
+            max-width: 400px;
+            margin-left:10px;
         }
 
         .table-container {
@@ -20,6 +26,7 @@
 
         table.body {
             margin-top: -25px;
+            margin-left:10px;
             border-collapse: collapse;
         }
 
@@ -37,12 +44,12 @@
         table.body th,
         table.body td {
             border: 1px solid black;
-            padding: 4px;
+            padding: 2px;
         }
 
         th,
         td {
-            padding: 8px;
+            padding: 2px;
             text-align: center;
         }
     </style>
@@ -103,16 +110,18 @@
                         <td>{{ $item->order->order_volume }}</td>
                         <td>{{ $item->order->order_isi }}</td>
                         <td>{{ ucfirst($item->order->payment->payment_method) }}</td>
-                        <td>{{ $item->order->payment->payment_keterangan == null ? '-' : ucfirst($item->order->payment->payment_keterangan) }}</td>
+                        <td>{{ $item->order->payment->payment_keterangan == null ? '-' : ucfirst($item->order->payment->payment_keterangan) }}
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="3" style="text-align: center;"><strong>Total</strong></td>
-                    <td><strong>{{ $item->manifest_total_koli }}</strong></td>
-                    <td><strong>$</strong></td>
-                    <td colspan="2" style="text-align: center;"><strong>{{ $manifest->manifest_total_berat + $manifest->manifest_total_volume }}</strong></td>
+                    <td><strong>{{ $manifest->manifest_total_koli }}</strong></td>
+                    <td></td>
+                    <td colspan="2" style="text-align: center;">
+                        <strong>{{ $manifest->manifest_total_berat + $manifest->manifest_total_volume }}</strong></td>
                     <td><strong>Kg</strong></td>
                     <td></td>
                     <td></td>

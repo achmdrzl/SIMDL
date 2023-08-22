@@ -26,13 +26,13 @@ class OrderController extends Controller
 
         if ($request->ajax()) {
             $orders = Order::with(['payment'])
-            ->latest()
+            ->orderBy('updated_at', 'desc') // Order by the 'updated_at' column in descending order
             ->get();
             return DataTables::of($orders)
-            ->addIndexColumn()
-            ->addColumn('order_noresi', function ($item) {
-                return $item->order_noresi;
-            })
+                ->addIndexColumn()
+                ->addColumn('order_noresi', function ($item) {
+                    return $item->order_noresi;
+                })
                 // ->addColumn('order_tanggal', function ($item) {
                 //     return $item->order_tanggal;
                 // })
@@ -63,7 +63,14 @@ class OrderController extends Controller
                     return $status;
                 })
                 ->addColumn('payment_method', function ($item) {
-                    return $item->payment->payment_method == null ? '-' : strtoupper($item->payment->payment_method);
+                    if($item->payment->payment_method === 'bayar-makassar'){
+                        $method = 'byr-mks';
+                    }else if($item->payment->payment_method === 'bayar-surabaya'){
+                        $method = 'byr-sby';
+                    }else{
+                        $method = 'cash';
+                    }
+                    return $item->payment->payment_method == null ? '-' : strtoupper($method);
                 })
                 ->addColumn('order_status', function ($item) {
                     if ($item->order_status == 'terdaftar') {
@@ -113,18 +120,17 @@ class OrderController extends Controller
                     // $data[] = $name === null ? '-' : ucfirst($name);
                     $name === null ? '-' : ucfirst($name);
                     $city === null ? '-' : ucfirst($city);
-                    if($name != null){
-                        if($city == 'surabaya'){
+                    if ($name != null) {
+                        if ($city == 'surabaya') {
                             $kota = 'sby';
-                        }else if($city = 'makassar'){
+                        } else if ($city = 'makassar') {
                             $kota = 'mks';
-                        }else{
+                        } else {
                             $kota = '';
                         }
-                    }else{
+                    } else {
                         $kota = '';
                     }
-
                     return ucfirst($name) . ' - ' . ucfirst($kota);
                 })
                 ->addColumn('action', function ($item) {
@@ -163,7 +169,7 @@ class OrderController extends Controller
             'order_isi'             => 'required',
             'order_tarif'           => 'required',
             'direct'                => 'nullable',
-            'payment_bukti'         => 'required_if:direct,1|mimes:jpeg,jpg,png,pdf|max:2048',
+            'payment_bukti'         => 'required_if:direct,1|mimes:jpeg,jpg,png,pdf|max:5048',
         ], [
             'order_tanggal.required'         => 'Tanggal Order Harus di Isi!',
             'order_pengirim.required'        => 'Pengirim Harus di Isi!',
@@ -308,7 +314,7 @@ class OrderController extends Controller
         //return response
         return response()->json([
             'success' => true,
-            'message' => 'Your data has been saved successfully!',
+            'message' => 'Data Anda telah berhasil disimpan!',
         ]);
     }
 
@@ -412,12 +418,12 @@ class OrderController extends Controller
         $validator = Validator::make($request->all(), [
             'payment_tanggal'           => 'required',
             // 'payment_method'            => 'required',
-            'payment_bukti'             => 'required|mimes:jpeg,jpg,png|max:2048',
+            'payment_bukti'             => 'required|mimes:jpeg,jpg,png|max:5048',
         ], [
             'payment_tanggal.required'  => 'Tanggal Pembayaran Harus di Isi!',
             // 'payment_method.required'   => 'Metode Pembayaran Harus di Isi!',
             'payment_bukti.required'    => 'Bukti Pembayaran Harus di Isi!',
-            'payment_bukti.max'         => 'Bukti Pembayaran Tidak boleh lebih besar dari 2048 kilobyte!',
+            'payment_bukti.max'         => 'Bukti Pembayaran Tidak boleh lebih besar dari 5048 kilobyte!',
             'payment_bukti.mimes'       => 'Bukti Pembayaran Harus berupa file dengan tipe: jpeg, jpg, png!',
         ]);
 
@@ -448,7 +454,7 @@ class OrderController extends Controller
         //return response
         return response()->json([
             'success' => true,
-            'message' => 'Your data has been saved successfully!',
+            'message' => 'Data Anda telah berhasil disimpan!',
         ]);
     }
 
@@ -486,10 +492,13 @@ class OrderController extends Controller
         // Render the HTML as PDF
         $dompdf->render();
 
-        // Output the generated PDF to the browser or save it to a file
-        return $dompdf->stream('Surat Jalan-' . $order->order_noresi . '.pdf');
-        // If you want to save the PDF to a file, use the following line instead:
-        // return $dompdf->output()
+        // Get the PDF content as a string
+        $pdfContent = $dompdf->output();
+
+        // Return the PDF content with appropriate headers
+        return response($pdfContent)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="Surat Jalan-' . $order->order_noresi . '.pdf"');
     }
 
     // ORDER RECEIVE
@@ -502,7 +511,7 @@ class OrderController extends Controller
             'order_received'            => $request->order_received,
         ]);
 
-        return response()->json(['status' => 'Orders status updated to delivered successfully']);
+        return response()->json(['status' => 'Status pesanan diperbarui menjadi berhasil terkirim']);
     }
 
     // AUTOFILL PENERIMA & PENGIRIM

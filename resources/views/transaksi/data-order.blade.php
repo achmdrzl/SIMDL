@@ -1,20 +1,21 @@
 @extends('layouts.main')
 
-{{-- @push('style-alt')
+@push('style-alt')
 <style>
-    /* Reduce font size for table header cells */
-    #order_data thead th {
-        font-size: 12px; /* Adjust the font size as needed */
-    }
-
     /* Reduce font size for table body cells */
     #order_data tbody td {
-        font-size: 12px; /* Adjust the font size as needed */
+        font-size: 16px; /*Adjust the font size as needed*/
         text-align: center;
+        padding: 3px;
+    }
+
+    .wrap-text {
+        max-width: 90px; /* Ganti nilai sesuai dengan kebutuhan */
+        word-wrap: break-word; /* Memungkinkan kata-kata untuk wrap ke bawah */
     }
     
 </style>
-@endpush --}}
+@endpush
 
 @section('content')
     <!-- Main Content -->
@@ -84,7 +85,7 @@
                                                         {{-- <th>Di Buat</th> --}}
                                                         <th>Di Terima</th>
                                                         {{-- <th>Terima Validasi</th> --}}
-                                                        <th>Bayar Validasi</th>
+                                                        {{-- <th>Bayar Validasi</th> --}}
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
@@ -281,12 +282,12 @@
                                 </div>
                                 <div class="row gx-3" id="method">
                                     <label class="form-label">Metode Pembayaran</label>
-                                    <div class="col-sm-4">
+                                    {{-- <div class="col-sm-4">
                                         <div class="form-group">
                                             <input type="checkbox" class="form-check-input" id="lunas" name="lunas">
                                             <label class="form-check-label text-muted fs-7" for="logged_in">Bayar Langsung</label>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <input type="checkbox" class="form-check-input" id="bayar-makassar" name="bayar-makassar">
@@ -460,7 +461,11 @@
                     $('.dataTables_paginate > .pagination').addClass(
                         'custom-pagination pagination-simple');
                 },
-                
+                "createdRow": function(row, data, dataIndex) {
+                    // Assuming 'order_status' column index is 7, adjust this as needed
+                    var orderStatusCell = $(row).find('td:eq(3)');
+                    orderStatusCell.addClass('wrap-text');
+                },
                 processing: true,
                 serverSide: false,
                 ajax: "{{ route('order.index') }}",
@@ -520,10 +525,10 @@
                         data: 'order_received',
                         name: 'order_received'
                     },
-                    {
-                        data: 'payment_acc',
-                        name: 'payment_acc'
-                    },
+                    // {
+                    //     data: 'payment_acc',
+                    //     name: 'payment_acc'
+                    // },
                     {
                         data: 'action',
                         name: 'action',
@@ -976,6 +981,7 @@
                         var order_total           = response.order_total
                         var order_lampiran        = response.order_lampiran
                         var order_keterangan      = response.order_keterangan
+                        var order_diterima        = response.order_received == null ? '-' : response.order_received
                         var payment_status        = response.payment.payment_status
                         var payment_tanggal       = response.payment.payment_tanggal
                         var payment_method        = response.payment.payment_method
@@ -1023,14 +1029,14 @@
                         $('#payment_keterangan').val(payment_keterangan).prop('readonly', true)
 
                         if(payment_status == 'lunas'){
-                            var button   = `<div class="col-sm-4">
+                            var button   = `<div class="col-sm-3">
                                                 <label class="form-label">Tanggal Pembayaran</label>
                                                 <div class="form-group">
                                                     <input class="form-control" type="date" placeholder="Masukkan Jumlah Koli"
                                                         name="payment_tanggal" id="payment_tanggal" value=`+ payment_tanggal +` readonly />
                                             </div>
                                             </div>
-                                            <div class="col-sm-4">
+                                            <div class="col-sm-3">
                                                 <label class="form-label">Validasi Pembayaran Oleh:</label>
                                                 <div class="form-group">
                                                     <input class="form-control" type="text"
@@ -1038,7 +1044,15 @@
                                                         id="payment_acc" value=`+ payment_acc +` readonly />
                                                 </div>
                                             </div>
-                                            <div class="col-sm-4">
+                                            <div class="col-sm-3">
+                                                <label class="form-label">Di Terima Oleh:</label>
+                                                <div class="form-group">
+                                                    <input class="form-control" type="text"
+                                                        placeholder="Masukkan Jenis Kemasan" name="order_diterima"
+                                                        id="order_diterima" value=`+ order_diterima +` readonly />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
                                                 <label class="form-label">Metode Pembayaran:</label>
                                                 <div class="form-group">
                                                     <input class="form-control" type="text"

@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('out_gajis', function (Blueprint $table) {
-            $table->id('gaji_id');
-            $table->integer('laporan_id')->nullable();
+        Schema::create('out_modals', function (Blueprint $table) {
+            $table->id('modal_id');
             $table->integer('pengeluaran_id')->nullable();
-            $table->string('gaji_keterangan')->nullable();
-            $table->integer('gaji_total')->nullable();
-            $table->string('gaji_bukti')->nullable();
-            $table->enum('status', ['mks', 'sby'])->nullable();
+            $table->string('modal_keterangan')->nullable();
+            $table->integer('modal_total')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('out_gajis');
+        Schema::dropIfExists('out_modals');
     }
 };

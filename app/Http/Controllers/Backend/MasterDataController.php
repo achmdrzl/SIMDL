@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
+use App\Models\InHandling;
 use App\Models\Kadar;
 use App\Models\Merk;
 use App\Models\ModelBarang;
 use App\Models\Order;
+use App\Models\OutGaji;
+use App\Models\OutModal;
+use App\Models\OutOperasional;
+use App\Models\OutTransportasi;
 use App\Models\Pabrik;
 use App\Models\Pengeluaran;
 use App\Models\Supplier;
@@ -36,7 +41,7 @@ class MasterDataController extends Controller
         $filterMonth = $request->input('month');
         $filterYear = $request->input('year');
 
-        $sumOfPendingOrders = Order::whereHas('payment', function ($query) {
+        $sumOfPendingOrders   = Order::whereHas('payment', function ($query) {
             $query->where('payment_status', 'blm-lunas');
         })->sum('order_total');
 
@@ -48,29 +53,61 @@ class MasterDataController extends Controller
             $query->where('payment_status', 'blm-lunas')->where('payment_method', 'bayar-makassar');
         })->sum('order_total');
 
-        $sumOfSettleOrders = Order::whereHas('payment', function ($query) {
+        $sumOfSettleOrders    = Order::whereHas('payment', function ($query) {
             $query->where('payment_status', 'lunas');
         })->sum('order_total');
 
-        $sumOfTotalOrder = Order::sum('order_total');
+        // PENGELUARAN
+        $transportasiSby      = OutTransportasi::where('status', 'sby')->get();
+        $transportasiMks      = OutTransportasi::where('status', 'mks')->get();
+        
+        $sumOfTransportSby    = $transportasiSby->sum('transportasi_total');
+        $sumOfTransportMks    = $transportasiMks->sum('transportasi_total');
+
+        $operasionalSby       = OutOperasional::where('status', 'sby')->get();
+        $operasionalMks       = OutOperasional::where('status', 'mks')->get();
+
+        $sumOfOperasionalSby  = $operasionalSby->sum('operasional_total');
+        $sumOfOperasionalMks  = $operasionalMks->sum('operasional_total');
+
+        $gajiSby              = OutGaji::where('status', 'sby')->get();
+        $gajiMks              = OutGaji::where('status', 'mks')->get();
+
+        $sumOfGajiSby         = $gajiSby->sum('gaji_total');
+        $sumOfGajiMks         = $gajiMks->sum('gaji_total');
+
+        $sumOfModal           = OutModal::sum('modal_total');
+
+        $sumOfTotalPengeluaranSby = $sumOfTransportSby + $sumOfOperasionalSby + $sumOfGajiSby;
+        $sumOfTotalPengeluaranMks = $sumOfTransportMks + $sumOfOperasionalMks + $sumOfGajiMks + $sumOfModal;
+
+        // TOTAL HANDLING OVERALL
+        $sumOfHandling        = InHandling::sum('handling_total');
+
+        // TOTAL OMSET OVERALL
+        $sumOfTotalOrder      = Order::sum('order_total');
 
         $data = [
             'pendingOrder'    => $sumOfPendingOrders,
             'settleOrder'     => $sumOfSettleOrders,
             'piutangSurabaya' => $sumOfPiutangSurabaya,
             'piutangMakassar' => $sumOfPiutangMakassar,
-            'totalOrder'      => $sumOfTotalOrder,
+            'pengeluaranSby'  => $sumOfTotalPengeluaranSby,  
+            'pengeluaranMks'  => $sumOfTotalPengeluaranMks,
+            'totalOrder'      => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
         ];
-
+        
         return view('dashboard', compact('data', 'filterMonth', 'filterYear'));
     }
 
+    // FILTER
     public function filter(Request $request)
     {
-        $filterMonth = $request->input('month'); // Get the selected month from the request
-        $filterYear = $request->input('year');   // Get the selected year from the request
+        $filterMonth          = $request->input('month'); // Get the selected month from the request
+        $filterYear           = $request->input('year');   // Get the selected year from the request
 
-        $orders = Order::with('payment')->whereYear('order_tanggal', $filterYear)->whereMonth('order_tanggal', $filterMonth)->get();
+        // GET DATA ORDER BASED ON MONTH AND YEAR
+        $orders               = Order::with('payment')->whereYear('order_tanggal', $filterYear)->whereMonth('order_tanggal', $filterMonth)->get();
 
         $sumOfPendingOrders   = $orders->where('payment.payment_status', 'blm-lunas')->sum('order_total');
         $sumOfSettleOrders    = $orders->where('payment.payment_status', 'lunas')->sum('order_total');
@@ -78,22 +115,56 @@ class MasterDataController extends Controller
         $sumOfPiutangMakassar = $orders->where('payment.payment_status', 'blm-lunas')->where('payment.payment_method', 'bayar-makassar')->sum('order_total');
         $sumOfTotalOrder      = $orders->sum('order_total');
 
+        // GET DATA HANDLING BASED ON MONTH AND YEAR
+        $handling             = InHandling::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->get();
+        $sumOfHandling        = $handling->sum('handling_total');
+
+        // GET DATA TRANSPORT OUTCOME BASED ON MONTH AND YEAR
+        $transportasiSby      = OutTransportasi::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->where('status', 'sby')->get();
+        $sumOfTransportSby    = $transportasiSby->sum('transportasi_total');
+        
+        $transportasiMks      = OutTransportasi::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->where('status', 'mks')->get();
+        $sumOfTransportMks    = $transportasiMks->sum('transportasi_total');
+        
+        // GET DATA OPERATIONAL OUTCOME BASED ON MONTH AND YEAR
+        $operasionalSby       = OutOperasional::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->where('status', 'sby')->get();
+        $sumOfOperationalSby  = $operasionalSby->sum('operasional_total');
+        
+        $operasionalMks       = OutOperasional::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->where('status', 'mks')->get();
+        $sumOfOperationalMks  = $operasionalMks->sum('operasional_total');
+
+        // GET DATA GAJI OUTCOME BASED ON MONTH AND YEAR
+        $gajiSby              = OutGaji::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->where('status', 'sby')->get();
+        $sumOfGajiSby         = $gajiSby->sum('gaji_total');
+
+        $gajiMks              = OutGaji::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->where('status', 'mks')->get();
+        $sumOfGajiMks         = $gajiMks->sum('gaji_total');
+
+        // GET DATA MODAL OUTCOME BASED ON MONTH AND YEAR
+        $modal             = OutModal::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->get();
+        $sumOfModal        = $modal->sum('modal_total');
+
+        // TOTAL PENGELUARAN
+        $sumOfTotalPengeluaranSby = $sumOfTransportSby + $sumOfOperationalSby + $sumOfGajiSby;
+        $sumOfTotalPengeluaranMks = $sumOfTransportMks + $sumOfOperationalMks + $sumOfGajiMks + $sumOfModal;
+
         $data = [
             'pendingOrder'    => $sumOfPendingOrders,
             'settleOrder'     => $sumOfSettleOrders,
             'piutangSurabaya' => $sumOfPiutangSurabaya,
             'piutangMakassar' => $sumOfPiutangMakassar,
-            'totalOrder'      => $sumOfTotalOrder,
+            'pengeluaranSby'  => $sumOfTotalPengeluaranSby,
+            'pengeluaranMks'  => $sumOfTotalPengeluaranMks,
+            'totalOrder'      => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
         ];
 
         return response()->json($data); // Return data directly without 'data' key
     }
 
-
-
+    // RESET FILTER
     public function resetFilter()
     {
-        $sumOfPendingOrders = Order::whereHas('payment', function ($query) {
+        $sumOfPendingOrders   = Order::whereHas('payment', function ($query) {
             $query->where('payment_status', 'blm-lunas');
         })->sum('order_total');
 
@@ -105,23 +176,52 @@ class MasterDataController extends Controller
             $query->where('payment_status', 'blm-lunas')->where('payment_method', 'bayar-makassar');
         })->sum('order_total');
 
-        $sumOfSettleOrders = Order::whereHas('payment', function ($query) {
+        $sumOfSettleOrders    = Order::whereHas('payment', function ($query) {
             $query->where('payment_status', 'lunas');
         })->sum('order_total');
 
-        $sumOfTotalOrder = Order::sum('order_total');
+        // PENGELUARAN
+        $transportasiSby      = OutTransportasi::where('status', 'sby')->get();
+        $transportasiMks      = OutTransportasi::where('status', 'mks')->get();
+
+        $sumOfTransportSby    = $transportasiSby->sum('transportasi_total');
+        $sumOfTransportMks    = $transportasiMks->sum('transportasi_total');
+
+        $operasionalSby       = OutOperasional::where('status', 'sby')->get();
+        $operasionalMks       = OutOperasional::where('status', 'mks')->get();
+
+        $sumOfOperasionalSby  = $operasionalSby->sum('operasional_total');
+        $sumOfOperasionalMks  = $operasionalMks->sum('operasional_total');
+
+        $gajiSby              = OutGaji::where('status', 'sby')->get();
+        $gajiMks              = OutGaji::where('status', 'mks')->get();
+
+        $sumOfGajiSby         = $gajiSby->sum('gaji_total');
+        $sumOfGajiMks         = $gajiMks->sum('gaji_total');
+
+        $sumOfModal           = OutModal::sum('modal_total');
+
+        $sumOfTotalPengeluaranSby = $sumOfTransportSby + $sumOfOperasionalSby + $sumOfGajiSby;
+        $sumOfTotalPengeluaranMks = $sumOfTransportMks + $sumOfOperasionalMks + $sumOfGajiMks + $sumOfModal;
+
+        // TOTAL HANDLING OVERALL
+        $sumOfHandling        = InHandling::sum('handling_total');
+
+        // TOTAL OMSET OVERALL
+        $sumOfTotalOrder      = Order::sum('order_total');
 
         $data = [
             'pendingOrder'    => $sumOfPendingOrders,
             'settleOrder'     => $sumOfSettleOrders,
             'piutangSurabaya' => $sumOfPiutangSurabaya,
             'piutangMakassar' => $sumOfPiutangMakassar,
-            'totalOrder'      => $sumOfTotalOrder,
+            'pengeluaranSby'  => $sumOfTotalPengeluaranSby,
+            'pengeluaranMks'  => $sumOfTotalPengeluaranMks,
+            'totalOrder'      => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
         ];
 
         return response()->json($data);
     }
-
 
     // INDEX USER
     public function userIndex(Request $request)
@@ -205,7 +305,7 @@ class MasterDataController extends Controller
         //return response
         return response()->json([
             'success' => true,
-            'message' => 'Your data has been saved successfully!',
+            'message' => 'Data Anda telah berhasil disimpan!',
         ]);
     }
 
@@ -221,7 +321,7 @@ class MasterDataController extends Controller
     {
         $user = User::find($request->user_id)->delete();
 
-        return response()->json(['status' => 'Data Deleted Successfully!']);
+        return response()->json(['status' => 'Data Berhasil Dihapus!']);
     }
 
     // INDEX DATA PELANGGAN

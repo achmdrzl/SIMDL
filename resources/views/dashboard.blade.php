@@ -148,10 +148,37 @@
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-md-6 mb-md-4 mb-3">
+                                    <div class="card card-border mb-0 h-100">
+                                        <div class="card-header card-header-action">
+                                            <h6>Total Pengeluaran Surabaya
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="col-md-12">
+                                                <h1 id="pengeluaranSurabaya">Rp {{ number_format($data['pengeluaranSby']) }}
+                                                </h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-md-4 mb-3">
+                                    <div class="card card-border mb-0 h-100">
+                                        <div class="card-header card-header-action">
+                                            <h6>Total Pengeluaran Makassar
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <h1 id="pengeluaranMakassar">Rp {{ number_format($data['pengeluaranMks']) }}</h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-12 mb-md-4 mb-3">
                                     <div class="card card-border mb-0 h-100">
                                         <div class="card-header card-header-action">
-                                            <h6>Total Pendapatan Keseluruhan</h6>
+                                            <h6>Total Pendapatan Bersih</h6>
                                         </div>
                                         <div class="card-body">
                                             <h1 id="totalOrder">Rp {{ number_format($data['totalOrder']) }}</h1>
@@ -266,6 +293,8 @@
                     $('#piutangMakassar').text(rupiah(data.piutangMakassar));
                     $('#settleOrder').text(rupiah(data.settleOrder));
                     $('#totalOrder').text(rupiah(data.totalOrder));
+                    $('#pengeluaranSurabaya').text(rupiah(data.pengeluaranSby))
+                    $('#pengeluaranMakassar').text(rupiah(data.pengeluaranMks))
                 }
             });
         </script>

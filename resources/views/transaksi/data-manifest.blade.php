@@ -1,5 +1,17 @@
 @extends('layouts.main')
 
+@push('style-alt')
+<style>
+    /* Reduce font size for table body cells */
+    #manifest_data tbody td {
+        font-size: 16px; /*Adjust the font size as needed*/
+        text-align: center;
+        padding: 3px;
+    }
+    
+</style>
+@endpush
+
 @section('content')
     <!-- Main Content -->
     <div class="hk-pg-wrapper">

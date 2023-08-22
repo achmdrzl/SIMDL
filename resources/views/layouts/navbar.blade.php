@@ -47,7 +47,14 @@
                                 </li>
                             </ul>
                         </li>
-                        @if (Auth::user()->city == 'surabaya')
+                        @if (Auth::user()->city == 'makassar' || Auth::user()->role == 'superadmin')
+                            <li class="nav-item {{ request()->segment(1) == 'pengeluaran' ? 'active' : '' }}">
+                                <a class="nav-link" href="{{ route('pengeluaran.index') }}">
+                                    <span class="nav-link-text">Pengeluaran</span>
+                                </a>
+                            </li>
+                        @endif
+                        @if (Auth::user()->city == 'surabaya' || Auth::user()->role == 'superadmin')
                             <li class="nav-item {{ request()->segment(1) == 'laporan' ? 'active' : '' }}">
                                 <a class="nav-link" href="{{ route('laporan.index') }}">
                                     <span class="nav-link-text">Laporan</span>

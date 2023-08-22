@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OutGaji;
 use App\Models\OutOperasional;
 use App\Models\OutTransportasi;
+use App\Models\Pengeluaran;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,9 @@ class LaporanController extends Controller
                 ->addColumn('laporan_total_operasional', function ($item) {
                     return 'Rp. ' . number_format($item->laporan_total_operasional);
                 })
+                ->addColumn('laporan_total_pengeluaran_mks', function ($item) {
+                    return 'Rp. ' . number_format($item->laporan_total_pengeluaran_mks);
+                })
                 ->addColumn('laporan_total_transportasi', function ($item) {
                     return 'Rp. ' . number_format($item->laporan_total_transportasi);
                 })
@@ -66,12 +70,23 @@ class LaporanController extends Controller
     {
         $orders = Order::with(['payment'])->whereBetween('order_tanggal', [$request->laporan_tanggal_awal, $request->laporan_tanggal_akhir])->get();
 
-        $total = $orders->sum('order_total');
+        $total_order = $orders->sum('order_total');
+
+        $pengeluaran = Pengeluaran::with(['modal', 'operasional', 'gaji', 'transportasi'])->whereBetween('pengeluaran_tanggal', [$request->laporan_tanggal_awal, $request->laporan_tanggal_akhir])->get();
+
+        $total_pengeluaran  = $pengeluaran->sum('pengeluaran_total');
+        $total_modal        = $pengeluaran->sum('pengeluaran_total_modal');
+        $sisa_saldo         = $pengeluaran->sum('pengeluaran_sisa_saldo');
+
 
         // If all orders have valid order_status, return them as JSON
         return response()->json([
-            'data'  => $orders,
-            'total' => $total
+            'data'              => $orders,
+            'total_order'       => $total_order,
+            'pengeluaran'       => $pengeluaran,
+            'total_modal'       => $total_modal,
+            'total_pengeluaran' => $total_pengeluaran,
+            'sisa_saldo'        => $sisa_saldo,
         ]);
     }
 
@@ -84,45 +99,45 @@ class LaporanController extends Controller
             'laporan_tanggal'              => 'required|date',
             'laporan_tanggal_awal'         => 'required|date',
             'laporan_tanggal_akhir'        => 'required|date',
-            'handling_kota.*'              => 'required|min:1|string',
-            'handling_tarif.*'             => 'required|min:1|integer',
-            'handling_berat.*'             => 'required|min:1|integer',
-            'handling_total.*'             => 'required|min:1|integer',
+            // 'handling_kota.*'              => 'required|min:1|string',
+            // 'handling_tarif.*'             => 'required|min:1|integer',
+            // 'handling_berat.*'             => 'required|min:1|integer',
+            // 'handling_total.*'             => 'required|min:1|integer',
             'operasional_keterangan.*'     => 'required|min:1|string',
             'operasional_total.*'          => 'required|min:1|integer',
-            'operasional_bukti.*'          => 'required|min:1|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'operasional_bukti.*'          => 'required|min:1|image|mimes:jpeg,png,jpg,gif|max:5048',
             'gaji_keterangan.*'            => 'required|min:1|string',
             'gaji_total.*'                 => 'required|min:1|string',
-            'gaji_bukti.*'                 => 'required|min:1|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gaji_bukti.*'                 => 'required|min:1|image|mimes:jpeg,png,jpg,gif|max:5048',
             'transportasi_keterangan.*'    => 'required|min:1|string',
-            'transportasi_total.*'         => 'required|min:1|string',
-            'transportasi_bukti.*'         => 'required|min:1|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'transportasi_total.*'         => 'required|min:1|integer',
+            'transportasi_bukti.*'         => 'required|min:1|image|mimes:jpeg,png,jpg,gif|max:5048',
         ], [
             'laporan_tanggal.required'              => 'Tanggal Harus di isi!',
             'laporan_tanggal_awal.required'         => 'Tanggal Awal Harus di isi!',
             'laporan_tanggal_akhir.required'        => 'Tanggal Akhir Harus di isi!',
-            'handling_kota.*.required'              => 'Kota Harus di isi setidaknya satu isian!',
-            'handling_tarif.*.required'             => 'Tarif Harus di isi setidaknya satu isian!',
-            'handling_berat.*.required'             => 'Berat Harus di isi setidaknya satu isian!',
-            'handling_total.*.required'             => 'Total Harus di isi setidaknya satu isian!',
+            // 'handling_kota.*.required'              => 'Kota Harus di isi setidaknya satu isian!',
+            // 'handling_tarif.*.required'             => 'Tarif Harus di isi setidaknya satu isian!',
+            // 'handling_berat.*.required'             => 'Berat Harus di isi setidaknya satu isian!',
+            // 'handling_total.*.required'             => 'Total Harus di isi setidaknya satu isian!',
             'operasional_total.*.required'          => 'Total Operasional Harus di isi setidaknya satu isian!',
             'operasional_keterangan.*.required'     => 'Keterangan Operasional Harus di isi setidaknya satu isian!',
             'operasional_bukti.*.required'          => 'Bukti Operasional Harus di Upload!',
             'operasional_bukti.*.image'             => 'Bukti Operasional Harus berupa gambar!',
             'operasional_bukti.*.mimes'             => 'Bukti Operasional Harus berformat .jpg,.jpeg,.png,.gif!',
-            'operasional_bukti.*.max'               => 'Bukti Operasional Harus berukuran dibawah 2048kb',
+            'operasional_bukti.*.max'               => 'Bukti Operasional Harus berukuran dibawah 5048kb',
             'gaji_keterangan.*.required'            => 'Keterangan Gaji Harus di isi setidaknya satu isian!',
             'gaji_total.*.required'                 => 'Total Gaji Harus di isi setidaknya satu isian!',
             'gaji_bukti.*.required'                 => 'Slip Bukti Gaji Harus di Upload!',
             'gaji_bukti.*.image'                    => 'Slip Bukti Gaji Harus berupa gambar!',
             'gaji_bukti.*.mimes'                    => 'Slip Bukti Gaji Harus berformat .jpg,.jpeg,.png,.gif!',
-            'gaji_bukti.*.max'                      => 'Slip Bukti Gaji Harus berukuran dibawah 2048kb',
+            'gaji_bukti.*.max'                      => 'Slip Bukti Gaji Harus berukuran dibawah 5048kb',
             'transportasi_keterangan.*.required'    => 'Keterangan Transportasi Harus di isi setidaknya satu isian!',
             'transportasi_total.*.required'         => 'Total Transportasi Harus di isi setidaknya satu isian!',
             'transportasi_bukti.*.required'         => 'Bukti Transportasi Harus di Upload!',
             'transportasi_bukti.*.image'            => 'Bukti Transportasi Harus berupa gambar!',
             'transportasi_bukti.*.mimes'            => 'Bukti Transportasi Harus berformat .jpg,.jpeg,.png,.gif!',
-            'transportasi_bukti.*.max'              => 'Bukti Transportasi Harus berukuran dibawah 2048kb',
+            'transportasi_bukti.*.max'              => 'Bukti Transportasi Harus berukuran dibawah 5048kb',
         ]);
 
         //check if validation fails
@@ -130,46 +145,49 @@ class LaporanController extends Controller
             return response()->json(['errors' => $validator->errors()->all()]);
         }
 
-
         // INSERT TO LAPORAN
         $laporan_total_omset        = $request->laporan_total_omset;
         $laporan_total_handling     = array_sum($request->handling_total);
         $laporan_total_operasional  = array_sum($request->operasional_total);
         $laporan_total_transportasi = array_sum($request->transportasi_total);
         $laporan_total_gaji         = array_sum($request->gaji_total);
-        $laporan_total              = ($laporan_total_omset + $laporan_total_handling) - ($laporan_total_operasional + $laporan_total_transportasi + $laporan_total_gaji);
+        $laporan_pengeluaran_total  = $request->pengeluaran_total;
+        $laporan_total              = ($laporan_total_omset + $laporan_total_handling) - ($laporan_total_operasional + $laporan_total_transportasi + $laporan_total_gaji + $laporan_pengeluaran_total);
 
         $laporan = Laporan::updateOrCreate([
             'laporan_id' => $request->laporan_id
         ], [
-            'laporan_tanggal'            => $request->laporan_tanggal,
-            'laporan_tanggal_awal'       => $request->laporan_tanggal_awal,
-            'laporan_tanggal_akhir'      => $request->laporan_tanggal_akhir,
-            'laporan_total_omset'        => $laporan_total_omset,
-            'laporan_total_handling'     => $laporan_total_handling,
-            'laporan_total_operasional'  => $laporan_total_operasional,
-            'laporan_total_transportasi' => $laporan_total_transportasi,
-            'laporan_total_gaji'         => $laporan_total_gaji,
-            'laporan_total'              => $laporan_total,
-            'user_id'                    => Auth::user()->user_id
+            'laporan_tanggal'               => $request->laporan_tanggal,
+            'laporan_tanggal_awal'          => $request->laporan_tanggal_awal,
+            'laporan_tanggal_akhir'         => $request->laporan_tanggal_akhir,
+            'laporan_total_omset'           => $laporan_total_omset,
+            'laporan_total_handling'        => $laporan_total_handling,
+            'laporan_total_operasional'     => $laporan_total_operasional,
+            'laporan_total_transportasi'    => $laporan_total_transportasi,
+            'laporan_total_pengeluaran_mks' => $laporan_pengeluaran_total,
+            'laporan_total_gaji'            => $laporan_total_gaji,
+            'laporan_total'                 => $laporan_total,
+            'user_id'                       => Auth::user()->user_id,
         ]);
 
         // INSERT INTO HANDLING
-        for ($x = 0; $x < count($request->handling_kota); $x++) {
-            $handling = InHandling::updateOrCreate([
-                'handling_id'   => $request->handling_id,
-            ], [
-                'laporan_id'        => $laporan->laporan_id,
-                'handling_kota'     => $request->handling_kota[$x],
-                'handling_tarif'    => $request->handling_tarif[$x],
-                'handling_berat'    => $request->handling_berat[$x],
-                'handling_total'    => $request->handling_total[$x],
-            ]);
+        if(count($request->handling_total) != null){
+            for ($x = 0; $x < count($request->handling_kota); $x++) {
+                $handling = InHandling::updateOrCreate([
+                    'handling_id'   => $request->handling_id,
+                ], [
+                    'laporan_id'        => $laporan->laporan_id,
+                    'handling_kota'     => $request->handling_kota[$x],
+                    'handling_tarif'    => $request->handling_tarif[$x],
+                    'handling_berat'    => $request->handling_berat[$x],
+                    'handling_total'    => $request->handling_total[$x],
+                ]);
+            }
         }
 
         // INSERT INTO OPERASIONAL
         foreach ($request->operasional_keterangan as $x => $keterangan) {
-            
+
             $operasional_bukti = $request->file('operasional_bukti')[$x] ?? null;
 
             if ($operasional_bukti && $operasional_bukti->isValid()) {
@@ -181,10 +199,11 @@ class LaporanController extends Controller
                 $operasional = OutOperasional::updateOrCreate([
                     'operasional_id'  => $request->operasional_id,
                 ], [
-                    'laporan_id'              => $laporan->laporan_id,
+                    'laporan_id'             => $laporan->laporan_id,
                     'operasional_keterangan' => $keterangan,
                     'operasional_total'      => $request->operasional_total[$x],
                     'operasional_bukti'      => $bukti_operasional,
+                    'status'                 => 'sby',
                 ]);
             } else {
                 $operasional = OutOperasional::updateOrCreate([
@@ -194,6 +213,7 @@ class LaporanController extends Controller
                     'operasional_keterangan' => $keterangan,
                     'operasional_total'      => $request->operasional_total[$x],
                     'operasional_bukti'      => '-',
+                    'status'                 => 'sby',
                 ]);
             }
         }
@@ -215,6 +235,7 @@ class LaporanController extends Controller
                     'gaji_keterangan' => $keterangan,
                     'gaji_total'      => $request->gaji_total[$x],
                     'gaji_bukti'      => $bukti_gaji,
+                    'status'          => 'sby',
                 ]);
             } else {
                 $gaji = OutGaji::updateOrCreate([
@@ -224,6 +245,7 @@ class LaporanController extends Controller
                     'gaji_keterangan' => $keterangan,
                     'gaji_total'      => $request->gaji_total[$x],
                     'gaji_bukti'      => '-',
+                    'status'                 => 'sby',
                 ]);
             }
         }
@@ -245,6 +267,7 @@ class LaporanController extends Controller
                     'transportasi_keterangan' => $keterangan,
                     'transportasi_total'      => $request->transportasi_total[$x],
                     'transportasi_bukti'      => $bukti_transportasi,
+                    'status'                  => 'sby',
                 ]);
             } else {
                 $transportasi = OutTransportasi::updateOrCreate([
@@ -254,6 +277,7 @@ class LaporanController extends Controller
                     'transportasi_keterangan' => $keterangan,
                     'transportasi_total'      => $request->transportasi_total[$x],
                     'transportasi_bukti'      => '-',
+                    'status'                  => 'sby',
                 ]);
             }
         }
@@ -261,7 +285,7 @@ class LaporanController extends Controller
         //return response
         return response()->json([
             'success' => true,
-            'message' => 'Your data has been saved successfully!',
+            'message' => 'Data Anda telah berhasil disimpan!',
         ]);
     }
 
@@ -359,9 +383,12 @@ class LaporanController extends Controller
         // Render the HTML as PDF
         $dompdf->render();
 
-        // Output the generated PDF to the browser or save it to a file
-        return $dompdf->stream('Laporan-' . $laporan->laporan_tanggal . '.pdf');
-        // If you want to save the PDF to a file, use the following line instead:
-        // return $dompdf->output()
+        // Get the PDF content as a string
+        $pdfContent = $dompdf->output();
+
+        // Return the PDF content with appropriate headers
+        return response($pdfContent)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="Laporan-' . $laporan->laporan_tanggal . '.pdf"');
     }
 }

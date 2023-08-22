@@ -174,7 +174,7 @@ class ManifestController extends Controller
         //return response
         return response()->json([
             'success' => true,
-            'message' => 'Your data has been saved successfully!',
+            'message' => 'Data Anda telah berhasil disimpan!',
         ]);
     }
 
@@ -219,9 +219,9 @@ class ManifestController extends Controller
             $manifest->update(['manifest_status' => 'delivered']);
 
             // Return a success message or perform any other action after the updates
-            return response()->json(['status' => 'Orders status updated to delivered successfully']);
+            return response()->json(['status' => 'Status pesanan diperbarui menjadi berhasil terkirim']);
         } else {
-            return response()->json(['status' => 'Manifest not found'], 404);
+            return response()->json(['status' => 'Manifes tidak ditemukan'], 404);
         }
     }
 
@@ -246,9 +246,12 @@ class ManifestController extends Controller
         // Render the HTML as PDF
         $dompdf->render();
 
-        // Output the generated PDF to the browser or save it to a file
-        return $dompdf->stream('Manifest-' . $manifest->manifest_no . '.pdf');
-        // If you want to save the PDF to a file, use the following line instead:
-        // return $dompdf->output()
+        // Get the PDF content as a string
+        $pdfContent = $dompdf->output();
+
+        // Return the PDF content with appropriate headers
+        return response($pdfContent)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="Manifest-' . $manifest->manifest_no . '.pdf"');
     }
 }

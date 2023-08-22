@@ -20,9 +20,10 @@
       }
       .noreg {
         float: right;
-        margin-top: 30px;
+        margin-top: 40px;
         margin-right: 5px;
-        margin-bottom: 100px;
+        margin-bottom: 80px;
+        margin-bottom: 30px;
       }
       table.product {
         width: 100%;
@@ -55,14 +56,17 @@
       }
       th,
       td {
-        /* border: 1px solid black; */
+        border: 1px solid black;
         padding: 7px;
         /* font-weight: 350; */
         text-align: left; /* Align content to the right */
       }
-
+      .limited-width {
+        max-width: 90px; /* Ganti nilai sesuai dengan kebutuhan */
+        word-wrap: break-word; /* Memungkinkan kata-kata untuk wrap ke bawah */
+      }
       .tujuan {
-        margin-top: 130px;
+        margin-top: 120px;
       }
     </style>
   </head>
@@ -100,8 +104,8 @@
             <td></td>
             <td></td>
             <td></td>
-            <td>{{ $order->order_penerima }}</td>
             <td></td>
+            <td>{{ $order->order_penerima }}</td>
             <td></td>
             <td></td>
             <td></td>
@@ -118,11 +122,11 @@
             <td></td>
             <td></td>
             <td></td>
+            <td></td>
             <td style="margin-left: 20px; font-size: 13px;">
               {{ $order->order_alamat_penerima }} <br />
               {{ $order->order_nohp_penerima }}
             </td>
-            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -152,14 +156,14 @@
         <div class="table-2">
           <table class="product">
             <tr>
-              <td style="text-align: left">{{ $order->order_koli }}</td>
+              <td style="text-align: center">{{ $order->order_koli }}</td>
               <td></td>
               <td></td>
+              <td>{{ $order->order_berat }}</td>
               <td></td>
-              <td style="text-align: center">{{ $order->order_berat }}</td>
               <td></td>
+              <td style="text-align: left">{{ $order->order_volume }}</td>
               <td></td>
-              <td style="text-align: center">{{ $order->order_volume }}</td>
               <td></td>
               <td></td>
               <td></td>
@@ -172,11 +176,7 @@
               <td></td>
               <td></td>
               <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td style="text-align: right;"><div style="margin-left: 30px;">3300</div></td>
+              <td style="text-align: right">{{ number_format($order->order_tarif) }}</td>
               <td>
                 <div style="text-align: right">
                   {{ $order->order_lampiran }}
@@ -184,38 +184,6 @@
               </td>
             </tr>
             <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -247,7 +215,7 @@
             <div class="total">
               <table>
                 <tr>
-                  <td style="font-size: 13px;">{{ $order->order_rincian }}</td>
+                  <td style="font-size: 13px;" class="limited-width">{{ $order->order_rincian }}</td>
                   <td></td>
                   <td></td>
                   <td></td>
@@ -260,7 +228,23 @@
                   <td></td>
                   <td></td>
                   <td></td>
-                  <td style="text-align: right;">{{ $order->order_keterangan }}</td>
+                  <td style="text-align: center;">{{ $order->order_keterangan }}</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
                   <td></td>
                 </tr>
                 <tr>
@@ -293,22 +277,7 @@
                   <td></td>
                   <td></td>
                   <td></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                   <td style="text-align: right">
+                  <td style="text-align: center">
                     {{ date("d-M-Y", strtotime($order->order_tanggal)) }}
                   </td>
                 </tr>

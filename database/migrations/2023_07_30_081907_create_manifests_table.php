@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('manifest_total_berat');
             $table->integer('manifest_total_volume');
             $table->integer('manifest_total_harga');
+            $table->enum('manifest_edit_request', ['acc', 'pending'])->default('pending');
             $table->enum('manifest_status', ['manifested', 'delivered'])->default('manifested');
             $table->timestamps();
         });

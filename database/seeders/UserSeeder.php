@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
             'phone_number'  => '081368881990',
             'password'      => bcrypt('15aug1990'),
             'role'          => 'superadmin',
-            'city'          => '-',
+            'city'          => 'surabaya',
         ]);
 
         $superadmin2->assignRole('superadmin');

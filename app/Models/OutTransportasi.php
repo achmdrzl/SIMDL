@@ -13,13 +13,20 @@ class OutTransportasi extends Model
 
     protected $fillable = [
         'laporan_id',
+        'pengeluaran_id',
         'transportasi_keterangan',
         'transportasi_total',
         'transportasi_bukti',
+        'status'
     ];
 
     public function laporan()
     {
         return $this->belongsTo(Laporan::class, 'laporan_id');
+    }
+
+    public function pengeluaran()
+    {
+        return $this->belongsTo(Pengeluaran::class, 'pengeluaran_id');
     }
 }

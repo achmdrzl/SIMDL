@@ -20,6 +20,7 @@ class Laporan extends Model
         'laporan_total_operasional',
         'laporan_total_transportasi',
         'laporan_total_gaji',
+        'laporan_total_pengeluaran_mks',
         'laporan_total',
         'laporan_edit_request',
         'user_id',

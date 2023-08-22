@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('out_transportasis', function (Blueprint $table) {
             $table->id('transportasi_id');
-            $table->integer('laporan_id');
-            $table->string('transportasi_keterangan');
-            $table->integer('transportasi_total');
-            $table->string('transportasi_bukti');
+            $table->integer('laporan_id')->nullable();
+            $table->integer('pengeluaran_id')->nullable();
+            $table->string('transportasi_keterangan')->nullable();
+            $table->integer('transportasi_total')->nullable();
+            $table->string('transportasi_bukti')->nullable();
+            $table->enum('status', ['mks', 'sby'])->nullable();
             $table->timestamps();
         });
     }

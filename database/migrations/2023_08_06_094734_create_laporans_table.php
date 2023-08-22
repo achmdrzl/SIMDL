@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('laporan_tanggal_akhir');
             $table->integer('laporan_total_omset');
             $table->integer('laporan_total_handling');
+            $table->integer('laporan_total_pengeluaran_mks');
             $table->integer('laporan_total_operasional');
             $table->integer('laporan_total_transportasi');
             $table->integer('laporan_total_gaji');

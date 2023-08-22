@@ -77,7 +77,7 @@ Contact: contact@hencework.com
                                         alt="brand" /> --}}
                                     <img class="brand-img img-fluid" src="{{ asset('backend/denlogistik/den-logistik-profile (1) (3).svg') }}"
                                         alt="brand" />
-                                </a>
+                                </a>    
                                 <button class="btn btn-icon btn-rounded btn-flush-dark flush-soft-hover navbar-toggle">
                                     <span class="icon">
                                         <span class="svg-icon fs-5">

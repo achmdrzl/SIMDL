@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('in_handlings', function (Blueprint $table) {
             $table->id('handling_id');
-            $table->integer('laporan_id');
-            $table->string('handling_kota');
-            $table->integer('handling_tarif');
-            $table->integer('handling_berat');
-            $table->integer('handling_total');
+            $table->integer('laporan_id')->nullable();
+            $table->string('handling_kota')->nullable();
+            $table->integer('handling_tarif')->nullable();
+            $table->integer('handling_berat')->nullable();
+            $table->integer('handling_total')->nullable();
             $table->timestamps();
         });
     }

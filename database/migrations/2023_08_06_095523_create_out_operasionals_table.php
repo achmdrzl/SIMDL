@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('out_operasionals', function (Blueprint $table) {
             $table->id('operasional_id');
-            $table->integer('laporan_id');
-            $table->string('operasional_keterangan');
-            $table->integer('operasional_total');
-            $table->string('operasional_bukti');
+            $table->integer('laporan_id')->nullable();
+            $table->integer('pengeluaran_id')->nullable();
+            $table->string('operasional_keterangan')->nullable();
+            $table->integer('operasional_total')->nullable();
+            $table->string('operasional_bukti')->nullable();
+            $table->enum('status', ['mks', 'sby'])->nullable();
             $table->timestamps();
         });
     }
