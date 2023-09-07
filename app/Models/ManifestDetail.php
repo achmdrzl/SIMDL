@@ -13,7 +13,8 @@ class ManifestDetail extends Model
 
     protected $fillable   = [
         'manifest_id',
-        'order_id'
+        'order_id',
+        'ket'
     ];
 
     public function manifest()

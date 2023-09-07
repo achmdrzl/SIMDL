@@ -138,7 +138,10 @@ class OrderController extends Controller
 
                     $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-receive" title="TERIMA ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">check_box</span></button>';
 
-                    // $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-edit" title="EDIT ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">edit</span></button>';
+                    // Checking Role to Access it.
+                    if(Auth::user()->city == 'surabaya' || Auth::user()->role == 'superadmin'){
+                        $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-edit" title="EDIT ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">edit</span></button>';
+                    }
 
                     $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="btn-detail" title="DETAIL ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">visibility</span></button>';
 
@@ -154,6 +157,7 @@ class OrderController extends Controller
     // STORED DATA ORDER
     public function orderStore(Request $request)
     {
+        // dd($request->all());
         //define validation rules
         $validator = Validator::make($request->all(), [
             'order_tanggal'         => 'required',
@@ -191,125 +195,176 @@ class OrderController extends Controller
             return response()->json(['errors' => $validator->errors()->all()]);
         }
 
-        // Define the model name
-        $modelName = 'DataOrder';
+        // dd($request->all());
 
-        // Get the current date and time
-        $currentTime = Carbon::createFromFormat('Y-m-d', $request->order_tanggal);
+        if($request->order_id != null){
 
-        // Get the formatted date portion (yymmdd)
-        $datePart = $currentTime->format('y');
+            // Stored new Data Order
+            $order  = Order::updateOrCreate([
+                'order_id'              => $request->order_id,
+            ], [
+                'order_tanggal'         => $request->order_tanggal, 
+                'order_pengirim'        => $request->order_pengirim,
+                'order_penerima'        => $request->order_penerima,
+                'order_alamat_penerima' => $request->order_alamat_penerima,
+                'order_nohp_penerima'   => $request->order_nohp_penerima,
+                'order_koli'            => $request->order_koli,
+                'order_kemasan'         => $request->order_kemasan,
+                'order_rincian'         => $request->order_rincian,
+                'order_berat'           => $request->order_berat,
+                'order_volume'          => $request->order_volume,
+                'order_isi'             => $request->order_isi,
+                'order_tarif'           => $request->order_tarif,
+                'order_total'           => $request->order_total,
+                'order_lampiran'        => $request->order_lampiran == '' ? '-' : $request->order_lampiran,
+                'order_keterangan'      => $request->order_keterangan == '' ? '-' : $request->order_keterangan,
+                'order_created'         => Auth::user()->user_id,
+            ]);
 
-        // Get the current counter value from cache for the specific model
-        $counter = Cache::get($modelName . '_counter');
+        // Insert Into Order Payment
+        $payment = OrderPayment::where('order_id', $request->order_id)->first();
 
-        // Increment the counter
-        $counter++;
-
-        // Check if the counter reaches 9999, then reset it
-        if ($counter > 9999) {
-            $counter = 1;
-        }
-
-        // Store the updated counter in the cache
-        Cache::put($modelName . '_counter', $counter);
-
-        // Generate the new ID
-        $newId = $datePart . sprintf("%04d", $counter);
-
-        // Stored new Data Order
-        $order  = Order::updateOrCreate([
-            'order_id'              => $request->order_id,
-        ], [
-            'order_noresi'          => $newId,
-            'order_tanggal'         => $request->order_tanggal,
-            'order_pengirim'        => $request->order_pengirim,
-            'order_penerima'        => $request->order_penerima,
-            'order_alamat_penerima' => $request->order_alamat_penerima,
-            'order_nohp_penerima'   => $request->order_nohp_penerima,
-            'order_koli'            => $request->order_koli,
-            'order_kemasan'         => $request->order_kemasan,
-            'order_rincian'         => $request->order_rincian,
-            'order_berat'           => $request->order_berat,
-            'order_volume'          => $request->order_volume,
-            'order_isi'             => $request->order_isi,
-            'order_tarif'           => $request->order_tarif,
-            'order_total'           => $request->order_total,
-            'order_lampiran'        => $request->order_lampiran == '' ? '-' : $request->order_lampiran,
-            'order_keterangan'      => $request->order_keterangan == '' ? '-' : $request->order_keterangan,
-            'order_created'         => Auth::user()->user_id,
-        ]);
-
-        // If payment keterangan has COD
-        if ($request->has('lunas')) {
-
-            $payment_bukti = $request->file('payment_bukti') ?? null;
-
-            if ($payment_bukti && $payment_bukti->isValid()) {
-
-                $bukti = $request->file('payment_bukti');
-                $bukti_bayar = 'bukti_bayar-' . rand(1, 100000) . '.' . $bukti->getClientOriginalExtension();
-
-                // Store the original image
-                $path = Storage::putFileAs('public/bukti_bayar', $bukti, $bukti_bayar);
-
-                // Insert Into Order Payment
-                $payment = OrderPayment::updateOrCreate([
-                    'payment_id'            => $request->payment_id,
-                ], [
-                    'order_id'              => $order->order_id,
-                    'payment_keterangan'    => $request->payment_keterangan,
-                    'payment_status'        => $request->payment_status,
-                    'payment_tanggal'       => $request->payment_tanggal,
-                    'payment_method'        => 'bayar-langsung',
-                    'payment_bukti'         => $bukti_bayar,
-                    'user_id'               => Auth::user()->user_id,
-                ]);
-            } else {
-                // Insert Into Order Payment
-                $payment = OrderPayment::updateOrCreate([
-                    'payment_id'            => $request->payment_id,
-                ], [
-                    'order_id'              => $order->order_id,
-                    'payment_keterangan'    => $request->payment_keterangan,
-                    'payment_status'        => $request->payment_status,
-                    'payment_tanggal'       => $request->payment_tanggal,
-                    'payment_method'        => 'bayar-langsung',
-                    'payment_bukti'         => '-',
-                    'user_id'               => Auth::user()->user_id,
-                ]);
-            }
-
-            // If payment keterangan has CAD
-        } else if ($request->has('bayar-makassar')) {
+        // If payment keterangan has CAD
+        if ($request->has('bayar-makassar')) {
 
             // Insert Into Order Payment
-            $payment = OrderPayment::updateOrCreate([
-                'payment_id'            => $request->payment_id,
-            ], [
-                'order_id'              => $order->order_id,
+            $payment->update([
                 'payment_keterangan'    => $request->payment_keterangan,
-                'payment_status'        => 'blm-lunas',
                 'payment_method'        => 'bayar-makassar',
-                'payment_date'          => null,
-                'payment_bukti'         => null,
-                'user_id'               => null,
             ]);
         } else if ($request->has('bayar-surabaya')) {
 
             // Insert Into Order Payment
-            $payment = OrderPayment::updateOrCreate([
-                'payment_id'            => $request->payment_id,
-            ], [
-                'order_id'              => $order->order_id,
+            $payment->update([
                 'payment_keterangan'    => $request->payment_keterangan,
-                'payment_status'        => 'blm-lunas',
                 'payment_method'        => 'bayar-surabaya',
-                'payment_date'          => null,
-                'payment_bukti'         => null,
-                'user_id'               => null,
             ]);
         }
+
+
+        }else{
+
+            // Define the model name
+            $modelName = 'DataOrder';
+    
+            // Get the current date and time
+            $currentTime = Carbon::createFromFormat('Y-m-d', $request->order_tanggal);
+    
+            // Get the formatted date portion (yymmdd)
+            $datePart = $currentTime->format('y');
+    
+            // Get the current counter value from cache for the specific model
+            $counter = Cache::get($modelName . '_counter');
+    
+            // Increment the counter
+            $counter++;
+    
+            // Check if the counter reaches 9999, then reset it
+            if ($counter > 9999) {
+                $counter = 1;
+            }
+    
+            // Store the updated counter in the cache
+            Cache::put($modelName . '_counter', $counter);
+    
+            // Generate the new ID
+            $newId = $datePart . sprintf("%04d", $counter);
+    
+            // Stored new Data Order
+            $order  = Order::updateOrCreate([
+                'order_id'              => $request->order_id,
+            ], [
+                'order_noresi'          => $newId,
+                'order_tanggal'         => $request->order_tanggal,
+                'order_pengirim'        => $request->order_pengirim,
+                'order_penerima'        => $request->order_penerima,
+                'order_alamat_penerima' => $request->order_alamat_penerima,
+                'order_nohp_penerima'   => $request->order_nohp_penerima,
+                'order_koli'            => $request->order_koli,
+                'order_kemasan'         => $request->order_kemasan,
+                'order_rincian'         => $request->order_rincian,
+                'order_berat'           => $request->order_berat,
+                'order_volume'          => $request->order_volume,
+                'order_isi'             => $request->order_isi,
+                'order_tarif'           => $request->order_tarif,
+                'order_total'           => $request->order_total,
+                'order_lampiran'        => $request->order_lampiran == '' ? '-' : $request->order_lampiran,
+                'order_keterangan'      => $request->order_keterangan == '' ? '-' : $request->order_keterangan,
+                'order_created'         => Auth::user()->user_id,
+            ]);
+    
+            // If payment keterangan has COD
+            if ($request->has('lunas')) {
+    
+                $payment_bukti = $request->file('payment_bukti') ?? null;
+    
+                if ($payment_bukti && $payment_bukti->isValid()) {
+    
+                    $bukti = $request->file('payment_bukti');
+                    $bukti_bayar = 'bukti_bayar-' . rand(1, 100000) . '.' . $bukti->getClientOriginalExtension();
+    
+                    // Store the original image
+                    $path = Storage::putFileAs('public/bukti_bayar', $bukti, $bukti_bayar);
+    
+                    // Insert Into Order Payment
+                    $payment = OrderPayment::updateOrCreate([
+                        'payment_id'            => $request->payment_id,
+                    ], [
+                        'order_id'              => $order->order_id,
+                        'payment_keterangan'    => $request->payment_keterangan,
+                        'payment_status'        => $request->payment_status,
+                        'payment_tanggal'       => $request->payment_tanggal,
+                        'payment_method'        => 'bayar-langsung',
+                        'payment_bukti'         => $bukti_bayar,
+                        'user_id'               => Auth::user()->user_id,
+                    ]);
+                } else {
+                    // Insert Into Order Payment
+                    $payment = OrderPayment::updateOrCreate([
+                        'payment_id'            => $request->payment_id,
+                    ], [
+                        'order_id'              => $order->order_id,
+                        'payment_keterangan'    => $request->payment_keterangan,
+                        'payment_status'        => $request->payment_status,
+                        'payment_tanggal'       => $request->payment_tanggal,
+                        'payment_method'        => 'bayar-langsung',
+                        'payment_bukti'         => '-',
+                        'user_id'               => Auth::user()->user_id,
+                    ]);
+                }
+    
+            // If payment keterangan has CAD
+            } else if ($request->has('bayar-makassar')) {
+    
+                // Insert Into Order Payment
+                $payment = OrderPayment::updateOrCreate([
+                    'payment_id'            => $request->payment_id,
+                ], [
+                    'order_id'              => $order->order_id,
+                    'payment_keterangan'    => $request->payment_keterangan,
+                    'payment_status'        => 'blm-lunas',
+                    'payment_method'        => 'bayar-makassar',
+                    'payment_date'          => null,
+                    'payment_bukti'         => null,
+                    'user_id'               => null,
+                ]);
+            } else if ($request->has('bayar-surabaya')) {
+    
+                // Insert Into Order Payment
+                $payment = OrderPayment::updateOrCreate([
+                    'payment_id'            => $request->payment_id,
+                ], [
+                    'order_id'              => $order->order_id,
+                    'payment_keterangan'    => $request->payment_keterangan,
+                    'payment_status'        => 'blm-lunas',
+                    'payment_method'        => 'bayar-surabaya',
+                    'payment_date'          => null,
+                    'payment_bukti'         => null,
+                    'user_id'               => null,
+                ]);
+            }
+        }
+
 
         //return response
         return response()->json([

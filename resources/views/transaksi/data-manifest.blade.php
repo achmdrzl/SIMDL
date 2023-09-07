@@ -129,7 +129,7 @@
                         </div>
                         <div class="modal-footer align-items-center">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" id="submitManifest">Simpan</button>
+                            <button type="submit" class="btn btn-primary" id="submitManifest" disabled>Simpan</button>
                         </div>
                         </form>
                     </div>
@@ -194,6 +194,7 @@
                                                 <th>Tarif</th>
                                                 <th>Total</th>
                                                 <th>Status Bayar</th>
+                                                <th>Ket</th>
                                             </thead>
                                             <tbody id="list-manifest">
                                                 {{-- List Order Manifest --}}
@@ -401,6 +402,7 @@
                             console.log(response.error)
                         } else {
                             if (response.length > 0) {
+                                $('#submitManifest').prop('disabled', false)
                                 var table = `<h6>Data Order</h6>
                                             <div style="max-height:300px; overflow-y: scroll;">
                                                 <table id="order-data" class="table nowrap table-striped" style="width:100%">
@@ -415,6 +417,7 @@
                                                         <th>Berat</th>
                                                         <th>Tarif</th>
                                                         <th>Total</th>
+                                                        <th>Ket</th>
                                                     </thead>
                                                     <tbody id="list-order">
                                                         {{-- List Barang Selected --}}
@@ -448,6 +451,7 @@
                                                         <td>` + order_berat + `</td>
                                                         <td>` + rupiah(order_tarif) + `</td>
                                                         <td>` + rupiah(order_total) + `</td>
+                                                        <td><input class="form-control" type="text" name="ket[]" id="ket[]" /></td>
                                                     </tr>`;
 
                                 });
@@ -456,6 +460,7 @@
 
                             } else {
                                 var table = `<h6>No Data Avalilable</h6>`;
+                                $('#submitManifest').prop('disabled', true)
                                 $('#data-order').html(table)
                             }
                         }
@@ -520,6 +525,131 @@
                 });
             });
 
+            // Edit Manifest
+            $('body').on('click', '#manifest-edit', function(){
+
+                $('.alert').hide();
+                $('#saveBtn').val("create-manifest");
+                $('#order_id').val('');
+                $('#manifestForm').trigger("reset");
+                $('#manifestHeading').html("EDIT DATA MANIFEST BARU");
+                $('#manifestModal').modal('show');
+
+                $('#data-order').html('')
+                var manifest_id = $(this).attr('data-id')
+                // get data 
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('get.data') }}",
+                    data: {
+                        manifest_id: manifest_id
+                    },
+                    dataType: "JSON",
+                    success: function (response) {
+                        console.log('detailmanifest', response)
+                        $('#manifest_tanggal_awal').val(response.manifest_tanggal_awal);
+                        $('#manifest_tanggal_akhir').val(response.manifest_tanggal_akhir);
+                        var edit            = `edit`;
+
+                        $.ajax({
+                            type: "POST",
+                            url: "{{ route('get.order.data') }}",
+                            data: {
+                                manifest_tanggal_awal: response.manifest_tanggal_awal,
+                                manifest_tanggal_akhir: response.manifest_tanggal_akhir,
+                                data: edit,
+                            },
+                            dataType: "JSON",
+                            success: function(response) {
+                                console.log(response.error)
+                                console.log(response.hasOwnProperty('error'))
+
+                                if (response.error) {
+                                    // Display the error message using Swal.fire
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: response.error,
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    });
+                                    $('#data-order').html('')
+                                    var table = `<h6>No Data Avalilable</h6>`;
+                                    $('#data-order').html(table)
+                                    console.log(response.error)
+                                } else {
+                                    if (response.length > 0) {
+                                        var table = `<h6>Data Order</h6>
+                                                    <div style="max-height:300px; overflow-y: scroll;">
+                                                        <table id="order-data" class="table nowrap table-striped" style="width:100%">
+                                                            <thead>
+                                                                <th></th>
+                                                                <th>No</th>
+                                                                <th>No Resi</th>
+                                                                <th>Tanggal</th>
+                                                                <th>Pengirim</th>
+                                                                <th>Penerima</th>
+                                                                <th>Koli</th>
+                                                                <th>Berat</th>
+                                                                <th>Tarif</th>
+                                                                <th>Total</th>
+                                                            </thead>
+                                                            <tbody id="list-order">
+                                                                {{-- List Barang Selected --}}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>`;
+
+                                        var listorder = '';
+                                        var no = 1;
+                                        // LOOPING BARANG
+                                        $.each(response, function(index, value) {
+                                            var select           = '<input type="checkbox" class="row-checkbox form-check-input is-valid" value="' + value['order_id'] + '" name="order_id[]" checked>';
+                                            
+                                            const order_id       = value['order_id']
+                                            const order_noresi   = value['order_noresi']
+                                            const order_tanggal  = value['order_tanggal']
+                                            const order_pengirim = value['order_pengirim']
+                                            const order_penerima = value['order_penerima']
+                                            const order_koli     = value['order_koli']
+                                            const order_berat    = value['order_berat']
+                                            const order_tarif    = value['order_tarif']
+                                            const order_total    = value['order_total']
+
+                                            listorder += `<tr>
+                                                                <td>` + select + `</td>
+                                                                <td>` + no++ + `</td>
+                                                                <td>` + order_noresi + `</td>
+                                                                <td>` + order_tanggal + `</td>
+                                                                <td>` + order_pengirim + `</td>
+                                                                <td>` + order_penerima + `</td>
+                                                                <td>` + order_koli + `</td>
+                                                                <td>` + order_berat + `</td>
+                                                                <td>` + rupiah(order_tarif) + `</td>
+                                                                <td>` + rupiah(order_total) + `</td>
+                                                            </tr>`;
+
+                                        });
+                                        $('#data-order').html(table)
+                                        $("#list-order").html(listorder)
+
+                                    } else {
+                                        var table = `<h6>No Data Avalilable</h6>`;
+                                        $('#data-order').html(table)
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                // Handle AJAX errors here if needed
+                                console.log(xhr.responseText);
+                            }
+                        });
+                    }
+                });
+
+
+            });
+
             // Detail Manifest
             $('body').on('click', '#detail-manifest', function() {
                 $('.alert').hide();
@@ -572,6 +702,14 @@
                             const order_berat    = value.order['order_berat']
                             const order_tarif    = value.order['order_tarif']
                             const order_total    = value.order['order_total']
+                            const ket            = value['ket']
+
+                            var keterangan = ``;
+                            if(ket !== null){
+                                keterangan += ket
+                            }else{
+                                keterangan += `-`
+                            }
 
                             const payment_status = value.order.payment['payment_status']
                             // Validate Badge Status Payment
@@ -593,6 +731,7 @@
                                                 <td>` + rupiah(order_tarif) + `</td>
                                                 <td>` + rupiah(order_total) + `</td>
                                                 <td>` + status + `</td>
+                                                <td>` + keterangan + `</td>
                                             </tr>`;
 
                         });
@@ -635,6 +774,66 @@
                             // Open the PDF in a new tab/window
                             window.open(url, '_blank');
 
+                        } else {
+                            Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
+                        }
+                    });
+
+            });
+
+            // Delete Manifest
+            $('body').on('click', '#manifest-delete', function() {
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger me-2",
+                    },
+                    buttonsStyling: false,
+
+                });
+
+                var manifest_id = $(this).attr('data-id');
+
+                swalWithBootstrapButtons
+                    .fire({
+                        title: "Apakah kamu ingin menghapus data manifest ini?",
+                        text: "Manifest akan di hapus!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonClass: "me-2",
+                        cancelButtonText: "Tidak",
+                        confirmButtonText: "Ya",
+                        reverseButtons: true,
+                    })
+                    .then((result) => {
+                        if (result.value) {
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('manifest.destroy') }}",
+                                data: {
+                                    manifest_id: manifest_id,
+                                },
+                                dataType: "json",
+                                success: function(response) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                    });
+
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: `${response.status}`,
+                                    })
+                                    manifestdata.draw();
+                                    setInterval(function() {
+                                        window.location.reload();
+                                    }, 1000);
+                                }
+                            });
                         } else {
                             Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
                         }

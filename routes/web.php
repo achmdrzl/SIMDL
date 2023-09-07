@@ -64,6 +64,8 @@ Route::group(['middleware' => ['role:superadmin|admin', 'auth']], function () {
     Route::post('/manifestDetail', ManifestController::class . '@manifestDetail')->name('manifest.detail');
     Route::post('/manifestUpdateStatus', ManifestController::class . '@manifestUpdateStatus')->name('manifest.update.status');
     Route::get('/manifestPrint', ManifestController::class . '@manifestPrint')->name('manifest.print');
+    Route::post('/getdata', ManifestController::class. '@getdata')->name('get.data');
+    Route::post('/manifestDestroy', ManifestController::class. '@manifestDestroy')->name('manifest.destroy');
 
     // PENGELUARAN MAKASSAR
     Route::get('/pengeluaran', PengeluaranController::class. '@pengeluaranIndex')->name('pengeluaran.index');

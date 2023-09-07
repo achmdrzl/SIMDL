@@ -9,6 +9,7 @@ use App\Models\Order;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -47,6 +48,12 @@ class ManifestController extends Controller
 
                     $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="detail-manifest" title="DETAIL MANIFEST" data-id="' . $item->manifest_id . '"><span class="material-icons btn-sm">visibility</span></button>';
 
+                    // Checking Role to Access it.
+                    if (Auth::user()->city == 'surabaya' || Auth::user()->role == 'superadmin') {
+                        // $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="manifest-edit" title="EDIT MANIFEST" data-id="' . $item->manifest_id . '"><span class="material-icons btn-sm">edit</span></button>';
+                        $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="manifest-delete" title="DELETE MANIFEST" data-id="' . $item->manifest_id . '"><span class="material-icons btn-sm">delete</span></button>';
+                    }
+
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -55,6 +62,16 @@ class ManifestController extends Controller
 
         return view('transaksi.data-manifest', compact('manifest'));
     }
+
+    // GET DATA BY MANIFEST ID
+    public function getdata(Request $request)
+    {
+        $manifest = Manifest::with(['detailmanifest'])->where('manifest_id', $request->manifest_id)->first();
+
+        return response()->json($manifest);
+    }
+
+
 
     // GET DATA ORDER BEFORE MAKE A NEW DATA MANIFEST
     public function getorderdata(Request $request)
@@ -72,15 +89,25 @@ class ManifestController extends Controller
         //         $manifestOrders[] = $order;
         //     }
         // }
-
-        // // If all orders have valid order_status, return them as JSON
-        // return response()->json($manifestOrders);
-        $orders = Order::whereBetween('order_tanggal', [$request->manifest_tanggal_awal, $request->manifest_tanggal_akhir])
-            ->where('order_status', 'terdaftar')
-            ->get();
+        if ($request->data) {
+            // // If all orders have valid order_status, return them as JSON
+            // return response()->json($manifestOrders);
+            $orders = Order::whereBetween('order_tanggal', [$request->manifest_tanggal_awal, $request->manifest_tanggal_akhir])->get();
+        } else {
+            // // If all orders have valid order_status, return them as JSON
+            // return response()->json($manifestOrders);
+            $orders = Order::whereBetween('order_tanggal', [$request->manifest_tanggal_awal, $request->manifest_tanggal_akhir])
+                ->where('order_status', 'terdaftar')
+                ->get();
+        }
 
         // Return the filtered orders as JSON
         return response()->json($orders);
+    }
+
+    // GET ORDER DATA TO UPDATE MANIFEST
+    public function manifestedit(Request $request)
+    {
     }
 
     // STORED DATA MANIFEST BARU
@@ -105,6 +132,36 @@ class ManifestController extends Controller
             return response()->json(['errors' => $validator->errors()->all()]);
         }
 
+        // // Define the model name
+        // $modelName = 'DataManifest';
+
+        // // Get the current date and time
+        // $currentTime = Carbon::createFromFormat('Y-m-d', $request->manifest_tanggal);
+
+        // // Get the formatted date portion (yymm)
+        // $datePart = $currentTime->format('y');
+
+        // // Get the current counter value from cache for the specific model
+        // $counter = Cache::get($modelName . '_counter');
+
+        // // Increment the counter
+        // $counter++;
+
+        // // Check if the counter reaches 999, then reset it
+        // if ($counter > 999) {
+        //     $counter = 1;
+        // }
+
+        // // Store the updated counter and date in the cache
+        // Cache::put($modelName . '_counter', $counter);
+        // Cache::put($modelName . '_counter_date', $datePart);
+
+        // // Generate the new ID
+        // $newId = 'M' . $datePart . sprintf(
+        //     "%03d",
+        //     $counter
+        // );
+
         // Define the model name
         $modelName = 'DataManifest';
 
@@ -114,23 +171,20 @@ class ManifestController extends Controller
         // Get the formatted date portion (yymm)
         $datePart = $currentTime->format('y');
 
-        // Get the current counter value from cache for the specific model
-        $counter = Cache::get($modelName . '_counter');
+        // Find the latest entry in the database
+        $latestEntry = Manifest::latest()->first();
 
-        // Increment the counter
-        $counter++;
+        // If there are no entries, start the counter at 1, otherwise extract the counter from the latest entry
+        $counter = $latestEntry ? intval(substr($latestEntry->manifest_no, -3)) + 1 : 1;
 
         // Check if the counter reaches 999, then reset it
         if ($counter > 999) {
             $counter = 1;
         }
 
-        // Store the updated counter and date in the cache
-        Cache::put($modelName . '_counter', $counter);
-        Cache::put($modelName . '_counter_date', $datePart);
-
         // Generate the new ID
-        $newId = 'M' . $datePart . sprintf("%03d",
+        $newId = 'M' . $datePart . sprintf(
+            "%03d",
             $counter
         );
 
@@ -164,6 +218,7 @@ class ManifestController extends Controller
             ], [
                 'manifest_id'           => $manifest->manifest_id,
                 'order_id'              => $request->order_id[$x],
+                'ket'                   => $request->ket[$x],
             ]);
 
             // update order_status to manifested
@@ -251,7 +306,33 @@ class ManifestController extends Controller
 
         // Return the PDF content with appropriate headers
         return response($pdfContent)
-        ->header('Content-Type', 'application/pdf')
-        ->header('Content-Disposition', 'inline; filename="Manifest-' . $manifest->manifest_no . '.pdf"');
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="Manifest-' . $manifest->manifest_no . '.pdf"');
+    }
+
+    // MANIFEST DELETE
+    public function manifestDestroy(Request $request)
+    {
+        $manifest = Manifest::with(['detailmanifest.order'])->where('manifest_id', $request->manifest_id)->first();
+
+        if ($manifest) {
+            foreach ($manifest->detailmanifest as $detail) {
+                $order = $detail->order;
+
+                $order->update(['order_status' => 'terdaftar']);
+            }
+
+            // Now you can also update the manifest status itself if needed
+            $manifest->delete();
+
+            foreach ($manifest->detailmanifest as $detail) {
+                $detail->delete();
+            }
+
+            // Return a success message or perform any other action after the updates
+            return response()->json(['status' => 'Manifest Berhasil di Hapus!']);
+        } else {
+            return response()->json(['status' => 'Manifes tidak ditemukan'], 404);
+        }
     }
 }

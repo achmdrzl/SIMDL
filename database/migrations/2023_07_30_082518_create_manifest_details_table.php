@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('detail_manifest_id');
             $table->integer('manifest_id');
             $table->integer('order_id');
+            $table->string('ket')->nullable();
             $table->timestamps();
         });
     }

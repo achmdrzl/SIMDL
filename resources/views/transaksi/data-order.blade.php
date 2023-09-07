@@ -671,7 +671,7 @@
                 $('#saveBtn').val("create-order");
                 $('#order_id').val('');
                 $('#orderForm').trigger("reset");
-                $('#orderHeading').html("TAMBAH DATA ORDER BARU");
+                $('#orderHeading').html("EDIT DATA ORDER BARU");
                 $('#orderModal').modal('show');
                 $('#method').prop('hidden', false)
                 $('#codInputs').html('')
@@ -686,8 +686,9 @@
                     },
                     dataType: "JSON",
                     success: function (response) {
-                                                // hidden method
-                        $('#method').prop('hidden', true)
+                        console.log(response)
+                        // hidden method
+                        $('#method').prop('hidden', false)
 
                         var order_id              = response.order_id
                         var order_tanggal         = response.order_tanggal
@@ -704,43 +705,21 @@
                         var order_tarif           = response.order_tarif
                         var order_total           = response.order_total
                         var order_lampiran        = response.order_lampiran
+                        var order_keterangan      = response.order_keterangan
                         var payment_status        = response.payment.payment_status
                         var payment_tanggal       = response.payment.payment_tanggal
                         var payment_method        = response.payment.payment_method
                         var payment_bukti         = response.payment.payment_bukti
+                        var payment_keterangan    = response.payment.payment_keterangan
+                        var payment_method        = response.payment.payment_method
 
-                        // GET NAME OF PAYMENT VALIDATION
-                        var payment_acc = '';
-                        if (response.payment && response.payment.user_acc && response.payment.user_acc.name !== null) {
-                            payment_acc = response.payment.user_acc.name;
-                        }
-
-                        // GET PAYMENT KETERANGAN OR KOTA TRANSIT
-                        var payment_keterangan = '-';
-                        if (response.payment && response.payment.payment_keterangan !== null) {
-                            payment_keterangan = response.payment.payment_keterangan;
-                        }
-
-                        var download_button = '';
-                        if(payment_bukti != '-'){
-                            download_button = `<div class="col-sm-6">
-                                                    <label class="form-label">Bukti Pembayaran</label>
-                                                    <div class="form-group">
-                                                        <input class="form-control" type="file"
-                                                            placeholder="Masukkan Jumlah tarif" name="payment_bukti"
-                                                            id="payment_bukti" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-6">
-                                                    <label class="form-label">Bukti Pembayaran</label>
-                                                    <div class="form-group">
-                                                        <a href="download/image/` + order_id + `" class="btn btn-primary" id="buktiBayar" target="_blank" download>Download Bukti</a>
-                                                    </div>
-                                                </div>`;
-                        }else{
-                            download_button = '';
+                        if(payment_method === 'bayar-surabaya'){
+                            $('#bayar-surabaya').prop('checked', true)
+                        }else if(payment_method === 'bayar-makassar'){
+                            $('#bayar-makassar').prop('checked', true)
                         }
                         
+                        $('#order_id').val(order_id)
                         $('#order_tanggal').val(order_tanggal).prop('readonly', false)
                         $('#order_pengirim').val(order_pengirim).prop('readonly', false)
                         $('#order_penerima').val(order_penerima).prop('readonly', false)
@@ -755,38 +734,8 @@
                         $('#order_tarif').val(order_tarif).prop('readonly', false)
                         $('#order_total').val(order_total).prop('readonly', false)
                         $('#order_lampiran').val(order_lampiran).prop('readonly', false)
+                        $('#order_keterangan').val(order_keterangan).prop('readonly', false)
                         $('#payment_keterangan').val(payment_keterangan).prop('readonly', false)
-
-                        if(payment_status == 'lunas'){
-                            var button   = `<div class="col-sm-4">
-                                                <label class="form-label">Tanggal Pembayaran</label>
-                                                <div class="form-group">
-                                                    <input class="form-control" type="date" placeholder="Masukkan Jumlah Koli"
-                                                        name="payment_tanggal" id="payment_tanggal" value=`+ payment_tanggal +` />
-                                            </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <label class="form-label">Validasi Pembayaran Oleh:</label>
-                                                <div class="form-group">
-                                                    <input class="form-control" type="text"
-                                                        placeholder="Masukkan Jenis Kemasan" name="payment_acc"
-                                                        id="payment_acc" value=`+ payment_acc +` />
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <label class="form-label">Metode Pembayaran:</label>
-                                                <div class="form-group">
-                                                    <input class="form-control" type="text"
-                                                        placeholder="Masukkan Jenis Kemasan" name="payment_acc"
-                                                        id="payment_acc" value=`+ payment_method +` />
-                                                </div>
-                                            </div>
-                                            ` + download_button + ` `;
-
-                            $('#codInputs').html(button)
-                        }else{
-                            $('#codInputs').html('')
-                        }
                     }
                 });
             });

@@ -15,7 +15,7 @@
         }
 
         .header2 {
-            max-width: 400px;
+            max-width: 600px;
             margin-left:10px;
         }
 
@@ -110,7 +110,8 @@
                         <td>{{ $item->order->order_volume }}</td>
                         <td>{{ $item->order->order_isi }}</td>
                         <td>{{ ucfirst($item->order->payment->payment_method) }}</td>
-                        <td>{{ $item->order->payment->payment_keterangan == null ? '-' : ucfirst($item->order->payment->payment_keterangan) }}
+                        {{-- <td>{{ $item->order->payment->payment_keterangan == null ? '-' : ucfirst($item->order->payment->payment_keterangan) }} --}}
+                        <td>{{ $item->ket == null ? '-' : ucfirst($item->ket) }}
                         </td>
                     </tr>
                 @endforeach

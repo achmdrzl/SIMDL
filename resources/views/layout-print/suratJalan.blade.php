@@ -55,7 +55,7 @@
       }
       th,
       td {
-        /* border: 1px solid black; */
+        /*border: 1px solid black;*/
         padding: 7px;
         /* font-weight: 350; */
         text-align: left; /* Align content to the right */
@@ -100,11 +100,11 @@
             <td></td>
             <td></td>
             <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
             <td>{{ $order->order_penerima }}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -118,14 +118,14 @@
             <td></td>
             <td></td>
             <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
             <td style="margin-left: 20px; font-size: 13px;">
               {{ $order->order_alamat_penerima }} <br />
               {{ $order->order_nohp_penerima }}
             </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
             <td></td>
             <td></td>
             <td></td>
@@ -152,14 +152,16 @@
         <div class="table-2">
           <table class="product">
             <tr>
-              <td style="text-align: left">{{ $order->order_koli }}</td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td style="text-align: left;">{{ $order->order_koli }}</td>
               <td style="text-align: center">{{ $order->order_berat }}</td>
               <td></td>
               <td></td>
               <td style="text-align: center">{{ $order->order_volume }}</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
               <td></td>
               <td></td>
               <td></td>
@@ -174,9 +176,7 @@
               <td></td>
               <td></td>
               <td></td>
-              <td></td>
-              <td></td>
-              <td style="text-align: right;"><div style="margin-left: 30px;">3300</div></td>
+              <td style="text-align: right;"><div style="margin-left: 40px;">{{ number_format($order->order_tarif) }}</div></td>
               <td>
                 <div style="text-align: right">
                   {{ $order->order_lampiran }}
