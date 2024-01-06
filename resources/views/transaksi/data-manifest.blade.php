@@ -676,15 +676,19 @@
                         var manifest_total_berat  = response.manifest.manifest_total_berat
                         var manifest_total_volume = response.manifest.manifest_total_volume
                         var manifest_total_harga  = response.manifest.manifest_total_harga
-                        var total_harus_dibayar   = response.sumOrderTotal
+                        var manifest_total_harga2 = response.sumOrderTotal
+                        var total_harus_dibayar   = response.sumOfTotalPay
+                        var total_berat           = response.sumOrderBerat
+                        var total_koli            = response.sumOrderKoli
+                        var total_volume          = response.sumOrderVolume
 
-                        $("#detail_manifest_tanggal").val(manifest_tanggal).prop('readonly',true)
+                         $("#detail_manifest_tanggal").val(manifest_tanggal).prop('readonly',true)
                         $("#detail_manifest_no").val(manifest_no).prop('readonly', true)
                         $("#detail_manifest_plat_mobil").val(manifest_plat_mobil).prop('readonly', true)
-                        $("#detail_manifest_total_koli").html(manifest_total_koli)
-                        $("#detail_manifest_total_berat").html(manifest_total_berat+'Kg')
-                        $("#detail_manifest_total_volume").html(manifest_total_volume)
-                        $("#detail_manifest_total_harga").html(rupiah(manifest_total_harga))
+                        $("#detail_manifest_total_koli").html(total_koli)
+                        $("#detail_manifest_total_berat").html(total_berat+'Kg')
+                        $("#detail_manifest_total_volume").html(total_volume)
+                        $("#detail_manifest_total_harga").html(rupiah(manifest_total_harga2))
                         $("#total_harus_dibayar").html(rupiah(total_harus_dibayar))
 
                         var listmanifest = '';

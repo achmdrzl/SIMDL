@@ -1106,29 +1106,32 @@
                     success: function(response) {
                         console.log(response)
                         // DATA TOTAL LAPORAN
-                        var laporan_tanggal               = response.laporan_tanggal
-                        var laporan_total_omset           = response.laporan_total_omset
-                        var laporan_total_handling        = response.laporan_total_handling
-                        var laporan_total_pengeluaran_mks = response.laporan_total_pengeluaran_mks
-                        var laporan_total_transportasi    = response.laporan_total_transportasi
-                        var laporan_total_operasional     = response.laporan_total_operasional
-                        var laporan_total_gaji            = response.laporan_total_gaji
-                        var laporan_total                 = response.laporan_total
+                        var laporan_tanggal               = response.laporan.laporan_tanggal
+                        var laporan_total_omset           = response.laporan.laporan_total_omset
+                        var laporan_total_handling        = response.laporan.laporan_total_handling
+                        var laporan_total_pengeluaran_mks = response.laporan.laporan_total_pengeluaran_mks
+                        var laporan_total_transportasi    = response.laporan.laporan_total_transportasi
+                        var laporan_total_operasional     = response.laporan.laporan_total_operasional
+                        var laporan_total_gaji            = response.laporan.laporan_total_gaji
+                        var laporan_total                 = response.laporan.laporan_total
+
+                        var order_total                   = response.order_total
+                        var laba_bersih                   = response.laba_bersih
 
                         $("#detail_laporan_tanggal").val(laporan_tanggal).prop('readonly', true)
-                        $("#detail_laporan_total_omset").html(rupiah(laporan_total_omset))
+                        $("#detail_laporan_total_omset").html(rupiah(order_total))
                         $("#detail_laporan_total_handling").html(rupiah(laporan_total_handling))
                         $("#detail_laporan_total_transportasi").html(rupiah(laporan_total_transportasi))
                         $("#detail_laporan_total_pengeluaran_mks").html(rupiah(laporan_total_pengeluaran_mks))
                         $("#detail_laporan_total_operasional").html(rupiah(laporan_total_operasional))
                         $("#detail_laporan_total_gaji").html(rupiah(laporan_total_gaji))
-                        $("#detail_laporan_total").html(rupiah(laporan_total))
+                        $("#detail_laporan_total").html(rupiah(laba_bersih))
 
                         // DATA HANDLING
                         var listhandling = '';
                         var no = 1;
                         // LOOPING BARANG
-                        $.each(response.handling, function(index, value) {
+                        $.each(response.laporan.handling, function(index, value) {
                             const handling_kota  = value['handling_kota']
                             const handling_berat = value['handling_berat']
                             const handling_tarif = value['handling_tarif']
@@ -1155,7 +1158,7 @@
                         var listtransportasi = '';
                         var no = 1;
                         // LOOPING BARANG
-                        $.each(response.transportasi, function(index, value) {
+                        $.each(response.laporan.transportasi, function(index, value) {
                             const transportasi_id          = value['transportasi_id']
                             const transportasi_keterangan  = value['transportasi_keterangan']
                             const transportasi_total       = value['transportasi_total']
@@ -1163,7 +1166,8 @@
                             var transportasi               = 'transportasi' + transportasi_id;
 
                             if(transportasi_bukti != '-'){
-                                var button = ` <a href="downloadBuktiPengeluaran/` + transportasi + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                                var button = ` <a href="downloadBuktiPengeluaranTransportasi/` + transportasi_id + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                                // var button = ` <a href="downloadBuktiPengeluaran/` + transportasi + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
                             }else{
                                 var button = '-'
                             }
@@ -1190,7 +1194,7 @@
                         var listoperasional = '';
                         var no = 1;
                         // LOOPING BARANG
-                        $.each(response.operasional, function(index, value) {
+                        $.each(response.laporan.operasional, function(index, value) {
                             const operasional_id          = value['operasional_id']
                             const operasional_keterangan  = value['operasional_keterangan']
                             const operasional_total       = value['operasional_total']
@@ -1198,7 +1202,8 @@
                             var operasional               = 'operasional' + operasional_id;
 
                             if(operasional_bukti != '-'){
-                                var button = ` <a href="downloadBuktiPengeluaran/` + operasional + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                                var button = ` <a href="downloadBuktiPengeluaranOperasional/` + operasional_id + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                                // var button = ` <a href="downloadBuktiPengeluaran/` + operasional + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
                             }else{
                                 var button = '-'
                             }
@@ -1225,7 +1230,7 @@
                         var listgaji = '';
                         var no = 1;
                         // LOOPING BARANG
-                        $.each(response.gaji, function(index, value) {
+                        $.each(response.laporan.gaji, function(index, value) {
                             const gaji_id          = value['gaji_id']
                             const gaji_keterangan  = value['gaji_keterangan']
                             const gaji_total       = value['gaji_total']
@@ -1233,7 +1238,8 @@
                             var gaji               = 'gaji' + gaji_id;
 
                             if(gaji_bukti != '-'){
-                                var button = ` <a href="downloadBuktiPengeluaran/` + gaji + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                                var button = ` <a href="downloadBuktiPengeluaranGaji/` + gaji_id + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
+                                // var button = ` <a href="downloadBuktiPengeluaran/` + gaji + `" class="btn btn-primary" id="buktiPengeluaran" target="_blank" download>Download Bukti</a>`;
                             }else{
                                 var button = '-'
                             }
@@ -1293,6 +1299,66 @@
                             // Open the PDF in a new tab/window
                             window.open(url, '_blank');
 
+                        } else {
+                            Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
+                        }
+                    });
+
+            });
+
+            // Delete Laporan
+            $('body').on('click', '#laporan-delete', function() {
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger me-2",
+                    },
+                    buttonsStyling: false,
+
+                });
+
+                var laporan_id = $(this).attr('data-id');
+
+                swalWithBootstrapButtons
+                    .fire({
+                        title: "Apakah kamu ingin menghapus data laporan ini?",
+                        text: "Laporan akan di hapus!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonClass: "me-2",
+                        cancelButtonText: "Tidak",
+                        confirmButtonText: "Ya",
+                        reverseButtons: true,
+                    })
+                    .then((result) => {
+                        if (result.value) {
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('laporan.destroy') }}",
+                                data: {
+                                    laporan_id: laporan_id,
+                                },
+                                dataType: "json",
+                                success: function(response) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                    });
+
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: `${response.status}`,
+                                    })
+                                    laporandata.draw();
+                                },
+                                error: function(error) {
+                                    Swal.fire('Error', 'Terjadi kesalahan saat menghapus data.', 'error');
+                                },
+                            });
                         } else {
                             Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
                         }

@@ -60,11 +60,11 @@
         <br>
         <div class="body">
             <h3 style="position: absolute;">Laporan Keuangan</h3>&nbsp;
-            <h3 style="float:right; position: flex;">Tanggal : 23-08-2023</h3>&nbsp;
+            <h3 style="float:right; position: flex;">Tanggal : {{ $laporan->laporan_tanggal }}</h3>&nbsp;
             <table class="body" style="width: 100%">
                 <tr style="background-color: rosybrown;">
                     <th colspan="3">Pendapatan Omset :</th>
-                    <th style="text-align: right;">Rp. {{ number_format($laporan->laporan_total_omset) }}</th>
+                    <th style="text-align: right;">Rp. {{ number_format($order_sum) }}</th>
                 </tr>
                 <tr style="background-color: rosybrown;">
                     <th colspan="3">Pendapatan Handling :</th>
@@ -73,24 +73,24 @@
                 <tr>
                     <th colspan="4"></th>
                 </tr>
-                <tr style="background-color: rosybrown;">
-                    <th>Kota</th>
-                    <th>Tarif</th>
-                    <th>Berat</th>
-                    <th>Total</th>
+                <tr style="background-color: rosybrown; text-align:center;">
+                    <th style="text-align: center;">Kota</th>
+                    <th style="text-align: center;">Tarif</th>
+                    <th style="text-align: center;">Berat</th>
+                    <th style="text-align: center;">Total</th>
                 </tr>
                 @foreach ($laporan->handling as $item)
                     <tr>
-                        <td>{{ $item->handling_kota }}</td>
-                        <td>Rp. {{ number_format($item->handling_tarif) }}</td>
-                        <td>{{ $item->handling_berat }} Kg</td>
+                        <td style="text-align: center;">{{ $item->handling_kota }}</td>
+                        <td style="text-align: right;">Rp. {{ number_format($item->handling_tarif) }}</td>
+                        <td style="text-align: center;">{{ $item->handling_berat }} Kg</td>
                         <td style="text-align: right;">Rp. {{ number_format($item->handling_total) }}</td>
                     </tr>
                 @endforeach
                 <tr style="background-color: greenyellow;">
                     <th colspan="3" style="text-align: center;">Total Pendapatan</th>
                     <th style="text-align: right;">Rp.
-                        {{ number_format($laporan->laporan_total_omset + $laporan->laporan_total_handling) }}</th>
+                        {{ number_format($order_sum + $laporan->laporan_total_handling) }}</th>
                 </tr>
                 <tr>
                     <th colspan="4" style="background-color: rosybrown;">Beban-beban</th>
@@ -169,7 +169,7 @@
                 <tr style="background-color: greenyellow;">
                     <th colspan="3" style="text-align: center;">Total Laba Bersih :</th>
                     <th style="text-align: right;">Rp.
-                        {{ number_format($laporan->laporan_total) }}
+                        {{ number_format($laba_bersih) }}
                     </th>
                 </tr>
             </table>

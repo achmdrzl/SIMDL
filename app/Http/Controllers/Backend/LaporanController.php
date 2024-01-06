@@ -7,6 +7,7 @@ use App\Models\InHandling;
 use App\Models\Laporan;
 use App\Models\Order;
 use App\Models\OutGaji;
+use App\Models\OutModal;
 use App\Models\OutOperasional;
 use App\Models\OutTransportasi;
 use App\Models\Pengeluaran;
@@ -34,7 +35,9 @@ class LaporanController extends Controller
                     return 'Rp. ' . number_format($item->laporan_total_handling);
                 })
                 ->addColumn('laporan_total_omset', function ($item) {
-                    return 'Rp. ' . number_format($item->laporan_total_omset);
+                    $order = Order::whereBetween('order_tanggal', [$item->laporan_tanggal_awal, $item->laporan_tanggal_akhir])->sum('order_total');
+                    // return 'Rp. ' . number_format($item->laporan_total_omset);
+                    return 'Rp. ' . number_format($order);
                 })
                 ->addColumn('laporan_total_operasional', function ($item) {
                     return 'Rp. ' . number_format($item->laporan_total_operasional);
@@ -49,13 +52,23 @@ class LaporanController extends Controller
                     return 'Rp. ' . number_format($item->laporan_total_gaji);
                 })
                 ->addColumn('laporan_total', function ($item) {
-                    return 'Rp. ' . number_format($item->laporan_total);
+
+                    $order = Order::whereBetween('order_tanggal', [$item->laporan_tanggal_awal, $item->laporan_tanggal_akhir])->sum('order_total');
+
+                    $laba_bersih = ($order + $item->laporan_total_handling) - ($item->laporan_total_operasional + $item->laporan_total_pengeluaran_mks + $item->laporan_total_transportasi + $item->laporan_total_gaji);
+
+                    // return 'Rp. ' . number_format($item->laporan_total);
+                    return 'Rp. ' . number_format($laba_bersih);
                 })
                 ->addColumn('action', function ($item) {
 
                     $btn = '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="laporan-print" title="PRINT SURAT LAPORAN" data-id="' . $item->laporan_id . '"><span class="material-icons btn-sm">print</span></button>';
 
                     $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="laporan-detail" title="DETAIL LAPORAN" data-id="' . $item->laporan_id . '"><span class="material-icons btn-sm">visibility</span></button>';
+
+                    if(Auth::user()->role == 'superadmin'){
+                        $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="laporan-delete" title="DELETE LAPORAN" data-id="' . $item->laporan_id . '"><span class="material-icons btn-sm">delete</span></button>';
+                    }
 
                     return $btn;
                 })
@@ -171,7 +184,7 @@ class LaporanController extends Controller
         ]);
 
         // INSERT INTO HANDLING
-        if(count($request->handling_total) != null){
+        if (count($request->handling_total) != null) {
             for ($x = 0; $x < count($request->handling_kota); $x++) {
                 $handling = InHandling::updateOrCreate([
                     'handling_id'   => $request->handling_id,
@@ -294,72 +307,261 @@ class LaporanController extends Controller
     {
         $laporan    = Laporan::with(['handling', 'transportasi', 'operasional', 'gaji'])->where('laporan_id', $request->laporan_id)->first();
 
-        return response()->json($laporan);
+        $order = Order::whereBetween('order_tanggal', [$laporan->laporan_tanggal_awal, $laporan->laporan_tanggal_akhir])->sum('order_total');
+
+        $laba_bersih = ($order + $laporan->laporan_total_handling) - ($laporan->laporan_total_operasional + $laporan->laporan_total_pengeluaran_mks + $laporan->laporan_total_transportasi + $laporan->laporan_total_gaji);
+
+        return response()->json([
+            'laporan'       => $laporan,
+            'order_total'   => $order,
+            'laba_bersih'   => $laba_bersih,
+        ]);
     }
 
-    // DOWNLOAD BUKTI
-    public function downloadBuktiPengeluaran($objek_id)
+    // // DOWNLOAD BUKTI
+    // public function downloadBuktiPengeluaran($objek_id)
+    // {
+    //     // Extract the prefix "gaji"
+    //     $prefix1 = substr($objek_id, 0, -1);
+
+    //     // Extract the number "2"
+    //     $number = intval(substr($objek_id, -1));
+
+    //     if ($prefix1 == 'gaji') {
+    //         // Find the data by order_id (Assuming you have an Order model)
+    //         $gaji  = OutGaji::find($number);
+
+    //         if (!$gaji) {
+    //             abort(404, 'File not found');
+    //         }
+
+    //         // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+    //         $filename = $gaji->gaji_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+
+    //         $disk = Storage::disk('public');
+    //         if ($disk->exists('bukti_gaji/' . $filename)) {
+    //             // Determine the file's content type based on the file extension
+    //             $mimeTypes = [
+    //                 'pdf' => 'application/pdf',
+    //                 'jpg' => 'image/jpeg',
+    //                 'jpeg' => 'image/jpeg',
+    //                 'png' => 'image/png',
+    //                 'txt' => 'text/plain',
+    //                 // Add more mime types as needed
+    //             ];
+
+    //             $extension = pathinfo($filename, PATHINFO_EXTENSION);
+    //             $contentType = isset($mimeTypes[$extension]) ? $mimeTypes[$extension] : 'application/octet-stream';
+
+    //             $headers = [
+    //                 'Content-Type' => $contentType,
+    //                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    //             ];
+
+    //             return response()->stream(function () use ($disk, $filename) {
+    //                 echo $disk->get('bukti_gaji/' . $filename);
+    //             }, 200, $headers);
+    //         }
+    //         // If the file doesn't exist, redirect or show an error message
+    //         // For example, redirect to a 404 page
+    //         abort(404, 'File not found');
+    //     } else if ($prefix1 == 'operasional') {
+    //         // Find the data by order_id (Assuming you have an Order model)
+    //         $operasional  = OutOperasional::find($number);
+
+    //         if (!$operasional) {
+    //             abort(404, 'File not found');
+    //         }
+
+    //         // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+    //         $filename = $operasional->operasional_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+
+    //         $disk = Storage::disk('public');
+    //         if ($disk->exists('bukti_operasional/' . $filename)) {
+    //             // Determine the file's content type based on the file extension
+    //             $mimeTypes = [
+    //                 'pdf' => 'application/pdf',
+    //                 'jpg' => 'image/jpeg',
+    //                 'jpeg' => 'image/jpeg',
+    //                 'png' => 'image/png',
+    //                 'txt' => 'text/plain',
+    //                 // Add more mime types as needed
+    //             ];
+
+    //             $extension = pathinfo($filename, PATHINFO_EXTENSION);
+    //             $contentType = isset($mimeTypes[$extension]) ? $mimeTypes[$extension] : 'application/octet-stream';
+
+    //             $headers = [
+    //                 'Content-Type' => $contentType,
+    //                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    //             ];
+
+    //             return response()->stream(function () use ($disk, $filename) {
+    //                 echo $disk->get('bukti_operasional/' . $filename);
+    //             }, 200, $headers);
+    //         }
+    //         // If the file doesn't exist, redirect or show an error message
+    //         // For example, redirect to a 404 page
+    //         abort(404, 'File not found');
+    //     } else {
+
+    //         // Find the data by order_id (Assuming you have an Order model)
+    //         $transportasi  = OutTransportasi::find($number);
+
+    //         // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+    //         $filename = $transportasi->transportasi_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+
+    //         $disk = Storage::disk('public');
+    //         if ($disk->exists('bukti_transportasi/' . $filename)) {
+    //             // Determine the file's content type based on the file extension
+    //             $mimeTypes = [
+    //                 'pdf' => 'application/pdf',
+    //                 'jpg' => 'image/jpeg',
+    //                 'jpeg' => 'image/jpeg',
+    //                 'png' => 'image/png',
+    //                 'txt' => 'text/plain',
+    //                 // Add more mime types as needed
+    //             ];
+
+    //             $extension = pathinfo($filename, PATHINFO_EXTENSION);
+    //             $contentType = isset($mimeTypes[$extension]) ? $mimeTypes[$extension] : 'application/octet-stream';
+
+    //             $headers = [
+    //                 'Content-Type' => $contentType,
+    //                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    //             ];
+
+    //             return response()->stream(function () use ($disk, $filename) {
+    //                 echo $disk->get('bukti_transportasi/' . $filename);
+    //             }, 200, $headers);
+    //         }
+    //         // If the file doesn't exist, redirect or show an error message
+    //         // For example, redirect to a 404 page
+    //         abort(404, 'File not found');
+    //     }
+    // } 
+
+    public function downloadBuktiPengeluaranGaji($objek_id)
     {
-        // Extract the prefix "gaji"
-        $prefix1 = substr($objek_id, 0, -1);
 
-        // Extract the number "2"
-        $number = intval(substr($objek_id, -1));
+        // Find the data by order_id (Assuming you have an Order model)
+        $gaji  = OutGaji::find($objek_id);
 
-        if ($prefix1 == 'gaji') {
-            // Find the data by order_id (Assuming you have an Order model)
-            $gaji  = OutGaji::find($number);
+        // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+        $filename = $gaji->gaji_bukti; // Replace 'image_column_name' with the actual column name storing the file name
 
-            // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
-            $filename = $gaji->gaji_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+        // Ensure the file exists in the storage
+        if (Storage::disk('public')->exists('bukti_gaji/' . $filename)) {
+            $file = storage_path('app/public/bukti_gaji/' . $filename);
 
-            // Ensure the file exists in the storage
-            if (Storage::disk('public')->exists('bukti_gaji/' . $filename)) {
-                $file = storage_path('app/public/bukti_gaji/' . $filename);
-
-                // You can also use the response()->download() method to force download
-                return response()->file($file);
-            }
-            // If the file doesn't exist, redirect or show an error message
-            // For example, redirect to a 404 page
-            abort(404, 'File not found');
-        } else if ($prefix1 == 'operasional') {
-            // Find the data by order_id (Assuming you have an Order model)
-            $operasional  = OutOperasional::find($number);
-
-            // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
-            $filename = $operasional->operasional_bukti; // Replace 'image_column_name' with the actual column name storing the file name
-
-            // Ensure the file exists in the storage
-            if (Storage::disk('public')->exists('bukti_operasional/' . $filename)) {
-                $file = storage_path('app/public/bukti_operasional/' . $filename);
-
-                // You can also use the response()->download() method to force download
-                return response()->file($file);
-            }
-
-            // If the file doesn't exist, redirect or show an error message
-            // For example, redirect to a 404 page
-            abort(404, 'File not found');
-        } else {
-
-            // Find the data by order_id (Assuming you have an Order model)
-            $transportasi  = OutTransportasi::find($number);
-
-            // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
-            $filename = $transportasi->transportasi_bukti; // Replace 'image_column_name' with the actual column name storing the file name
-
-            // Ensure the file exists in the storage
-            if (Storage::disk('public')->exists('bukti_transportasi/' . $filename)) {
-                $file = storage_path('app/public/bukti_transportasi/' . $filename);
-
-                // You can also use the response()->download() method to force download
-                return response()->file($file);
-            }
-            // If the file doesn't exist, redirect or show an error message
-            // For example, redirect to a 404 page
-            abort(404, 'File not found');
+            // You can also use the response()->download() method to force download
+            return response()->file($file);
         }
+        // If the file doesn't exist, redirect or show an error message
+        // For example, redirect to a 404 page
+        abort(404, 'File not found');
+
+        // // Extract the prefix "gaji"
+        // $prefix1 = substr($objek_id, 0, -1);
+
+        // // Extract the number "2"
+        // $number = intval(substr($objek_id, -1));
+
+        // if ($prefix1 == 'gaji') {
+        //     // Find the data by order_id (Assuming you have an Order model)
+        //     $gaji  = OutGaji::find($number);
+
+        //     // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+        //     $filename = $gaji->gaji_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+
+        //     // Ensure the file exists in the storage
+        //     if (Storage::disk('public')->exists('bukti_gaji/' . $filename)) {
+        //         $file = storage_path('app/public/bukti_gaji/' . $filename);
+
+        //         // You can also use the response()->download() method to force download
+        //         return response()->file($file);
+        //     }
+        //     // If the file doesn't exist, redirect or show an error message
+        //     // For example, redirect to a 404 page
+        //     abort(404, 'File not found');
+        // } else if ($prefix1 == 'operasional') {
+        //     // Find the data by order_id (Assuming you have an Order model)
+        //     $operasional  = OutOperasional::find($number);
+
+        //     // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+        //     $filename = $operasional->operasional_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+
+        //     // Ensure the file exists in the storage
+        //     if (Storage::disk('public')->exists('bukti_operasional/' . $filename)) {
+        //         $file = storage_path('app/public/bukti_operasional/' . $filename);
+
+        //         // You can also use the response()->download() method to force download
+        //         return response()->file($file);
+        //     }
+
+        //     // If the file doesn't exist, redirect or show an error message
+        //     // For example, redirect to a 404 page
+        //     abort(404, 'File not found');
+        // } else {
+
+        //     // Find the data by order_id (Assuming you have an Order model)
+        //     $transportasi  = OutTransportasi::find($number);
+
+        //     // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+        //     $filename = $transportasi->transportasi_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+
+        //     // Ensure the file exists in the storage
+        //     if (Storage::disk('public')->exists('bukti_transportasi/' . $filename)) {
+        //         $file = storage_path('app/public/bukti_transportasi/' . $filename);
+
+        //         // You can also use the response()->download() method to force download
+        //         return response()->file($file);
+        //     }
+        //     // If the file doesn't exist, redirect or show an error message
+        //     // For example, redirect to a 404 page
+        //     abort(404, 'File not found');
+        // }
+    }
+
+    public function downloadBuktiPengeluaranTransportasi($objek_id)
+    {
+        // Find the data by order_id (Assuming you have an Order model)
+        $transportasi  = OutTransportasi::find($objek_id);
+
+        // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+        $filename = $transportasi->transportasi_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+
+        // Ensure the file exists in the storage
+        if (Storage::disk('public')->exists('bukti_transportasi/' . $filename)) {
+            $file = storage_path('app/public/bukti_transportasi/' . $filename);
+
+            // You can also use the response()->download() method to force download
+            return response()->file($file);
+        }
+        // If the file doesn't exist, redirect or show an error message
+        // For example, redirect to a 404 page
+        abort(404, 'File not found');
+    }
+
+    public function downloadBuktiPengeluaranOperasional($objek_id)
+    {
+        // Find the data by order_id (Assuming you have an Order model)
+        $operasional  = OutOperasional::find($objek_id);
+
+        // Get the image file name from the order data (replace 'image_column_name' with the actual column name)
+        $filename = $operasional->operasional_bukti; // Replace 'image_column_name' with the actual column name storing the file name
+
+        // Ensure the file exists in the storage
+        if (Storage::disk('public')->exists('bukti_operasional/' . $filename)) {
+            $file = storage_path('app/public/bukti_operasional/' . $filename);
+
+            // You can also use the response()->download() method to force download
+            return response()->file($file);
+        }
+
+        // If the file doesn't exist, redirect or show an error message
+        // For example, redirect to a 404 page
+        abort(404, 'File not found');
     }
 
     // PRINT LAPORAN
@@ -368,8 +570,12 @@ class LaporanController extends Controller
         // Get the data to be displayed in the PDF
         $laporan = Laporan::with(['handling', 'transportasi', 'operasional', 'gaji'])->where('laporan_id', $request->laporan_id)->first();
 
+        $order_sum = Order::whereBetween('order_tanggal', [$laporan->laporan_tanggal_awal, $laporan->laporan_tanggal_akhir])->sum('order_total');
+
+        $laba_bersih = ($order_sum + $laporan->laporan_total_handling) - ($laporan->laporan_total_operasional + $laporan->laporan_total_pengeluaran_mks + $laporan->laporan_total_transportasi + $laporan->laporan_total_gaji);
+
         // Load the HTML view with the data
-        $html = view('layout-print.laporanPrint', ['laporan' => $laporan])->render();
+        $html = view('layout-print.laporanPrint', ['laporan' => $laporan, 'order_sum' => $order_sum, 'laba_bersih' => $laba_bersih])->render();
 
         // Create a new Dompdf instance
         $dompdf = new Dompdf();
@@ -388,7 +594,29 @@ class LaporanController extends Controller
 
         // Return the PDF content with appropriate headers
         return response($pdfContent)
-        ->header('Content-Type', 'application/pdf')
-        ->header('Content-Disposition', 'inline; filename="Laporan-' . $laporan->laporan_tanggal . '.pdf"');
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="Laporan-' . $laporan->laporan_tanggal . '.pdf"');
+    }
+
+    // DESTROY LAPORAN
+    public function laporanDestroy(Request $request)
+    {
+        $laporan = Laporan::find($request->laporan_id);
+
+        if (!$laporan) {
+            return response()->json(['error' => 'Laporan not found.'], 404);
+        }
+
+        // Use relationships to delete related records
+        $laporan->gaji()->delete();
+        $laporan->transportasi()->delete();
+        $laporan->operasional()->delete();
+        $laporan->handling()->delete();
+
+        // Delete the main record
+        $laporan->delete();
+
+        // Return a success message or perform any other action after the updates
+        return response()->json(['status' => 'Laporan Berhasil di Hapus!']);
     }
 }

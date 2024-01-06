@@ -34,13 +34,41 @@ class ManifestController extends Controller
                     return $item->manifest_plat_mobil;
                 })
                 ->addColumn('manifest_total_koli', function ($item) {
-                    return $item->manifest_total_koli;
+
+                    $manifest = Manifest::with(['detailmanifest.order.payment'])->where('manifest_id', $item->manifest_id)->first();
+
+                    $sumOrderKoli = $manifest->detailmanifest->sum(function ($detail) {
+                        return $detail->order->order_koli;
+                    });
+
+                    // return $item->manifest_total_koli;
+                    return $sumOrderKoli;
                 })
                 ->addColumn('manifest_total_berat', function ($item) {
-                    return $item->manifest_total_berat . 'Kg';
+
+                    $manifest = Manifest::with(['detailmanifest.order.payment'])->where('manifest_id', $item->manifest_id)->first();
+
+                    $sumOrderBerat = $manifest->detailmanifest->sum(function ($detail) {
+                        return $detail->order->order_berat;
+                    });
+
+                    $sumOrderVolume = $manifest->detailmanifest->sum(function ($detail) {
+                        return $detail->order->order_volume;
+                    });
+
+                    // return $item->manifest_total_berat . 'Kg';
+                    return $sumOrderBerat + $sumOrderVolume;
                 })
                 ->addColumn('manifest_total_harga', function ($item) {
-                    return 'Rp. ' . number_format($item->manifest_total_harga);
+
+                    $manifest = Manifest::with(['detailmanifest.order.payment'])->where('manifest_id', $item->manifest_id)->first();
+                    
+                    $sumOrderTotal = $manifest->detailmanifest->sum(function ($detail) {
+                        return $detail->order->order_total;
+                    });
+
+                    // return 'Rp. ' . number_format($item->manifest_total_harga);
+                    return 'Rp. ' . number_format($sumOrderTotal);
                 })
                 ->addColumn('action', function ($item) {
 
@@ -240,7 +268,7 @@ class ManifestController extends Controller
 
         if ($manifest) {
             // Access the related orders using dot notation and use the sum() function
-            $sumOrderTotal = $manifest->detailmanifest->sum(function ($detail) {
+            $sumOfTotalPay = $manifest->detailmanifest->sum(function ($detail) {
                 // Check if the payment_status is "blm-lunas" before adding to the sum
                 if ($detail->order->payment->payment_status === 'blm-lunas') {
                     return $detail->order->order_total;
@@ -249,7 +277,31 @@ class ManifestController extends Controller
                 }
             });
 
-            return response()->json(['manifest' => $manifest, 'sumOrderTotal' => $sumOrderTotal]);
+            $sumOrderTotal = $manifest->detailmanifest->sum(function ($detail) {
+                return $detail->order->order_total;
+            });
+
+            $sumOrderBerat = $manifest->detailmanifest->sum(function ($detail) {
+                return $detail->order->order_berat;
+            });
+
+            $sumOrderKoli = $manifest->detailmanifest->sum(function ($detail) {
+                return $detail->order->order_koli;
+            });
+
+            $sumOrderVolume = $manifest->detailmanifest->sum(function ($detail) {
+                return $detail->order->order_volume;
+            });
+
+            return response()->json([
+                'manifest'       => $manifest, 
+                'sumOrderTotal'  => $sumOrderTotal, 
+                'sumOfTotalPay'  => $sumOfTotalPay,
+                'sumOrderBerat'  => $sumOrderBerat,
+                'sumOrderKoli'   => $sumOrderKoli,
+                'sumOrderVolume' => $sumOrderVolume,
+            ]);
+
         } else {
             return response()->json(['error' => 'Manifest not found'], 404);
         }

@@ -25,172 +25,184 @@
                 </div>
             </div>
             <!-- /Page Header -->
+            @if (Auth::user()->role == 'superadmin')
+                <!-- Page Body -->
+                <div class="hk-pg-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="data_order">
+                            <div class="row">
+                                <form id="filterForm">
+                                    <div class="col-sm p-3 bg-grey-light-5 rounded">
+                                        <div class="row align-items-center">
+                                            <div class="col-xl-auto mb-xl-0 mb-2">
+                                                <label class="form-label mb-xl-0">Filter by Bulan :</label>
+                                            </div>
+                                            <div class="col-xl-auto mb-xl-0 mb-2">
+                                                <select class="form-control" name="month">
+                                                    <option value="">Select Month</option>
+                                                    @for ($i = 1; $i <= 12; $i++)
+                                                        <option value="{{ $i }}"
+                                                            {{ $filterMonth == $i ? 'selected' : '' }}>
+                                                            {{ date('F', mktime(0, 0, 0, $i, 1)) }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+                                            <div class="col-xl-auto mb-xl-0 mb-2">
+                                                <label class="form-label mb-xl-0">Filter by Tahun :</label>
+                                            </div>
+                                            <div class="col-xl-auto mb-xl-0 mb-2">
+                                                <select class="form-control" name="year">
+                                                    <option value="">Select Year</option>
+                                                    @php
+                                                        $currentYear = date('Y');
+                                                        $numberOfYears = 4; // You can adjust this as needed
+                                                    @endphp
 
-            <!-- Page Body -->
-            <div class="hk-pg-body">
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="data_order">
-                        <div class="row">
-                            <form id="filterForm">
-                                <div class="col-sm p-3 bg-grey-light-5 rounded">
-                                    <div class="row align-items-center">
-                                        <div class="col-xl-auto mb-xl-0 mb-2">
-                                            <label class="form-label mb-xl-0">Filter by Bulan :</label>
-                                        </div>
-                                        <div class="col-xl-auto mb-xl-0 mb-2">
-                                            <select class="form-control" name="month">
-                                                <option value="">Select Month</option>
-                                                @for ($i = 1; $i <= 12; $i++)
-                                                    <option value="{{ $i }}"
-                                                        {{ $filterMonth == $i ? 'selected' : '' }}>
-                                                        {{ date('F', mktime(0, 0, 0, $i, 1)) }}
-                                                    </option>
-                                                @endfor
-                                            </select>
-                                        </div>
-                                        <div class="col-xl-auto mb-xl-0 mb-2">
-                                            <label class="form-label mb-xl-0">Filter by Tahun :</label>
-                                        </div>
-                                        <div class="col-xl-auto mb-xl-0 mb-2">
-                                            <select class="form-control" name="year">
-                                                <option value="">Select Year</option>
-                                                @php
-                                                    $currentYear = date('Y');
-                                                    $numberOfYears = 4; // You can adjust this as needed
-                                                @endphp
-
-                                                @for ($i = $currentYear + $numberOfYears; $i >= $currentYear; $i--)
-                                                    <option value="{{ $i }}"
-                                                        {{ $filterYear == $i ? 'selected' : '' }}>
-                                                        {{ $i }}
-                                                    </option>
-                                                @endfor
-                                            </select>
-                                        </div>
-                                        <div class="col-xl-auto mb-xl-0 mb-2">
-                                            <button class="btn btn-sm btn-primary" type="submit" id="submitFilter">
-                                                <span>
-                                                    <span class="icon">
-                                                        <span class="feather-icon">
-                                                            <i data-feather="calendar"></i>
+                                                    {{-- @for ($i = $currentYear + $numberOfYears; $i >= $currentYear; $i--)
+                                                        <option value="{{ $i }}"
+                                                            {{ $filterYear == $i ? 'selected' : '' }}>
+                                                            {{ $i }}
+                                                        </option>
+                                                    @endfor --}}
+                                                    @for ($i = $currentYear - 1; $i < $currentYear + $numberOfYears; $i++)
+                                                        <option value="{{ $i }}"
+                                                            {{ $filterYear == $i ? 'selected' : '' }}>
+                                                            {{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+                                            <div class="col-xl-auto mb-xl-0 mb-2">
+                                                <button class="btn btn-sm btn-primary" type="submit" id="submitFilter">
+                                                    <span>
+                                                        <span class="icon">
+                                                            <span class="feather-icon">
+                                                                <i data-feather="calendar"></i>
+                                                            </span>
                                                         </span>
-                                                    </span>
-                                                    <span class="btn-text">Tampilkan</span></span>
-                                            </button>
-                                        </div>
-                                        <div class="col-xl-auto mb-xl-0 mb-2">
-                                            <button class="btn btn-sm btn-primary" id="resetFilter">
-                                                <span>
-                                                    <span class="icon">
-                                                        <span class="feather-icon">
-                                                            <i data-feather="refresh-cw"></i>
+                                                        <span class="btn-text">Tampilkan</span></span>
+                                                </button>
+                                            </div>
+                                            <div class="col-xl-auto mb-xl-0 mb-2">
+                                                <button class="btn btn-sm btn-primary" id="resetFilter">
+                                                    <span>
+                                                        <span class="icon">
+                                                            <span class="feather-icon">
+                                                                <i data-feather="refresh-cw"></i>
+                                                            </span>
                                                         </span>
-                                                    </span>
-                                                    <span class="btn-text">Reset</span></span>
-                                            </button>
+                                                        <span class="btn-text">Reset</span></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-6 mb-md-4 mb-3">
+                                        <div class="card card-border mb-0 h-100">
+                                            <div class="card-header card-header-action">
+                                                <h6>Total Order Belum Terbayar
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="col-md-12">
+                                                    <h1 id="pendingOrder">Rp {{ number_format($data['pendingOrder']) }}
+                                                    </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-md-4 mb-3">
+                                        <div class="card card-border mb-0 h-100">
+                                            <div class="card-header card-header-action">
+                                                <h6>Total Order Sudah Terbayar
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h1 id="settleOrder">Rp {{ number_format($data['settleOrder']) }}</h1>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </form>
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-6 mb-md-4 mb-3">
-                                    <div class="card card-border mb-0 h-100">
-                                        <div class="card-header card-header-action">
-                                            <h6>Total Order Belum Terbayar
-                                            </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-md-4 mb-3">
+                                        <div class="card card-border mb-0 h-100">
+                                            <div class="card-header card-header-action">
+                                                <h6>Total Piutang Surabaya
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="col-md-12">
+                                                    <h1 id="piutangSurabaya">Rp
+                                                        {{ number_format($data['piutangSurabaya']) }}
+                                                    </h1>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="col-md-12">
-                                                <h1 id="pendingOrder">Rp {{ number_format($data['pendingOrder']) }}
+                                    </div>
+                                    <div class="col-md-6 mb-md-4 mb-3">
+                                        <div class="card card-border mb-0 h-100">
+                                            <div class="card-header card-header-action">
+                                                <h6>Total Piutang Makassar
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h1 id="piutangMakassar">Rp {{ number_format($data['piutangMakassar']) }}
                                                 </h1>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6 mb-md-4 mb-3">
-                                    <div class="card card-border mb-0 h-100">
-                                        <div class="card-header card-header-action">
-                                            <h6>Total Order Sudah Terbayar
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <h1 id="settleOrder">Rp {{ number_format($data['settleOrder']) }}</h1>
+                                <div class="row">
+                                    <div class="col-md-6 mb-md-4 mb-3">
+                                        <div class="card card-border mb-0 h-100">
+                                            <div class="card-header card-header-action">
+                                                <h6>Total Pengeluaran Surabaya
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="col-md-12">
+                                                    <h1 id="pengeluaranSurabaya">Rp
+                                                        {{ number_format($data['pengeluaranSby']) }}
+                                                    </h1>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-md-4 mb-3">
-                                    <div class="card card-border mb-0 h-100">
-                                        <div class="card-header card-header-action">
-                                            <h6>Total Piutang Surabaya
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="col-md-12">
-                                                <h1 id="piutangSurabaya">Rp {{ number_format($data['piutangSurabaya']) }}
-                                                </h1>
+                                    <div class="col-md-6 mb-md-4 mb-3">
+                                        <div class="card card-border mb-0 h-100">
+                                            <div class="card-header card-header-action">
+                                                <h6>Total Pengeluaran Makassar
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h1 id="pengeluaranMakassar">Rp
+                                                    {{ number_format($data['pengeluaranMks']) }}</h1>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6 mb-md-4 mb-3">
-                                    <div class="card card-border mb-0 h-100">
-                                        <div class="card-header card-header-action">
-                                            <h6>Total Piutang Makassar
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <h1 id="piutangMakassar">Rp {{ number_format($data['piutangMakassar']) }}</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-md-4 mb-3">
-                                    <div class="card card-border mb-0 h-100">
-                                        <div class="card-header card-header-action">
-                                            <h6>Total Pengeluaran Surabaya
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="col-md-12">
-                                                <h1 id="pengeluaranSurabaya">Rp {{ number_format($data['pengeluaranSby']) }}
-                                                </h1>
+                                <div class="row">
+                                    <div class="col-md-12 mb-md-4 mb-3">
+                                        <div class="card card-border mb-0 h-100">
+                                            <div class="card-header card-header-action">
+                                                <h6>Total Pendapatan Bersih</h6>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-md-4 mb-3">
-                                    <div class="card card-border mb-0 h-100">
-                                        <div class="card-header card-header-action">
-                                            <h6>Total Pengeluaran Makassar
-                                            </h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <h1 id="pengeluaranMakassar">Rp {{ number_format($data['pengeluaranMks']) }}</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 mb-md-4 mb-3">
-                                    <div class="card card-border mb-0 h-100">
-                                        <div class="card-header card-header-action">
-                                            <h6>Total Pendapatan Bersih</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <h1 id="totalOrder">Rp {{ number_format($data['totalOrder']) }}</h1>
+                                            <div class="card-body">
+                                                <h1 id="totalOrder">Rp {{ number_format($data['totalOrder']) }}</h1>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- /Page Body -->
                 </div>
-                <!-- /Page Body -->
-            </div>
+            @endif
+
 
             <!-- Page Footer -->
             @include('layouts.footer')

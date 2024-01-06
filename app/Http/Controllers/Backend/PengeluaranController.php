@@ -52,6 +52,10 @@ class PengeluaranController extends Controller
 
                     $btn = '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="pengeluaran-detail" title="DETAIL PENGELUARAN" data-id="' . $item->pengeluaran_id . '"><span class="material-icons btn-sm">visibility</span></button>';
 
+                    if (Auth::user()->role == 'superadmin') {
+                        $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="pengeluaran-delete" title="DELETE PENGELUARAN" data-id="' . $item->pengeluaran_id . '"><span class="material-icons btn-sm">delete</span></button>';
+                    }
+
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -63,7 +67,6 @@ class PengeluaranController extends Controller
     // STORE DATA PENGELUARAN
     public function pengeluaranStore(Request $request)
     {
-        // dd($request->all());
         //define validation rules
         $validator = Validator::make($request->all(), [
             'pengeluaran_tanggal'          => 'required|date',
@@ -106,7 +109,6 @@ class PengeluaranController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()->all()]);
         }
-
 
         // INSERT TO PENGELUARAN
         $pengeluaran_total_modal        = array_sum($request->modal_total);
@@ -326,5 +328,27 @@ class PengeluaranController extends Controller
             ->header('Content-Disposition', 'inline; filename="Pengeluaran-' . $request->pengeluaran_tanggal_awal . '-' . $request->pengeluaran_tanggal_awal . '.pdf"');
         // If you want to save the PDF to a file, use the following line instead:
         // return $dompdf->output()
+    }
+
+    // PENGELUARAN DESTROY
+    public function pengeluaranDestory(Request $request)
+    {
+        $pengeluaran = Pengeluaran::find($request->pengeluaran_id);
+
+        if (!$pengeluaran) {
+            return response()->json(['error' => 'Pengeluaran not found.'], 404);
+        }
+
+        // Use relationships to delete related records
+        $pengeluaran->gaji()->delete();
+        $pengeluaran->transportasi()->delete();
+        $pengeluaran->operasional()->delete();
+        $pengeluaran->modal()->delete();
+
+        // Delete the main record
+        $pengeluaran->delete();
+
+        // Return a success message or perform any other action after the updates
+        return response()->json(['status' => 'Pengeluaran Berhasil di Hapus!']);
     }
 }

@@ -1133,7 +1133,7 @@
 
             })
 
-            // Print Laporan
+            // Print Pengeluaran
             $('body').on('click', '#pengeluaran-print', function() {
 
                 $('.alert').hide();
@@ -1147,7 +1147,7 @@
                 var tanggal_akhir = $('#pengeluaran_tanggal_akhir').val()
             });
 
-            // Print Laporan
+            // Print Pengeluaran
             $('#submitCetakPengeluaran').click(function(e) {
                 e.preventDefault();
                 $(this).html('Sending..');
@@ -1192,6 +1192,66 @@
                 $('#pengeluaranPrintForm').trigger("reset");
                 $('#submitCetakPengeluaran').html('Simpan');
                 $('#pengeluaranPrintModal').modal('hide');
+            });
+
+            // Delete Pengeluaran
+            $('body').on('click', '#pengeluaran-delete', function() {
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger me-2",
+                    },
+                    buttonsStyling: false,
+
+                });
+
+                var pengeluaran_id = $(this).attr('data-id');
+
+                swalWithBootstrapButtons
+                    .fire({
+                        title: "Apakah kamu ingin menghapus data pengeluaran ini?",
+                        text: "Data Pengeluaran akan di hapus!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonClass: "me-2",
+                        cancelButtonText: "Tidak",
+                        confirmButtonText: "Ya",
+                        reverseButtons: true,
+                    })
+                    .then((result) => {
+                        if (result.value) {
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ route('pengeluaran.destroy') }}",
+                                data: {
+                                    pengeluaran_id: pengeluaran_id,
+                                },
+                                dataType: "json",
+                                success: function(response) {
+                                    const Toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                    });
+
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: `${response.status}`,
+                                    })
+                                    pengeluarandata.draw();
+                                },
+                                error: function(error) {
+                                    Swal.fire('Error', 'Terjadi kesalahan saat menghapus data.', 'error');
+                                },
+                            });
+                        } else {
+                            Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
+                        }
+                    });
+
             });
 
 

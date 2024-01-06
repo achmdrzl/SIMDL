@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\InputHistory;
 use App\Models\Order;
 use App\Models\OrderPayment;
+use Illuminate\Support\Str;
 use App\Models\User;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
@@ -26,8 +27,8 @@ class OrderController extends Controller
 
         if ($request->ajax()) {
             $orders = Order::with(['payment'])
-            ->orderBy('updated_at', 'desc') // Order by the 'updated_at' column in descending order
-            ->get();
+                ->orderBy('updated_at', 'desc') // Order by the 'updated_at' column in descending order
+                ->get();
             return DataTables::of($orders)
                 ->addIndexColumn()
                 ->addColumn('order_noresi', function ($item) {
@@ -37,10 +38,10 @@ class OrderController extends Controller
                 //     return $item->order_tanggal;
                 // })
                 ->addColumn('order_pengirim', function ($item) {
-                    return ucfirst($item->order_pengirim);
+                    return Str::limit(ucfirst($item->order_pengirim), 20, '...');
                 })
                 ->addColumn('order_penerima', function ($item) {
-                    return ucfirst($item->order_penerima);
+                    return Str::limit(ucfirst($item->order_penerima), 20, '...');
                 })
                 // ->addColumn('order_berat', function ($item) {
                 //     return $item->order_berat . 'Kg';
@@ -63,11 +64,11 @@ class OrderController extends Controller
                     return $status;
                 })
                 ->addColumn('payment_method', function ($item) {
-                    if($item->payment->payment_method === 'bayar-makassar'){
+                    if ($item->payment->payment_method === 'bayar-makassar') {
                         $method = 'byr-mks';
-                    }else if($item->payment->payment_method === 'bayar-surabaya'){
+                    } else if ($item->payment->payment_method === 'bayar-surabaya') {
                         $method = 'byr-sby';
-                    }else{
+                    } else {
                         $method = 'cash';
                     }
                     return $item->payment->payment_method == null ? '-' : strtoupper($method);
@@ -139,8 +140,14 @@ class OrderController extends Controller
                     $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-receive" title="TERIMA ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">check_box</span></button>';
 
                     // Checking Role to Access it.
-                    if(Auth::user()->city == 'surabaya' || Auth::user()->role == 'superadmin'){
+                    if (Auth::user()->city == 'surabaya' || Auth::user()->role == 'superadmin') {
                         $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-edit" title="EDIT ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">edit</span></button>';
+
+                        $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-delete" title="DELETE ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">delete</span></button>';
+
+                        if ($item->payment->payment_status === 'lunas') {
+                            $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="order-cancel" title="CANCEL PAYMENT" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">restore</span></button>';
+                        }
                     }
 
                     $btn = $btn . '<button class="btn btn-icon btn-primary btn-rounded flush-soft-hover me-1" id="btn-detail" title="DETAIL ORDER" data-id="' . $item->order_id . '"><span class="material-icons btn-sm">visibility</span></button>';
@@ -197,13 +204,13 @@ class OrderController extends Controller
 
         // dd($request->all());
 
-        if($request->order_id != null){
+        if ($request->order_id != null) {
 
             // Stored new Data Order
             $order  = Order::updateOrCreate([
                 'order_id'              => $request->order_id,
             ], [
-                'order_tanggal'         => $request->order_tanggal, 
+                'order_tanggal'         => $request->order_tanggal,
                 'order_pengirim'        => $request->order_pengirim,
                 'order_penerima'        => $request->order_penerima,
                 'order_alamat_penerima' => $request->order_alamat_penerima,
@@ -221,55 +228,83 @@ class OrderController extends Controller
                 'order_created'         => Auth::user()->user_id,
             ]);
 
-        // Insert Into Order Payment
-        $payment = OrderPayment::where('order_id', $request->order_id)->first();
-
-        // If payment keterangan has CAD
-        if ($request->has('bayar-makassar')) {
-
             // Insert Into Order Payment
-            $payment->update([
-                'payment_keterangan'    => $request->payment_keterangan,
-                'payment_method'        => 'bayar-makassar',
-            ]);
-        } else if ($request->has('bayar-surabaya')) {
+            $payment = OrderPayment::where('order_id', $request->order_id)->first();
 
-            // Insert Into Order Payment
-            $payment->update([
-                'payment_keterangan'    => $request->payment_keterangan,
-                'payment_method'        => 'bayar-surabaya',
-            ]);
-        }
+            // If payment keterangan has CAD
+            if ($request->has('bayar-makassar')) {
 
+                // Insert Into Order Payment
+                $payment->update([
+                    'payment_keterangan'    => $request->payment_keterangan,
+                    'payment_method'        => 'bayar-makassar',
+                ]);
+            } else if ($request->has('bayar-surabaya')) {
 
-        }else{
+                // Insert Into Order Payment
+                $payment->update([
+                    'payment_keterangan'    => $request->payment_keterangan,
+                    'payment_method'        => 'bayar-surabaya',
+                ]);
+            }
+        } else {
 
-            // Define the model name
+            // // Define the model name
+            // $modelName = 'DataOrder';
+
+            // // Get the current date and time
+            // $currentTime = Carbon::createFromFormat('Y-m-d', $request->order_tanggal);
+
+            // // Get the formatted date portion (yymmdd)
+            // $datePart = $currentTime->format('y');
+
+            // // Get the current counter value from cache for the specific model
+            // $counter = Cache::get($modelName . '_counter');
+
+            // // Increment the counter
+            // $counter++;
+
+            // // Check if the counter reaches 9999, then reset it
+            // if ($counter > 9999) {
+            //     $counter = 1;
+            // }
+
+            // // Store the updated counter in the cache
+            // Cache::put($modelName . '_counter', $counter);
+
+            // // Generate the new ID
+            // $newId = $datePart . sprintf("%04d", $counter);
+
+            // Define the model name and the attribute name for the order number (e.g., 'order_noresi')
             $modelName = 'DataOrder';
-    
-            // Get the current date and time
+            $attributeName = 'order_noresi';
+
+            // Get the current date
             $currentTime = Carbon::createFromFormat('Y-m-d', $request->order_tanggal);
-    
+
             // Get the formatted date portion (yymmdd)
             $datePart = $currentTime->format('y');
-    
-            // Get the current counter value from cache for the specific model
-            $counter = Cache::get($modelName . '_counter');
-    
-            // Increment the counter
-            $counter++;
-    
-            // Check if the counter reaches 9999, then reset it
-            if ($counter > 9999) {
-                $counter = 1;
+
+            // Retrieve the latest order number from the database
+            $latestOrder = Order::orderBy($attributeName, 'desc')->first();
+
+            // Initialize the counter
+            $counter = 1;
+
+            // If there is a latest order, extract the counter value and increment it
+            if ($latestOrder) {
+                $latestOrderNumber = $latestOrder->$attributeName;
+                $counter = intval(substr($latestOrderNumber, -4)) + 1;
+
+                // Check if the counter reaches 9999, then reset it
+                if ($counter > 9999) {
+                    $counter = 1;
+                }
             }
-    
-            // Store the updated counter in the cache
-            Cache::put($modelName . '_counter', $counter);
-    
-            // Generate the new ID
+
+            // Generate the new order number
             $newId = $datePart . sprintf("%04d", $counter);
-    
+
             // Stored new Data Order
             $order  = Order::updateOrCreate([
                 'order_id'              => $request->order_id,
@@ -292,20 +327,20 @@ class OrderController extends Controller
                 'order_keterangan'      => $request->order_keterangan == '' ? '-' : $request->order_keterangan,
                 'order_created'         => Auth::user()->user_id,
             ]);
-    
+
             // If payment keterangan has COD
             if ($request->has('lunas')) {
-    
+
                 $payment_bukti = $request->file('payment_bukti') ?? null;
-    
+
                 if ($payment_bukti && $payment_bukti->isValid()) {
-    
+
                     $bukti = $request->file('payment_bukti');
                     $bukti_bayar = 'bukti_bayar-' . rand(1, 100000) . '.' . $bukti->getClientOriginalExtension();
-    
+
                     // Store the original image
                     $path = Storage::putFileAs('public/bukti_bayar', $bukti, $bukti_bayar);
-    
+
                     // Insert Into Order Payment
                     $payment = OrderPayment::updateOrCreate([
                         'payment_id'            => $request->payment_id,
@@ -332,10 +367,10 @@ class OrderController extends Controller
                         'user_id'               => Auth::user()->user_id,
                     ]);
                 }
-    
-            // If payment keterangan has CAD
+
+                // If payment keterangan has CAD
             } else if ($request->has('bayar-makassar')) {
-    
+
                 // Insert Into Order Payment
                 $payment = OrderPayment::updateOrCreate([
                     'payment_id'            => $request->payment_id,
@@ -349,7 +384,7 @@ class OrderController extends Controller
                     'user_id'               => null,
                 ]);
             } else if ($request->has('bayar-surabaya')) {
-    
+
                 // Insert Into Order Payment
                 $payment = OrderPayment::updateOrCreate([
                     'payment_id'            => $request->payment_id,
@@ -393,8 +428,8 @@ class OrderController extends Controller
             $order_noresi   = $item->order->order_noresi;
             $order_tanggal  = $item->order->order_tanggal;
             $select         = '<input type="checkbox" class="row-checkbox form-check-input is-valid" value="' . $order_id . '">';
-            $order_pengirim = $item->order->order_pengirim;
-            $order_penerima = $item->order->order_penerima;
+            $order_pengirim = Str::limit(ucfirst($item->order->order_pengirim), 20, '...');
+            $order_penerima = Str::limit(ucfirst($item->order->order_penerima), 20, '...');
             $order_total    = 'Rp.' . number_format($item->order->order_total);
 
             // Order status validate badge color
@@ -516,9 +551,13 @@ class OrderController extends Controller
     // ORDER TOTAL
     public function orderTotal()
     {
-        $total = Order::sum('order_total');
-        $berat = Order::sum('order_berat');
-        $volume = Order::sum('order_volume');
+        $order  = Order::where('order_status', 'terdaftar')->get();
+        $total  = $order->sum('order_total');
+        $berat  = $order->sum('order_berat');
+        $volume = $order->sum('order_volume');
+        // $total = Order::sum('order_total');
+        // $berat = Order::sum('order_berat');
+        // $volume = Order::sum('order_volume');
         return response()->json([
             'total'  => $total,
             'berat'  => $berat,
@@ -533,7 +572,7 @@ class OrderController extends Controller
         $order = Order::find($request->order_id);
 
         // Load the HTML view with the data
-        $html = view('layout-print.suratJalan', ['order' => $order])->render();
+        $html = view('layout-print.suratJalan3', ['order' => $order])->render();
 
         // Create a new Dompdf instance
         $dompdf = new Dompdf();
@@ -644,5 +683,41 @@ class OrderController extends Controller
 
         // Return an empty response, as we don't need to return data to the input field
         return response()->json([]);
+    }
+
+    // DELETE ORDER
+    public function orderDelete(Request $request)
+    {
+        // Find the order by its ID
+        $order = Order::find($request->order_id);
+
+        if (!$order) {
+            return response()->json(['status' => 'Data Order Gagal di Hapus!']);
+        }
+
+        // Delete the associated payment record
+        if ($order->payment) {
+            $order->payment->delete();
+        }
+
+        // Delete the order itself
+        $order->delete();
+
+        return response()->json(['status' => 'Data Order Berhasil di Hapus!']);
+    }
+
+    // CANCEL PAYMENT
+    public function orderCancel(Request $request)
+    {
+        $order  = OrderPayment::where('order_id', $request->order_id);
+        $order->update([
+            'payment_status'    => 'blm-lunas',
+        ]);
+
+        if (!$order) {
+            return response()->json(['status' => 'Perbaharui data gagal!']);
+        }
+
+        return response()->json(['status' => 'Batalkan Pembayaran Berhasil!']);
     }
 }

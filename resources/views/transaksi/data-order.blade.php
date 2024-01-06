@@ -3,11 +3,7 @@
 @push('style-alt')
 <style>
     /* Reduce font size for table body cells */
-    #order_data tbody td {
-        font-size: 16px; /*Adjust the font size as needed*/
-        text-align: center;
-        padding: 3px;
-    }
+    
 
     .wrap-text {
         max-width: 90px; /* Ganti nilai sesuai dengan kebutuhan */
@@ -92,11 +88,14 @@
                                             </table>
                                         </div>
                                     </div>
-                                    <div class="card-footer">
+                                    {{-- <div class="card-footer">
                                         <p id="total_berat" style="font-size: 18px"></p>
                                     </div>
                                     <div class="card-footer">
                                         <p id="total_volume" style="font-size: 18px"></p>
+                                    </div> --}}
+                                    <div class="card-footer">
+                                        <p id="total_muatan" style="font-size: 18px"></p>
                                     </div>
                                     <div class="card-footer">
                                         <p id="total_harga" style="font-size: 18px"></p>
@@ -567,11 +566,14 @@
                     url: "{{ route('order.total') }}",
                     dataType: "JSON",
                     success: function (response) {
+                        var totalMuatan = parseFloat(response.volume) + parseFloat(response.berat);
                         var berat  = `TOTAL BERAT: <strong>` + response.berat +`Kg</strong>`;
                         var volume = `TOTAL VOLUME: <strong>` + response.volume +`</strong>`;
+                        var muatan = `TOTAL MUATAN: <strong>` + totalMuatan +`</strong>`;
                         var total  = `TOTAL ORDER: <strong>` + rupiah(response.total) + `</strong>`;
                         $("#total_volume").html(volume)
                         $("#total_berat").html(berat)
+                        $("#total_muatan").html(muatan)
                         $("#total_harga").html(total)
                     }
                 });
@@ -593,7 +595,7 @@
                     $('.dataTables_paginate > .pagination').addClass(
                         'custom-pagination pagination-simple');
                 },
-                processing: true,
+                processing: false,
                 serverSide: false,
                 ajax: "{{ route('order.payment.index') }}",
                 columns: [{
@@ -632,7 +634,9 @@
                         data: 'order_status',
                         name: 'order_status'
                     },
-                ]
+                ],
+                pageLength: 10,
+                lengthMenu: [10, 20, 50, 100, 1000, 10000, 100000, 1000000],
             });
 
             // Create Data Order.
@@ -662,6 +666,8 @@
                 $('#order_lampiran').prop('readonly', false).val()
                 $('#order_keterangan').prop('readonly', false).val()
                 $('#payment_keterangan').prop('readonly', false).val()
+
+                $('#submitOrder').attr('hidden', false)
                 
             });
 
@@ -675,6 +681,8 @@
                 $('#orderModal').modal('show');
                 $('#method').prop('hidden', false)
                 $('#codInputs').html('')
+
+                $('#submitOrder').attr('hidden', false)
 
                 var order_id    = $(this).attr('data-id')
 
@@ -899,6 +907,7 @@
                 $('#orderForm').trigger("reset");
                 $('#orderHeading').html("DETAIL DATA ORDER");
                 $('#orderModal').modal('show');
+                $('#submitOrder').attr('hidden', true)
 
                 var order_id = $(this).attr('data-id');
                 
@@ -1505,6 +1514,132 @@
                 if (e.keyCode !== 9) { // 9 is the keycode for "Tab" key
                     autofillInProgress = false; // Reset the autofill flag
                 }
+            });
+
+            // Delete Order
+            $('body').on('click', '#order-delete', function() {
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger me-2",
+                    },
+                    buttonsStyling: false,
+                });
+
+                var order_id = $(this).attr('data-id');
+
+                swalWithBootstrapButtons.fire({
+                    title: "Apakah kamu yakin order ini akan di hapus?",
+                    text: "Data order ini akan dihapus!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "me-2",
+                    cancelButtonText: "Tidak",
+                    confirmButtonText: "Ya",
+                    reverseButtons: true,
+                    showLoaderOnConfirm: true,  // Display loader while confirming
+                    preConfirm: (inputValue) => {
+                        // Handle the AJAX request
+                        return $.ajax({
+                            type: "POST",
+                            url: "{{ route('order.delete') }}",
+                            data: {
+                                order_id: order_id,
+                            },
+                            dataType: "json",
+                        })
+                        .then((response) => {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
+
+                            Toast.fire({
+                                icon: 'success',
+                                title: `${response.status}`,
+                            });
+
+                            setInterval(function() {
+                                window.location.reload();
+                            }, 1000);
+                        })
+                        .catch((error) => {
+                            Swal.fire("Error!", "There was an error processing your request.", "error");
+                        });
+                    },
+                })
+                .then((result) => {
+                    if (!result.isConfirmed) {
+                        Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
+                    }
+                });
+            });
+
+            // Cancel Payment
+            $('body').on('click', '#order-cancel', function() {
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger me-2",
+                    },
+                    buttonsStyling: false,
+                });
+
+                var order_id = $(this).attr('data-id');
+
+                swalWithBootstrapButtons.fire({
+                    title: "Apakah kamu yakin akan membatalkan status pembayaran order ini?",
+                    text: "Status pembayaran akan dibatalkan!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "me-2",
+                    cancelButtonText: "Tidak",
+                    confirmButtonText: "Ya",
+                    reverseButtons: true,
+                    showLoaderOnConfirm: true,  // Display loader while confirming
+                    preConfirm: (inputValue) => {
+                        // Handle the AJAX request
+                        return $.ajax({
+                            type: "POST",
+                            url: "{{ route('order.cancel') }}",
+                            data: {
+                                order_id: order_id,
+                            },
+                            dataType: "json",
+                        })
+                        .then((response) => {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
+
+                            Toast.fire({
+                                icon: 'success',
+                                title: `${response.status}`,
+                            });
+
+                            setInterval(function() {
+                                window.location.reload();
+                            }, 1000);
+                        })
+                        .catch((error) => {
+                            Swal.fire("Error!", "There was an error processing your request.", "error");
+                        });
+                    },
+                })
+                .then((result) => {
+                    if (!result.isConfirmed) {
+                        Swal.fire("Cancel!", "Perintah dibatalkan!", "error");
+                    }
+                });
             });
 
         })
