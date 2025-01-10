@@ -27,7 +27,7 @@ class OrderController extends Controller
 
         if ($request->ajax()) {
             $orders = Order::with(['payment'])
-                ->orderBy('updated_at', 'desc') // Order by the 'updated_at' column in descending order
+                ->orderBy('created_at', 'desc') // Order by the 'updated_at' column in descending order
                 ->get();
             return DataTables::of($orders)
                 ->addIndexColumn()
@@ -286,7 +286,8 @@ class OrderController extends Controller
             $datePart = $currentTime->format('y');
 
             // Retrieve the latest order number from the database
-            $latestOrder = Order::orderBy($attributeName, 'desc')->first();
+            // $latestOrder = Order::orderBy($attributeName, 'desc')->first();
+            $latestOrder = Order::latest()->first();
 
             // Initialize the counter
             $counter = 1;
@@ -304,7 +305,7 @@ class OrderController extends Controller
 
             // Generate the new order number
             $newId = $datePart . sprintf("%04d", $counter);
-
+            
             // Stored new Data Order
             $order  = Order::updateOrCreate([
                 'order_id'              => $request->order_id,
@@ -419,7 +420,10 @@ class OrderController extends Controller
     // ORDER INDEX TO VALIDATE PAYMENT
     public function validatePaymentIndex(Request $request)
     {
-        $orders   =   OrderPayment::with(['order'])->where('payment_status', 'blm-lunas')->get();
+        $orders   =   OrderPayment::with(['order'])
+                            ->where('payment_status', 'blm-lunas')
+                            ->orderBy('updated_at', 'desc') 
+                            ->get();
 
         $order    = [];
         $no       = 1;
@@ -572,7 +576,7 @@ class OrderController extends Controller
         $order = Order::find($request->order_id);
 
         // Load the HTML view with the data
-        $html = view('layout-print.suratJalan3', ['order' => $order])->render();
+        $html = view('layout-print.suratJalan4', ['order' => $order])->render();
 
         // Create a new Dompdf instance
         $dompdf = new Dompdf();
