@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\InHandling;
 use App\Models\Kadar;
+use App\Models\Laporan;
 use App\Models\Merk;
 use App\Models\ModelBarang;
 use App\Models\Order;
@@ -81,6 +82,15 @@ class MasterDataController extends Controller
         $sumOfTotalPengeluaranSby = $sumOfTransportSby + $sumOfOperasionalSby + $sumOfGajiSby;
         $sumOfTotalPengeluaranMks = $sumOfTransportMks + $sumOfOperasionalMks + $sumOfGajiMks + $sumOfModal;
 
+        // UPDATE PENGELUARAN
+        $laporan                    = Laporan::all();
+        $handlingSby2               = $laporan->sum('laporan_total_handling');
+        $transportasiSby2           = $laporan->sum('laporan_total_transportasi');
+        $operasionalSby2            = $laporan->sum('laporan_total_operasional');
+        $gajiSby2                   = $laporan->sum('laporan_total_gaji');
+        $sumOfTotalPengeluaranSby2  = $transportasiSby2 + $operasionalSby2 + $gajiSby2;
+        $sumOfTotalPengeluaranMks2  = $laporan->sum('laporan_total_pengeluaran_mks');
+
         // TOTAL HANDLING OVERALL
         $sumOfHandling        = InHandling::sum('handling_total');
 
@@ -92,9 +102,9 @@ class MasterDataController extends Controller
             'settleOrder'       => $sumOfSettleOrders,
             'piutangSurabaya'   => $sumOfPiutangSurabaya,
             'piutangMakassar'   => $sumOfPiutangMakassar,
-            'pengeluaranSby'    => $sumOfTotalPengeluaranSby,  
-            'pengeluaranMks'    => $sumOfTotalPengeluaranMks,
-            'totalOrder'        => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'pengeluaranSby'    => $sumOfTotalPengeluaranSby2,  
+            'pengeluaranMks'    => $sumOfTotalPengeluaranMks2,
+            'totalOrder'        => ($sumOfTotalOrder + $handlingSby2) - ($sumOfTotalPengeluaranMks2 + $sumOfTotalPengeluaranSby2),
             'totalOrderGlobal'  => $sumOfTotalOrder,
         ];
         
@@ -123,7 +133,7 @@ class MasterDataController extends Controller
         // GET DATA TRANSPORT OUTCOME BASED ON MONTH AND YEAR
         $transportasiSby      = OutTransportasi::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->where('status', 'sby')->get();
         $sumOfTransportSby    = $transportasiSby->sum('transportasi_total');
-        
+
         $transportasiMks      = OutTransportasi::whereYear('created_at', $filterYear)->whereMonth('created_at', $filterMonth)->where('status', 'mks')->get();
         $sumOfTransportMks    = $transportasiMks->sum('transportasi_total');
         
@@ -149,14 +159,23 @@ class MasterDataController extends Controller
         $sumOfTotalPengeluaranSby = $sumOfTransportSby + $sumOfOperationalSby + $sumOfGajiSby;
         $sumOfTotalPengeluaranMks = $sumOfTransportMks + $sumOfOperationalMks + $sumOfGajiMks + $sumOfModal;
 
+        // UPDATE PENGELUARAN
+        $laporan                    = Laporan::whereYear('laporan_tanggal', $filterYear)->whereMonth('laporan_tanggal', $filterMonth)->get();
+        $handlingSby2               = $laporan->sum('laporan_total_handling');
+        $transportasiSby2           = $laporan->sum('laporan_total_transportasi');
+        $operasionalSby2            = $laporan->sum('laporan_total_operasional');
+        $gajiSby2                   = $laporan->sum('laporan_total_gaji');
+        $sumOfTotalPengeluaranSby2  = $transportasiSby2 + $operasionalSby2 + $gajiSby2;
+        $sumOfTotalPengeluaranMks2  = $laporan->sum('laporan_total_pengeluaran_mks');
+
         $data = [
             'pendingOrder'      => $sumOfPendingOrders,
             'settleOrder'       => $sumOfSettleOrders,
             'piutangSurabaya'   => $sumOfPiutangSurabaya,
             'piutangMakassar'   => $sumOfPiutangMakassar,
-            'pengeluaranSby'    => $sumOfTotalPengeluaranSby,
-            'pengeluaranMks'    => $sumOfTotalPengeluaranMks,
-            'totalOrder'        => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'pengeluaranSby'    => $sumOfTotalPengeluaranSby2,
+            'pengeluaranMks'    => $sumOfTotalPengeluaranMks2,
+            'totalOrder'        => ($sumOfTotalOrder + $handlingSby2) - ($sumOfTotalPengeluaranMks2 + $sumOfTotalPengeluaranSby2),
             'totalOrderGlobal'  => $sumOfTotalOrder,
         ];
 
@@ -212,14 +231,33 @@ class MasterDataController extends Controller
         // TOTAL OMSET OVERALL
         $sumOfTotalOrder      = Order::sum('order_total');
 
+        // UPDATE PENGELUARAN
+        $laporan                    = Laporan::all();
+        $handlingSby2               = $laporan->sum('laporan_total_handling');
+        $transportasiSby2           = $laporan->sum('laporan_total_transportasi');
+        $operasionalSby2            = $laporan->sum('laporan_total_operasional');
+        $gajiSby2                   = $laporan->sum('laporan_total_gaji');
+        $sumOfTotalPengeluaranSby2  = $transportasiSby2 + $operasionalSby2 + $gajiSby2;
+        $sumOfTotalPengeluaranMks2  = $laporan->sum('laporan_total_pengeluaran_mks');
+
+        // $data = [
+        //     'pendingOrder'      => $sumOfPendingOrders,
+        //     'settleOrder'       => $sumOfSettleOrders,
+        //     'piutangSurabaya'   => $sumOfPiutangSurabaya,
+        //     'piutangMakassar'   => $sumOfPiutangMakassar,
+        //     'pengeluaranSby'    => $sumOfTotalPengeluaranSby,
+        //     'pengeluaranMks'    => $sumOfTotalPengeluaranMks,
+        //     'totalOrder'        => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+        //     'totalOrderGlobal'  => $sumOfTotalOrder,
+        // ];
         $data = [
             'pendingOrder'      => $sumOfPendingOrders,
             'settleOrder'       => $sumOfSettleOrders,
             'piutangSurabaya'   => $sumOfPiutangSurabaya,
             'piutangMakassar'   => $sumOfPiutangMakassar,
-            'pengeluaranSby'    => $sumOfTotalPengeluaranSby,
-            'pengeluaranMks'    => $sumOfTotalPengeluaranMks,
-            'totalOrder'        => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'pengeluaranSby'    => $sumOfTotalPengeluaranSby2,
+            'pengeluaranMks'    => $sumOfTotalPengeluaranMks2,
+            'totalOrder'        => ($sumOfTotalOrder + $handlingSby2) - ($sumOfTotalPengeluaranMks2 + $sumOfTotalPengeluaranSby2),
             'totalOrderGlobal'  => $sumOfTotalOrder,
         ];
 
