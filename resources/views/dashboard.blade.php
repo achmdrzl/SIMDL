@@ -100,6 +100,18 @@
                                 </form>
                                 <hr>
                                 <div class="row">
+                                    <div class="col-md-12 mb-md-4 mb-3">
+                                        <div class="card card-border mb-0 h-100">
+                                            <div class="card-header card-header-action">
+                                                <h6>Total Order Global</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h1 id="totalOrderGlobal">Rp {{ number_format($data['totalOrderGlobal']) }}</h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6 mb-md-4 mb-3">
                                         <div class="card card-border mb-0 h-100">
                                             <div class="card-header card-header-action">
@@ -185,23 +197,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6 mb-md-4 mb-3">
+                                    <div class="col-md-12 mb-md-4 mb-3">
                                         <div class="card card-border mb-0 h-100">
                                             <div class="card-header card-header-action">
                                                 <h6>Total Pendapatan Bersih</h6>
                                             </div>
                                             <div class="card-body">
                                                 <h1 id="totalOrder">Rp {{ number_format($data['totalOrder']) }}</h1>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-md-4 mb-3">
-                                        <div class="card card-border mb-0 h-100">
-                                            <div class="card-header card-header-action">
-                                                <h6>Total Order Global</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <h1 id="totalOrderGlobal">Rp {{ number_format($data['totalOrderGlobal']) }}</h1>
                                             </div>
                                         </div>
                                     </div>
