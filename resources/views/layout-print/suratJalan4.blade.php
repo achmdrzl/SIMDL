@@ -145,12 +145,14 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td style="margin-left: 10px; font-size: 14px">
-                        <div style="font-size: 15px">
-                            {{ $order->order_penerima }}
+                    <td style="margin-left: 10px; font-size: 14px;">
+                        <div style="margin-top: 15px;">
+                            <div style="font-size: 15px;">
+                                {{ $order->order_penerima }}
+                            </div>
+                            {{ $order->order_alamat_penerima }} <br />
+                            {{ $order->order_nohp_penerima }}
                         </div>
-                        {{ $order->order_alamat_penerima }} <br />
-                        {{ $order->order_nohp_penerima }}
                     </td>
                 </tr>
                 <tr>
@@ -178,11 +180,11 @@
             <div class="table-2">
                 <table class="product">
                     <tr>
-                      <td style="text-align: left;">
-                          <div style="margin-left:-20px;">
-                              {{ $order->order_koli }}
-                          </div>
-                      </td>
+                        <td style="text-align: left;">
+                            <div style="margin-left:-20px;">
+                                {{ $order->order_koli }}
+                            </div>
+                        </td>
                         <td></td>
                         <td style="text-align: center">{{ $order->order_berat }}</td>
                         <td></td>
@@ -278,9 +280,9 @@
                         <td></td>
                         <td></td>
                         <td style="text-align: right">
-                          <div style="margin-top:10px;">
-                            Rp {{ number_format($order->order_total) }}
-                          </div>
+                            <div style="margin-top:10px;">
+                                Rp {{ number_format($order->order_total) }}
+                            </div>
                         </td>
                     </tr>
                 </table>

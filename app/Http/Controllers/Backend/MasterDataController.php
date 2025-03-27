@@ -88,13 +88,14 @@ class MasterDataController extends Controller
         $sumOfTotalOrder      = Order::sum('order_total');
 
         $data = [
-            'pendingOrder'    => $sumOfPendingOrders,
-            'settleOrder'     => $sumOfSettleOrders,
-            'piutangSurabaya' => $sumOfPiutangSurabaya,
-            'piutangMakassar' => $sumOfPiutangMakassar,
-            'pengeluaranSby'  => $sumOfTotalPengeluaranSby,  
-            'pengeluaranMks'  => $sumOfTotalPengeluaranMks,
-            'totalOrder'      => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'pendingOrder'      => $sumOfPendingOrders,
+            'settleOrder'       => $sumOfSettleOrders,
+            'piutangSurabaya'   => $sumOfPiutangSurabaya,
+            'piutangMakassar'   => $sumOfPiutangMakassar,
+            'pengeluaranSby'    => $sumOfTotalPengeluaranSby,  
+            'pengeluaranMks'    => $sumOfTotalPengeluaranMks,
+            'totalOrder'        => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'totalOrderGlobal'  => $sumOfTotalOrder,
         ];
         
         return view('dashboard', compact('data', 'filterMonth', 'filterYear'));
@@ -149,13 +150,14 @@ class MasterDataController extends Controller
         $sumOfTotalPengeluaranMks = $sumOfTransportMks + $sumOfOperationalMks + $sumOfGajiMks + $sumOfModal;
 
         $data = [
-            'pendingOrder'    => $sumOfPendingOrders,
-            'settleOrder'     => $sumOfSettleOrders,
-            'piutangSurabaya' => $sumOfPiutangSurabaya,
-            'piutangMakassar' => $sumOfPiutangMakassar,
-            'pengeluaranSby'  => $sumOfTotalPengeluaranSby,
-            'pengeluaranMks'  => $sumOfTotalPengeluaranMks,
-            'totalOrder'      => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'pendingOrder'      => $sumOfPendingOrders,
+            'settleOrder'       => $sumOfSettleOrders,
+            'piutangSurabaya'   => $sumOfPiutangSurabaya,
+            'piutangMakassar'   => $sumOfPiutangMakassar,
+            'pengeluaranSby'    => $sumOfTotalPengeluaranSby,
+            'pengeluaranMks'    => $sumOfTotalPengeluaranMks,
+            'totalOrder'        => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'totalOrderGlobal'  => $sumOfTotalOrder,
         ];
 
         return response()->json($data); // Return data directly without 'data' key
@@ -211,13 +213,14 @@ class MasterDataController extends Controller
         $sumOfTotalOrder      = Order::sum('order_total');
 
         $data = [
-            'pendingOrder'    => $sumOfPendingOrders,
-            'settleOrder'     => $sumOfSettleOrders,
-            'piutangSurabaya' => $sumOfPiutangSurabaya,
-            'piutangMakassar' => $sumOfPiutangMakassar,
-            'pengeluaranSby'  => $sumOfTotalPengeluaranSby,
-            'pengeluaranMks'  => $sumOfTotalPengeluaranMks,
-            'totalOrder'      => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'pendingOrder'      => $sumOfPendingOrders,
+            'settleOrder'       => $sumOfSettleOrders,
+            'piutangSurabaya'   => $sumOfPiutangSurabaya,
+            'piutangMakassar'   => $sumOfPiutangMakassar,
+            'pengeluaranSby'    => $sumOfTotalPengeluaranSby,
+            'pengeluaranMks'    => $sumOfTotalPengeluaranMks,
+            'totalOrder'        => ($sumOfTotalOrder + $sumOfHandling) - ($sumOfTotalPengeluaranMks + $sumOfTotalPengeluaranSby),
+            'totalOrderGlobal'  => $sumOfTotalOrder,
         ];
 
         return response()->json($data);
